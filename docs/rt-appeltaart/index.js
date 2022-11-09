@@ -9,7 +9,7 @@ const components = ["order-form"];
 
 // Load all required top-level components
 Promise.all(
-  components.map((componentName) => import(`${basePath}/${componentName}/index.js`))
+  components.map((componentName) => import(`./${componentName}/index.js`))
 ).then((modules) => {
   console.timeEnd(`loadModules for ${import.meta.url.split('/').slice(-2)[0]}`);
   //modules.forEach((module) => console.log("loaded", modules));
