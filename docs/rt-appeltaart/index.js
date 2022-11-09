@@ -1,8 +1,7 @@
 // ===== Import all required top-level components 
 //  components will be loaded in parallel, so load order cannot be depended on.
 console.time(`loadModules for ${import.meta.url.split('/').slice(-2)[0]}`);
-console.log(import.meta.url.split('/'));
-console.log(import.meta.url.split('/').slice(2));
+// Get path for application
 const [hostPath,compPath]=import.meta.url.split('/').slice(2);
 const basePath=`https://${hostPath}/${compPath}`;
 // List all required top-level components

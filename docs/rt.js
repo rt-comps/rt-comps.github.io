@@ -30,6 +30,8 @@ async function loadTemplate(componentName, url) {
 // ================================================================
 // 
 export function loadComponent(url, filename = false) {
+  console.log(`in loadComponent for ${url} - ${filename}`);
+  
   // get BaseClass from PARENT directory name
   // get component name from directory name
   let [parentDir, componentFileName] = url.split("/").slice(-3);

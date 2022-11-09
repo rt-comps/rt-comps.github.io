@@ -16,5 +16,7 @@ Promise.all(
   //modules.forEach((module) => console.log("loaded", modules));
 });
 
+console.log("about to load order-form_v2");
+
 // Load this component, specifying preferred version
 rt.loadComponent(import.meta.url, "order-form_v2");
