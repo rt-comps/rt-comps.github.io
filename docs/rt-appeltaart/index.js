@@ -1,7 +1,7 @@
 // ===== Import all required top-level components 
 //  components will be loaded in parallel, so load order cannot be depended on.
 console.time(`loadModules for ${import.meta.url.split('/').slice(-2)[0]}`);
-console.log(`URL - ${import.meta.url.split('/')}`);
+console.log(import.meta.url.split('/'));
 
 // List all required top-level components
 const components = ["order-form"];
