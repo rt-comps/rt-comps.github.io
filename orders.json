@@ -1,0 +1,204 @@
+{
+    "config": {
+        "imgpath": "https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/"
+    },
+    "categories": {
+        "ROOMSPIJS": {
+            "id": "roomboter_spijs",
+            "title": "Ambachtelijke roomboter appeltaart met spijs",
+            "description": "Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante kruimellaag.",
+            "img": "HLM003-051-e1524226777492-a75445d5.jpg",
+            "large": [
+                {
+                    "id": "Appeltaart met spijs 12 personen",
+                    "title": "Appeltaart",
+                    "price": 2100
+                },
+                {
+                    "id": "Appeltaart met spijs 12 personen",
+                    "title": "Appeltaart",
+                    "price": 2100
+                },
+                {
+                    "id": "Appeltaart met spijs kruimel 12 personen",
+                    "title": "Kruimel",
+                    "price": 2200
+                },
+                {
+                    "id": "Appeltaart met spijs 12 personen ONGEBAKKEN",
+                    "title": "Appeltaart ONGEBAKKEN",
+                    "price": 1850
+                },
+                {
+                    "id": "Appeltaart met spijs kruimel ONGEBAKKEN 12 personen",
+                    "title": "Kruimel ONGEBAKKEN",
+                    "price": 1950
+                }
+            ],
+            "small": [
+                {
+                    "id": "Appeltaart met spijs 4-6 personen",
+                    "title": "Appeltaart",
+                    "price": 1150
+                },
+                {
+                    "id": "Appeltaart met spijs kruimel 4-6 personen",
+                    "title": "Kruimel",
+                    "price": 1200
+                },
+                {
+                    "id": "Appeltaart met spijs 4-6 personen ONGEBAKKEN",
+                    "title": "Appeltaart ONGEBAKKEN",
+                    "price": 1050
+                },
+                {
+                    "id": "Appeltaart met spijs kruimel ONGEBAKKEN 4-6 personen",
+                    "title": "Kruimel ONGEBAKKEN",
+                    "price": 1075
+                }
+            ]
+        },
+        "ROOMBOTER": {
+            "id": "roomboter",
+            "img": "HLM003-052-277d8d69.jpg",
+            "title": "Ambachtelijke roomboter appeltaart",
+            "description": "Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante kruimellaag",
+            "large": [
+                {
+                    "id": "Appeltaart 12 personen",
+                    "title": "Appeltaart",
+                    "price": 1750
+                },
+                {
+                    "id": "Appeltaart kruimel 12 personen",
+                    "title": "Kruimel",
+                    "price": 1850
+                },
+                {
+                    "id": "Appeltaart 12 personen ONGEBAKKEN",
+                    "title": "Appeltaart ONGEBAKKEN",
+                    "price": 1500
+                },
+                {
+                    "id": "Appeltaart kruimel ONGEBAKKEN 12 personen",
+                    "title": "Kruimel ONGEBAKKEN",
+                    "price": 1600
+                }
+            ],
+            "small": [
+                {
+                    "id": "Appeltaart 4-6 personen",
+                    "title": "Appeltaart",
+                    "price": 950
+                },
+                {
+                    "id": "Appeltaart kruimel 4-6 personen",
+                    "title": "Kruimel",
+                    "price": 1000
+                },
+                {
+                    "id": "Appeltaart 4-6 personen ONGEBAKKEN",
+                    "title": "Appeltaart ONGEBAKKEN",
+                    "price": 850
+                },
+                {
+                    "id": "Appeltaart kruimel ONGEBAKKEN 4-6 personen",
+                    "title": "Kruimel ONGEBAKKEN",
+                    "price": 900
+                }
+            ]
+        },
+        "GEMBERSINAAS": {
+            "id": "gember-sinaasappel",
+            "img": "HLM003-058-6c70d063.jpg",
+            "title": "Appeltaart met rasp van sinaasappel & gember",
+            "description": "Appeltaart met een milde gember & sinaasappel rasp vulling. Met of zonder krokante kruimellaag.",
+            "large": [
+                {
+                    "id": "rasptaart 12 personen",
+                    "title": "Rasptaart",
+                    "price": 1850
+                },
+                {
+                    "id": "Rasptaart kruimel 12 personen",
+                    "title": "Kruimel",
+                    "price": 1950
+                },
+                {
+                    "id": "Rasptaart 12 personen ONGEBAKKEN",
+                    "title": "Rasptaart ONGEBAKKEN",
+                    "price": 1600
+                },
+                {
+                    "id": "Rasptaart kruimel 12 personen ONGEBAKKEN",
+                    "title": "Kruimel ONGEBAKKEN",
+                    "price": 1700
+                }
+            ],
+            "small": [
+                {
+                    "id": "Rasptaart 4-6 personen",
+                    "title": "Rasptaart",
+                    "price": "975"
+                },
+                {
+                    "id": "Rasptaart kruimel 4-6 personen",
+                    "title": "Kruimel",
+                    "price": 1025
+                },
+                {
+                    "id": "Rasptaart 4-6 personen ONGEBAKKEN",
+                    "title": "Rasptaart ONGEBAKKEN",
+                    "price": 875
+                },
+                {
+                    "id": "Rasptaart kruimel 4-6 personen ONGEBAKKEN",
+                    "title": "Kruimel ONGEBAKKEN",
+                    "price": 925
+                }
+            ]
+        },
+        "VEGA": {
+            "id": "veganistisch",
+            "img": "HLM003-052-277d8d69.jpg",
+            "description": "Veganistische appeltaart, net zo lekker als onze traditionele appeltaart, maar dan geheel plantaardig!",
+            "title": "Ambachtelijke veganistische appeltaart",
+            "large": [
+                {
+                    "id": "Veganistische appeltaart 12 personen",
+                    "title": " Vegan   p.s.",
+                    "price": 1900
+                }
+            ],
+            "small": [
+                {
+                    "id": "Veganistische appeltaart 4-6 personen",
+                    "title": " Vegan   p.s.",
+                    "price": 1050
+                }
+            ]
+        },
+        "DIVERS": {
+            "id": "divers",
+            "img": "https://appeltaartimperium.nl/wp-content/uploads/0T4A5536-1.jpg",
+            "title": "Nog trek in iets extra's ?",
+            "items": [
+                {
+                    "id": "Mini appel-kruimeltaartjes 4 voor €8,-",
+                    "title": "Eén persoons appel-kruimeltaartjes. 4 voor €8,-",
+                    "price": [
+                        225,
+                        225,
+                        225,
+                        200
+                    ]
+                },
+                {
+                    "id": "diversen-overig",
+                    "title": "zakje huisgemaakte granola, gezoet met ahornsiroop. 300 gram",
+                    "price": "595"
+                }
+            ]
+        }
+    }
+}
