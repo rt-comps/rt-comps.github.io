@@ -36,15 +36,19 @@ async function loadTemplate(componentName, url) {
 export function loadComponent(url, filename = false) {
   console.log(`in loadComponent for ${url} - ${filename}`);
 
-  // get BaseClass from PARENT directory name
+  // Determine base path
+  // While import() interprets relative paths as relative to the module path,
+  // fetch() connsiders relative paths as relative to the browser location!
+  // For this reason, relative paths cannot be used.
+
   // get component name from directory name
-  const [parentDir, compDir] = url.split("/").slice(-3);
+  const [hostName, parentDir, compDir] = url.split("/").slice(2);
   console.log(`Loading Comp ${parentDir} : ${compDir}`);
   
   // If filename not provided then assume filename matches directory name
   const compFile = filename || compDir;
 
-  const baseFilePath = `./${parentDir}/${compDir}/${compFile}`;
+  const baseFilePath = `https://${hostName}/${parentDir}/${compDir}/${compFile}`;
   
   /*{
     // devComponent string
