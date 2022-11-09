@@ -28,48 +28,50 @@ async function loadTemplate(componentName, url) {
 
 
 // ================================================================
+// Load a new component.
+// Expects...
+// URL of compoment (required)
+// Base Filename of component files (optional)
 // 
 export function loadComponent(url, filename = false) {
   console.log(`in loadComponent for ${url} - ${filename}`);
-  
+
   // get BaseClass from PARENT directory name
   // get component name from directory name
-  let [parentDir, componentFileName] = url.split("/").slice(-3);
-  console.log(`Loading Comp ${parentDir} : ${componentFileName}`);
-  let componentDir = componentFileName;
+  const [parentDir, compDir] = url.split("/").slice(-3);
+  console.log(`Loading Comp ${parentDir} : ${compDir}`);
   
-  // user overrules file name (without .js)
-  componentFileName = filename || componentFileName;
+  // If filename not provided then assume filename matches directory name
+  const compFile = filename || compDir;
+
+  const baseFilePath = `./${parentDir}/${compDir}/${compFile}`;
   
   /*{
     // devComponent string
-    let devComponent = "dev-" + componentFileName;
+    let devComponent = "dev-" + compFile;
     
     // get filename from localStorage
     let storageFileName = localStorage.getItem(devComponent);
     
-    // override componentFileName
+    // override compFile
     if (storageFileName) {
-      componentFileName = storageFileName;
-      console.warn(componentDir, "localStorage override: " + componentFileName);
+      compFile = storageFileName;
+      console.warn(compDir, "localStorage override: " + compFile);
     } else if (location.href.includes(devComponent)) {
       let paramFileName = new URLSearchParams(location.search).get(
         devComponent
         );
-        componentFileName = paramFileName || devComponent;
-        console.warn(componentDir, "URL override: " + componentFileName);
+        compFile = paramFileName || devComponent;
+        console.warn(compDir, "URL override: " + compFile);
       }
     }*/
-    
-    // import the component JS file
-    let basefilename = "./" + parentDir + "/" + componentDir + "/" + componentFileName;
-    
-    // import the components HTML files into <template> in the document.head
-    loadTemplate(componentFileName, "./components/" + basefilename + ".html");
+        
+    // import the components HTML files into a <template> in the document.head
+    loadTemplate(compFile, `${baseFilePath}.html`);
     
     //! todo import js_module AFTER html is loaded
     setTimeout(() => {
-      let js_module = basefilename + ".js";
+      let js_module = `${baseFilePath}.js`;
       import(js_module)
       .then((module) => {
         console.log("loaded", js_module);
