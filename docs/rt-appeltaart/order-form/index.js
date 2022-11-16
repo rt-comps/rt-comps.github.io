@@ -3,7 +3,7 @@
 import * as rt from "../../rt.js";
 
 // List of dependencies
-const components = ["menu-item-container"/*,"order-button","order-item"*/];
+const components = ["menu-item-container"];
 
 // Start timer
 console.time(`loadModules for ${import.meta.url.split('/').slice(-2)[0]}`);
