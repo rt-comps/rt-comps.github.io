@@ -57,11 +57,11 @@ customElements.define(
           tag: "order-item-container",
           attrs: { piesize: "large" },
           Elements: [
-            this.$createElement({ tag: "span", slot: "title" }),
+            this.$createElement({ tag: "span", slot: "title", innerHTML: title }),
             this.addMenuItems("items", items),
             this.addMenuItems("smallpie", small),
             this.addMenuItems("largepie", large),
-            this.$createElement({ tag: "span", slot: "description" }),
+            this.$createElement({ tag: "span", slot: "description", innerHTML: description}),
           ],
         });
         // set background image
