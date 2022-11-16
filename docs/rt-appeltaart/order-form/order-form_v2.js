@@ -65,7 +65,7 @@ customElements.define(
           ],
         });
         // set background image
-        container.style = `background-image: url(${config.imgpath}${img});background-size:cover;background-position:center;`;
+        if (img) container.style = `background-image: url(${config.imgpath}${img});background-size:cover;background-position:center;`;
         
         return container;
       }
