@@ -69,8 +69,8 @@ customElements.define(
         
         return container;
       }
-      /*
-      // ---------------------------------------------------------------- addMenuItems
+      
+      // --- addMenuItems
       addMenuItems(slot, items) {
         if (items) {
           return this.$createElement({
@@ -89,7 +89,7 @@ customElements.define(
           return "";
         }
       }
-      // ---------------------------------------------------------------- total
+      // --- total
       get total() {
         let itemCount = 0;
         let itemSummary = "Besteld:\n";
