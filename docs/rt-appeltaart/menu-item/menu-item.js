@@ -1,12 +1,17 @@
 // ================================================================
 // get BaseClass from PARENT directory name
 // get component name from directory name
-let [BaseClass, componentName] = import.meta.url.split("/").slice(-3);
+import * as rtBase from "../../rt_baseclass.js";
+
+// get component name from directory name
+const [compName,compVerRaw] = import.meta.url.split("/").slice(-2);
 // ================================================================
+const compVer=compVerRaw.split('.')[0].substring(compName.length+1);
+console.warn(`loading ${compName}, ${compVer || 'none'}`);
 
 customElements.define(
-  componentName,
-  class extends customElements.get(BaseClass) {
+  compName,
+  class extends rtBase.RTBaseHTMLElement { // Get RTBaseHTMLElement definition from module
     // ---------------------------------------------------------------- connectedCallback
     connectedCallback(count = this.count) {
       this.style.display = "block";
