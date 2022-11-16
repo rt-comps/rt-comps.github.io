@@ -54,7 +54,7 @@ customElements.define(
       addMenuItemContainer({ config, category }) {
         const { id, title, description, img, items, small, large } = category;
         let container = this.$createElement({
-          tag: "order-item-container",
+          tag: "menu-item-container",
           attrs: { piesize: "large" },
           Elements: [
             this.$createElement({ tag: "span", slot: "title", innerHTML: title }),
