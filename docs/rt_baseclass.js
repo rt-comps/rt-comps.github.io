@@ -76,7 +76,7 @@ class RTBaseHTMLElement extends HTMLElement {
           // 3 buy for 11.00
           // 4 buy for 10.00
           // read price(s) "1300,1300,1100,1000"
-          let pricesArray = this.prices; // from order-item.js
+          let pricesArray = this.prices; // from menu-item.js
           let lastPrice = pricesArray.slice(-1)[0];
           // make enough array items, store discountTotal OR  LAST price
           let prices = new Array(11).fill(discountTotal || lastPrice); // lowestprice
