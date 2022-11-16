@@ -78,7 +78,7 @@ customElements.define(
             slot,
             Elements: items.map(({ id, title, price }) => {
               return this.$createElement({
-                tag: "order-item",
+                tag: "menu-item",
                 id,
                 title,
                 attrs: { price },
@@ -93,7 +93,7 @@ customElements.define(
       get total() {
         let itemCount = 0;
         let itemSummary = "Besteld:\n";
-        let totalCost = [...this.querySelectorAll("order-item")].reduce(
+        let totalCost = [...this.querySelectorAll("menu-item")].reduce(
           (total, item) => {
             let { count, cost } = item;
             if (cost) {
