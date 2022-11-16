@@ -1,3 +1,3 @@
 import * as rt from "../../rt.js";
 
-rt.loadComponent(import.meta.url,"order-item-container");
+rt.loadComponent(import.meta.url,"menu-item-container");
