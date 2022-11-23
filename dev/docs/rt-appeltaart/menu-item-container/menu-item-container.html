@@ -1,0 +1,34 @@
+<template id="MENU-ITEM-CONTAINER">
+    <style>
+        :host {
+            display: flex;
+            background: pink;
+            border: 5px dashed red;
+            height: 169px;
+            margin: 5px;
+        }
+
+        ::slotted(menu-item) {
+            display: none;
+        }
+
+        slot[name*="pie"] {
+            /* hide both largepie and smallpie items */
+            display: none;
+        }
+    </style>
+    <style id="piesize">
+        /* Web Component injects style for largepie/smallpie here */
+    </style>
+    <div class="title">
+        <slot name="title">[TITLE]</slot>
+    </div>
+    
+    <menu-button></menu-button>
+    <slot name="largepie" part="largepie">[LARGEPIE]</slot>
+    <slot name="smallpie" part="smallpie">[SMALLPIE]</slot>
+    <div class="info">
+        <slot name="description">[DESCRIPTION]</slot>
+    </div>
+    <slot>ANY remaining content</slot>
+</template>
