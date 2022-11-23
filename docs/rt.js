@@ -9,6 +9,21 @@ export function dispatch({ name, root = document }) {
 }
 
 // ================================================================
+// Extract hostname, component name and path from URL
+export function parseURL(url){
+  // Ditch 'https://'
+  console.log(`parsing... ${location.origin}`);
+  
+  const urlArray = url.split('/').slice(2);
+  // Move hostname out of array
+  const hostName = urlArray[0];
+  let basePath = urlArray[urlArray.length - 3];
+  if ( hostName.indexOf('5500') > -1 ) basePath = `dev/docs/${basePath}`;
+  const compName = urlArray[urlArray.length -2];
+  return [compName,basePath,hostName];
+}
+
+// ================================================================
 // Add a template to document.head for a component to use when instantiating
 // URL should be absolute
 // componentName is required but can be arbitrary text.
@@ -22,6 +37,7 @@ async function loadTemplate(componentName, url) {
       console.warn("load template", componentName);
     }
   } catch (e) {
+    console.log(`failed to load ${url}`);
     console.log(e);
   }
 }
@@ -33,21 +49,21 @@ async function loadTemplate(componentName, url) {
 // Base Filename of component files (optional)
 // 
 export function loadComponent(url, filename = false) {
-  // // Determine base path
-  // Get hostname and two levels of directory from URL
-  const [hostName, parentDir, compDir] = url.split("/").slice(2);
+  // Parse URL in to useful values
+  const [ compDir, parentDir, hostName ] = parseURL(url);
   // If filename not provided then use directory name
   const compFile = filename || compDir;
   // Build file path (excluding file extension)
-  const baseFilePath = `${parentDir}/${compDir}/${compFile}`;
+//  const baseFilePath = `https://${hostName}/${parentDir}/${compDir}/${compFile}`;
+  const baseFilePath = `http://${hostName}/${parentDir}/${compDir}/${compFile}`;
   
   // Import the components HTML files into a <template> in the document.head
   //  loadTemplate uses fetch() so absolute URL must be provided
-  loadTemplate(compFile, `https://${hostName}/${baseFilePath}.html`);
+  loadTemplate(compFile, `${baseFilePath}.html`);
   
   //! todo import js_module AFTER html is loaded
   setTimeout(() => {
-    const js_module = `./${baseFilePath}.js`;
+    const js_module = `${baseFilePath}.js`;
     import(js_module)
     .then((module) => {
       console.log("loaded", js_module);
