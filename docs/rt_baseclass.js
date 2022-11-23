@@ -41,7 +41,7 @@ class RTBaseHTMLElement extends HTMLElement {
     // Convert a comma delimited text string of numbers into an array
     $attr2NumArray(attr) {
       // String "250,200,200" to Array [250,200,200]
-      return this.Attr(attr)
+      return this.$attr(attr)
       .split(",")
       .map(
         (x) => Number(x) || console.error(attr, "contains illegal number", x)
