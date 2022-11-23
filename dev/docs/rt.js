@@ -12,6 +12,8 @@ export function dispatch({ name, root = document }) {
 // Extract hostname, component name and path from URL
 export function parseURL(url){
   // Ditch 'https://'
+  console.log(`parsing... ${location.origin}`);
+  
   const urlArray = url.split('/').slice(2);
   // Move hostname out of array
   const hostName = urlArray[0];
