@@ -2,8 +2,6 @@
 // Import library functions
 import * as rt from '//rt-comps.github.io/rt.js';
 
-console.log(rt);
-
 // List of dependencies
 const components = ["menu-item-container"];
 const moduleName = import.meta.url.split('/').slice(-2)[0];
