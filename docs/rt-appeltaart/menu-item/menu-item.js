@@ -47,7 +47,7 @@ customElements.define(
     // ---------------------------------------------------------------- price
     get prices() {
       // String "250,200,200" to Array [250,200,200]
-      return this.$attr2NumberArray("price");
+      return this.$attr2NumArray("price");
     }
     get price() {
       return this.$pricelist("price", this.count);
