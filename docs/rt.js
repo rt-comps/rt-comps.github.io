@@ -13,6 +13,7 @@ export function dispatch({ name, root = document }) {
 export function parseURL(url){
   // Ditch 'https://'
   console.log(`parsing... ${location.origin}`);
+  console.log(`parsing ${url}`);
   
   const urlArray = url.split('/').slice(2);
   // Move hostname out of array
