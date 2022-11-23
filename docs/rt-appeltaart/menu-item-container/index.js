@@ -1,7 +1,6 @@
 // ===== Load component plus any dependancies
 // Import library functions
-//import * as rt from '//rt-comps.github.io/rt.js';
-import * as rt from '//rt.js';
+import * as rt from '//rt-comps.github.io/rt.js';
 
 // List of dependencies
 const components = ["menu-item","menu-button"];
