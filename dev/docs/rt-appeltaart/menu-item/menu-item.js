@@ -50,7 +50,7 @@ customElements.define(
       return this.$attr2NumArray("price");
     }
     get price() {
-      return this.pricelist("price", this.count);
+      return this.$priceList("price", this.count);
     }
     // ---------------------------------------------------------------- cost
     get cost() {
