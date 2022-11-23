@@ -30,7 +30,7 @@ customElements.define(
         button("++", "plus", "plusus") +
         `<count> ${count} </count>` +
         (count ? " " + this.$euro(this.cost) : "") +
-        ` ${this.Attr("title")} ` +
+        ` ${this.$attr("title")} ` +
         ` ${this.$euro(this.price)} `;
       // if count = 0 hide min button
       //  ${count || ""}  ${this.$euro(this.price)} ` +
@@ -47,10 +47,10 @@ customElements.define(
     // ---------------------------------------------------------------- price
     get prices() {
       // String "250,200,200" to Array [250,200,200]
-      return this.Attr2NumberArray("price");
+      return this.$attr2NumberArray("price");
     }
     get price() {
-      return this.pricelist("price", this.count);
+      return this.$pricelist("price", this.count);
     }
     // ---------------------------------------------------------------- cost
     get cost() {
