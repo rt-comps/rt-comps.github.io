@@ -13,10 +13,10 @@ customElements.whenDefined("rt-button").then(() => {
         this.style.display = "flex";
         this.style.justifyContent = "space-evenly";
         this.innerHTML =
-          /*html*/ `<div class="ItemButtons"></div>` +
-          /*html*/ `<button id="large" class="sizeButton sizeButton1">Normaal<br>(12 personen)</button>` +
-          /*html*/ `<button id="small" class="sizeButton sizeButton2">Klein<br>(4-6 personen)</button>` +
-          /*html*/ `</div>`;
+          `<div class="ItemButtons"></div>` +
+          `<button id="large" class="sizeButton sizeButton1">Normaal<br>(12 personen)</button>` +
+          `<button id="small" class="sizeButton sizeButton2">Klein<br>(4-6 personen)</button>` +
+          `</div>`;
         this.querySelector(".sizeButton1").onclick = (evt) =>
           this.switchsize(evt.target.id);
         this.querySelector(".sizeButton2").onclick = (evt) =>

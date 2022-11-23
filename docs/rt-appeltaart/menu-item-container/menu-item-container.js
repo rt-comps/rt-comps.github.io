@@ -1,7 +1,6 @@
 // ================================================================
 // get BaseClass from module
-
-import * as rtBase from "../../rt_baseclass.js";
+import * as rtBase from "//rt-comps.github.io/rt_baseclass.js";
 
 // get component name from directory name
 const [compName,compVerRaw] = import.meta.url.split("/").slice(-2);
