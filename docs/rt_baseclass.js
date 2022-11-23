@@ -67,9 +67,9 @@ class RTBaseHTMLElement extends HTMLElement {
           return document.createElement("span");
         }
       }
-      
+      //    This shouldn't be in the base class??
       // ------- pricelist
-      $pricelist(prices_attr, count, discountTotal = false) {
+      $priceList(prices_attr, count, discountTotal = false) {
         // return price for count (items)
         // 1 and 2 buy for 13.00
         // 3 buy for 11.00
