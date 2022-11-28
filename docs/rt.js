@@ -11,16 +11,17 @@ export function dispatch({ name, root = document }) {
 // ================================================================
 // Extract hostname, component name and path from URL
 export function parseURL(url){
-  // Ditch 'https://'
-  console.log(`parsing... ${location.origin}`);
-  console.log(`parsing ${url}`);
-  
-  const urlArray = url.split('/').slice(2);
-  // Move hostname out of array
-  const hostName = urlArray[0];
-  let basePath = urlArray[urlArray.length - 3];
-  if ( hostName.indexOf('5500') > -1 ) basePath = `dev/docs/${basePath}`;
+  // Split URL unto array using / as delimiter
+  // 'http://test:5500/mypath/component/filename' => ['http','',test:5500','mypath','component','filename']
+  const urlArray = url.split('/');
+  // Recover hostname:port component
+  const hostName = urlArray[2];
+  // Recover component name (via folder)
   const compName = urlArray[urlArray.length -2];
+  // Recover path
+  // Extract path between hostname and component name - if present
+  const basePath = (urlArray.length > 4)? urlArray.slice(3,-2).join('/') : '';
+  
   return [compName,basePath,hostName];
 }
 
@@ -35,7 +36,6 @@ async function loadTemplate(componentName, url) {
       let html = await response.text(); // wait for text stream to be read
       //console.warn("load template",componentName, dom.querySelector("template"));
       document.head.insertAdjacentHTML("beforeend", html);
-      console.warn("load template", componentName);
     }
   } catch (e) {
     console.log(`failed to load ${url}`);
@@ -55,7 +55,7 @@ export function loadComponent(url, filename = false) {
   // If filename not provided then use directory name
   const compFile = filename || compDir;
   // Build file path (excluding file extension)
-//  const baseFilePath = `https://${hostName}/${parentDir}/${compDir}/${compFile}`;
+  //  const baseFilePath = `https://${hostName}/${parentDir}/${compDir}/${compFile}`;
   const baseFilePath = `http://${hostName}/${parentDir}/${compDir}/${compFile}`;
   
   // Import the components HTML files into a <template> in the document.head

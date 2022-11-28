@@ -1,13 +1,14 @@
 // ================================================================
-// get BaseClass from module
-import * as rtBase from "//rt-comps.github.io/rt_baseclass.js";
+// +++ Dynamocally load RT BaseClass from module
+// Check if dev
+const sharedModPath = `${import.meta.url.indexOf('/docs/')>-1?import.meta.url.split('/').slice(0,4).join('/'):'//rt-comps.github.io'}`
+// Load module dynamically
+const rtBase = await import(`${sharedModPath}/rt_baseclass.js`);
 
 // get component name from URL directory name
 const [compName,compVerRaw] = import.meta.url.split("/").slice(-2);
 // ================================================================
 const compVer=compVerRaw.split('.')[0].substring(compName.length+1);
-// *** DEBUG CODE ***
-console.warn(`loading ${compName}, ${compVer}`);
 
 customElements.define(
   compName,
