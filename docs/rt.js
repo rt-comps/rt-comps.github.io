@@ -15,13 +15,14 @@ export function parseURL(url){
   // 'http://test:5500/mypath/component/filename' => ['http','',test:5500','mypath','component','filename']
   const urlArray = url.split('/');
   // Recover hostname:port component
-  const hostName = urlArray[2];
+  const hostName = `${urlArray[0]}//${urlArray[2]}`;
   // Recover component name (via folder)
   const compName = urlArray[urlArray.length -2];
   // Recover path
   // Extract path between hostname and component name - if present
   const basePath = (urlArray.length > 4)? urlArray.slice(3,-2).join('/') : '';
   
+  console.warn([compName,basePath,hostName]);
   return [compName,basePath,hostName];
 }
 
@@ -56,7 +57,7 @@ export function loadComponent(url, filename = false) {
   const compFile = filename || compDir;
   // Build file path (excluding file extension)
   //  const baseFilePath = `https://${hostName}/${parentDir}/${compDir}/${compFile}`;
-  const baseFilePath = `http://${hostName}/${parentDir}/${compDir}/${compFile}`;
+  const baseFilePath = `${hostName}/${parentDir}/${compDir}/${compFile}`;
   
   // Import the components HTML files into a <template> in the document.head
   //  loadTemplate uses fetch() so absolute URL must be provided
