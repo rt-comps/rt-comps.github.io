@@ -22,7 +22,7 @@ export function parseURL(url){
   // Extract path between hostname and component name - if present
   const basePath = (urlArray.length > 4)? urlArray.slice(3,-2).join('/') : '';
   
-  console.warn([compName,basePath,hostName]);
+  //console.warn([compName,basePath,hostName]);
   return [compName,basePath,hostName];
 }
 
