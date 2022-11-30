@@ -1,7 +1,6 @@
 // ================================================================
-// get BaseClass from PARENT directory name
 // get component name from directory name
-let [BaseClass, componentName] = import.meta.url.split("/").slice(-3);
+let [componentName] = import.meta.url.split("/").slice(-2);
 // ================================================================
 const BUTTON = "rt-button";
 customElements.whenDefined("rt-button").then(() => {
