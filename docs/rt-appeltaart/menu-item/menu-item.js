@@ -1,21 +1,16 @@
 // ================================================================
-/*
-// +++ Dynamocally load RT BaseClass from module
-// Check if dev
-const sharedModPath = `${import.meta.url.indexOf('/docs/')>-1?import.meta.url.split('/').slice(0,4).join('/'):'//rt-comps.github.io'}`
-// Load module dynamically
-const rtBase = await import(`${sharedModPath}/rt_baseclass.js`);
-*/
-
 // get component name from directory name
 const [compName,compVerRaw] = import.meta.url.split("/").slice(-2);
+
+/*
 // ================================================================
 const compVer=compVerRaw.split('.')[0].substring(compName.length+1);
+*/
 
 customElements.define(
   compName,
-  class extends rtBase.RTBaseHTMLElement { // Get RTBaseHTMLElement definition from module
-    // ---------------------------------------------------------------- connectedCallback
+  class extends rtBase.RTBaseHTMLElement {
+    // --- connectedCallback
     connectedCallback(count = this.count) {
       this.style.display = "block";
       if (count > 10 || count < 1) count = 0;
@@ -40,25 +35,25 @@ customElements.define(
       // subtotal if count>0
       //setTimeout(() => this.closest("order-form").total); // trigger total update
     }
-    // ---------------------------------------------------------------- count
+    // --- count
     get count() {
       return ~~this.getAttribute("count");
     }
     set count(p) {
       this.connectedCallback(p);
     }
-    // ---------------------------------------------------------------- price
+
+    // --- price
     get prices() {
-      // String "250,200,200" to Array [250,200,200]
       return this.$attr2NumArray("price");
     }
     get price() {
       return this.$priceList("price", this.count);
     }
-    // ---------------------------------------------------------------- cost
+
+    // --- cost
     get cost() {
       return this.count * this.price;
     }
-    // ----------------------------------------------------------------
   }
 );
