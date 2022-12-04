@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="order-item-test.css">
+    <link rel="stylesheet" href="flexboxtest.css">
+
+    <!-- load all separate components -->
+    <script type="module" src="./rt-appeltaart/index.js"></script>
+    <script type="module" src="./rt-orders/index.js"></script>
+
+    <title>pie-form</title>
+</head>
+
+<body>
+    <style>
+        /* *::part(smallpie) {
+            display: none;
+        }
+
+        *::part(largepie) {
+            display: none;
+        } */
+    </style>
+
+    <header>
+        <div class="title" id="">bestelling plaatsen</div>
+        <p class="subTitle">Is het water u in de mond gelopen?</p>
+        <div class="test1">
+            <p class="bestelInfo">Dan kunt u met dit bestelformulier meteen uw appeltaarten bestellen voor de eerst
+                volgende
+                werkdag van maandag t/m vrijdag. Indien u taarten op zaterdag of zondag nodig heeft kunnen we deze
+                gebakken
+                of ongebakken vrijdag voor u klaarzetten.</p>
+            <p class="bestelInfo">Onze appeltaarten worden gemaakt zonder conserveringsmiddelen en zijn gekoeld ruim 3
+                dagen
+                houdbaar. Uw bestelling staat vers afgebakken voor u klaar vanaf 12:00 uur in de ochtend tot 16:30 uur
+                in
+                Hoofddorp en 17:00 uur in Haarlem. Indien u een bestelling voor 11:00 bezorgd wenst te hebben bakken we
+                uw
+                taarten een dag ervoor af in verband met de afbaktijd in de ochtend.</p>
+        </div>
+    </header>
+    <h2>Create HTML from orders.json</h2>
+    <order-form imagepath="" orders="orders.json">
+    </order-form>
+    <hr>
+    <h2>Erins HTML:</h2>
+    <order-form imagepath="" ERIN>
+        <div class="all-items-container">
+            <order-item-container piesize="large">
+                <span slot="title">Appeltaart</span>
+                <span slot="smallpie">Small Appeltaart</span>
+                <span slot="largepie">Large Appeltaart</span>
+                <span slot="description">Description</span>
+            </order-item-container>
+            <order-item-container id="roomboter-spijs" piesize="large"
+                style="background-image: url(https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/HLM003-051-e1524226777492-a75445d5.jpg)">
+                <div slot="title">Ambachtelijke roomboter appeltaart met spijs</div>
+                <span class="OrItemBox" slot="smallpie">
+                    <order-item id="Appeltaart met spijs 12 personen" title="Appeltaart" price="2100">
+                    </order-item>
+                    <order-item id="Appeltaart met spijs kruimel 12 personen" title="Kruimel" price="2200">
+                    </order-item>
+                    <order-item id="Appeltaart met spijs 12 personen ONGEBAKKEN" title="Appeltaart ONGEBAKKEN"
+                        price="1850"></order-item>
+                    <order-item id="Appeltaart met spijs kruimel ONGEBAKKEN 12 personen" title="Kruimel ONGEBAKKEN"
+                        price="1950"></order-item>
+                </span>
+                <span class="OrItemBox" slot="largepie">
+                    <order-item id="Appeltaart met spijs 4-6 personen" title="Appeltaart" price="1150">
+                    </order-item>
+                    <order-item id="Appeltaart met spijs kruimel 4-6 personen" title="Kruimel" price="1200">
+                    </order-item>
+                    <order-item id="Appeltaart met spijs 4-6 personen ONGEBAKKEN" title="Appeltaart ONGEBAKKEN"
+                        price="1050"></order-item>
+                    <order-item id="Appeltaart met spijs kruimel ONGEBAKKEN 4-6 personen" title="Kruimel ONGEBAKKEN"
+                        price="1075"></order-item>
+                </span>
+                <span slot="description">
+                    <div class="info" id="roomboter-spijsInfo" style="display: block;">Ouderwets lekker met rum-rozijnen
+                        zoals we ze al jarenlang bakken! Met of zonder krokante kruimellaag.</div>
+                </span>
+            </order-item-container>
+            <order-item-container id="roomboter"
+                style="background-image: url(https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/HLM003-052-277d8d69.jpg)">
+                <div class="title">Ambachtelijke roomboter appeltaart</div>
+                <order-button></order-button>
+                <div class="SizeContainer" style="display: auto;">
+                    <div class="OrItemBox" id="grootBox2" style="display: none;">
+                        <order-item id="Appeltaart 12 personen" title="Appeltaart" price="1750"></order-item>
+                        <order-item id="Appeltaart kruimel 12 personen" title="Kruimel" price="1850"></order-item>
+                        <order-item id="Appeltaart 12 personen ONGEBAKKEN" title="Appeltaart ONGEBAKKEN" price="1500">
+                        </order-item>
+                        <order-item id="Appeltaart kruimel ONGEBAKKEN 12 personen" title="Kruimel ONGEBAKKEN"
+                            price="1600">
+                        </order-item>
+                    </div>
+                    <div class="OrItemBox" id="kleinBox2" style="display: none;">
+                        <order-item id="Appeltaart 4-6 personen" title="Appeltaart" price="950"></order-item>
+                        <order-item id="Appeltaart kruimel 4-6 personen" title="Kruimel" price="1000"></order-item>
+                        <order-item id="Appeltaart 4-6 personen ONGEBAKKEN" title="Appeltaart ONGEBAKKEN" price="850">
+                        </order-item>
+                        <order-item id="Appeltaart kruimel ONGEBAKKEN 4-6 personen" title="Kruimel ONGEBAKKEN"
+                            price="900">
+                        </order-item>
+                    </div>
+                </div>
+                <div class="info" id="roomboterInfo" style="display: block;">Ouderwets lekker met rum-rozijnen zoals
+                    we
+                    ze al jarenlang bakken! Met of zonder krokante kruimellaag.
+                </div>
+            </order-item-container>
+            <order-item-container id="gember-sinaasappel"
+                style="background-image: url(https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/HLM003-058-6c70d063.jpg)">
+                <div class="title">Appeltaart met rasp van sinaasappel & gember</div>
+                <order-button></order-button>
+                <div class="SizeContainer" style="display: auto;">
+                    <div class="OrItemBox" id="grootBox3" style="display: none;">
+                        <order-item id="rasptaart 12 personen" title="Rasptaart" price="1850"></order-item>
+                        <order-item id="Rasptaart kruimel 12 personen" title="Kruimel" price="1950"></order-item>
+                        <order-item id="Rasptaart 12 personen ONGEBAKKEN" title="Rasptaart ONGEBAKKEN" price="1600">
+                        </order-item>
+                        <order-item id="Rasptaart kruimel 12 personen ONGEBAKKEN" title="Kruimel ONGEBAKKEN"
+                            price="1700">
+                        </order-item>
+                    </div>
+                    <div class="OrItemBox" id="kleinBox3" style="display: none;">
+                        <order-item id="Rasptaart 4-6 personen" title="Rasptaart" price="975"></order-item>
+                        <order-item id="Rasptaart kruimel 4-6 personen" title="Kruimel" price="1025"></order-item>
+                        <order-item id="Rasptaart 4-6 personen ONGEBAKKEN" title="Rasptaart ONGEBAKKEN" price="875">
+                        </order-item>
+                        <order-item id="Rasptaart kruimel 4-6 personen ONGEBAKKEN" title="Kruimel ONGEBAKKEN"
+                            price="925">
+                        </order-item>
+                    </div>
+                </div>
+                <div class="info" id="gember-sinaasappel-info" style="display: block;">Appeltaart met een milde
+                    gember &
+                    sinaasappel rasp vulling. Met of zonder krokante kruimellaag.</div>
+            </order-item-container>
+            <order-item-container id="veganistisch"
+                style="background-image: url(https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/HLM003-052-277d8d69.jpg)">
+                <div class="title">Ambachtelijke veganistische appeltaart</div>
+                <div class="testBR">
+                </div>
+                <div class="testBR">
+                </div>
+                <div class="SizeContainer" style="display: block;">
+                    <div class="OrItemBox" id="grootBox4" style="display: block;">
+                        <div class="VegaSize">-Normaal-</div>
+                        <order-item id="Veganistische appeltaart 12 personen" title="&nbsp;Vegan&nbsp;&nbsp;&nbsp;p.s."
+                            price="1900"></order-item>
+                    </div>
+                    <div class="OrItemBox" id="kleinBox4" style="display: block;">
+                        <div class="VegaSize">-Klein-</div>
+                        <order-item id="Veganistische appeltaart 4-6 personen" title="&nbsp;Vegan&nbsp;&nbsp;&nbsp;p.s."
+                            price="1050&nbsp;"></order-item>
+                    </div>
+                </div>
+                <div class="info" id="vegan-info" style="display: block;">Veganistische appeltaart, net zo lekker
+                    als
+                    onze traditionele appeltaart, maar dan geheel plantaardig!</div>
+            </order-item-container>
+            <order-item-container id="divers"
+                style="background-image: url(https://appeltaartimperium.nl/wp-content/uploads/0T4A5536-1.jpg)">
+                <div class="title">Divers</div>
+                <div class="info" id="divers-info" style="display: block;">Nog trek in iets extra's ?</div>
+                <div class="SizeContainer" style="display: block;">
+                    <div class="OrItemBox" id="diversen-taarten" style="display: block;">
+                        <order-item class="extra" id="Mini appel-kruimeltaartjes 4 voor €8,-"
+                            title="Eén&nbsp;persoons&nbsp;appel-kruimeltaartjes. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;voor&nbsp;€8,-"
+                            price="225,225,225,200"></order-item>
+                    </div>
+                    <div class="OrItemBox" id="diversen-overig" style="display: block;">
+                        <order-item class="extra" id="zakje huisgemaakte granola, gezoet met ahornsiroop. 300 gram"
+                            title="Huisgemaakte&nbsp;granola,&nbsp;gezoet &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;met&nbsp;ahornsiroop.&nbsp;300&nbsp;gram"
+                            price="595"></order-item>
+                    </div>
+                </div>
+            </order-item-container>
+        </div>
+    </order-form>
+    <footer>
+        bon:
+        <textarea class="itemSummary orderTotal" id="bon"></textarea>
+    </footer>
+    <script src="Size-switch-test.js"></script>
+</body>
+
+</html>
+<!-- the next lines of code ar to be eddited the same way as the items above-->
+<!--
+		<center class="title">Divers</center>
+		<div class="extras" id="extra">			
+			<center class="infoExtra">Nog trek in iets extra's ?</center>
+			<order-item class="extra" id="1-persoons appel-kruimeltaartjes 4 voor €8,-" title="1-persoons appel-kruimeltaartjes 4 voor €8," price="225,225,225,200"></order-item>
+			<order-item class="extra" id="Zakje huisgemaakte granola, gezoet met ahornsiroop. 300 gram" title="huisgemaakte granola, gezoet met ahornsiroop. 300 gram" price="595"></order-item>
+		</div>
+
+    -->

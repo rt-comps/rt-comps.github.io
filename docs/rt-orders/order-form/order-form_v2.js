@@ -39,7 +39,7 @@ customElements.define(
       let container = this.$createElement({
         tag: "order-item-container",
         attrs: { piesize: "large" },
-        Elements: [
+        append: [
           this.$createElement({ tag: "span", slot: "title" }),
           this.addOrderItems("items", items),
           this.addOrderItems("smallpie", small),
@@ -58,7 +58,7 @@ customElements.define(
         return this.$createElement({
           tag: "span",
           slot,
-          Elements: items.map(({ id, title, price }) => {
+          append: items.map(({ id, title, price }) => {
             return this.$createElement({
               tag: "order-item",
               id,

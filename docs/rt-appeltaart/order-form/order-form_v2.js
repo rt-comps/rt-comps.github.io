@@ -51,7 +51,7 @@ customElements.define(
         let container = this.$createElement({
           tag: "menu-item-container",
           attrs: { piesize: "large" },
-          Elements: [
+          append: [
             this.$createElement({ tag: "span", slot: "title", innerHTML: title }),
             this.addMenuItems("items", items),
             this.addMenuItems("smallpie", small),
@@ -71,7 +71,7 @@ customElements.define(
           return this.$createElement({
             tag: "span",
             slot,
-            Elements: items.map(({ id, title, price }) => {
+            append: items.map(({ id, title, price }) => {
               return this.$createElement({
                 tag: "menu-item",
                 id,
