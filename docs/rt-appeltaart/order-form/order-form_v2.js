@@ -45,47 +45,48 @@ customElements.define(
         console.error(`Attribute "menu" not provided for ${compName} element!`);
       }
     }
-
-    // --- addMenuItemContainer
-    // Create a container element for a menu category
-    addMenuItemContainer({ config, category }) {
-      const { id, title, description, img, items, small, large } = category;
-      let container = this.$createElement({
-        tag: "menu-item-container",
-        attrs: { piesize: "large" },
-        Elements: [
-          this.$createElement({ tag: "span", slot: "title" }),
-          this.addMenuItems("items", items),
-          this.addMenuItems("smallpie", small),
-          this.addMenuItems("largepie", large),
-          this.$createElement({ tag: "span", slot: "description" }),
-        ],
-      });
-      // set background image
-      if (img) container.style = `background-image: url(${config.imgpath}${img});background-size:cover;background-position:center;`;
-
-      return container;
-    }
-
-    // --- addMenuItems
-    addMenuItems(slot, items) {
-      if (items) {
-        return this.$createElement({
-          tag: "span",
-          slot,
-          Elements: items.map(({ id, title, price }) => {
-            return this.$createElement({
-              tag: "menu-item",
-              id,
-              title,
-              attrs: { price },
-            });
-          }),
+    
+      // --- addMenuItemContainer
+      // Create a container element for a menu category
+      addMenuItemContainer({ config, category }) {
+        const { id, title, description, img, items, small, large } = category;
+        let container = this.$createElement({
+          tag: "menu-item-container",
+          attrs: { piesize: "large" },
+          append: [
+            this.$createElement({ tag: "span", slot: "title" }),
+            this.addMenuItems("items", items),
+            this.addMenuItems("smallpie", small),
+            this.addMenuItems("largepie", large),
+            this.$createElement({ tag: "span", slot: "description" }),
+          ],
         });
-      } else {
-        return "";
+        // set background image
+        if (img) container.style = `background-image: url(${config.imgpath}${img});background-size:cover;background-position:center;`;
+        
+        return container;
       }
-    }
+      
+      // --- addMenuItems
+      addMenuItems(slot, items) {
+        if (items) {
+          return this.$createElement({
+            tag: "span",
+            slot,
+            append: items.map(({ id, title, price }) => {
+              return this.$createElement({
+                tag: "menu-item",
+                id,
+                title,
+                attrs: { price },
+              });
+            }),
+          });
+        } else {
+          return "";
+        }
+      }
+    
     // --- total
     get total() {
       let itemCount = 0;
