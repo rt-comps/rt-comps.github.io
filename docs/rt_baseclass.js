@@ -2,34 +2,14 @@
 // Extend the HTMLElement class with methods commonly used by
 // Roads Technology
 
-class RTBaseHTMLElement extends HTMLElement {
+class RTBaseClass extends HTMLElement {
   
-  // ------- $createElement
-  // Wrapper for .createElement() to extend function flexibility
-
-  // TODO: add support for innerHTML Template Literal String, replacing this. properties
-  // let parseStringLiteral = (str, v = {}) => {
-  //   console.log("parseStringLiteral", { str: [str] }, v);
-  //   try {
-  //     return
-  //       new Function("v", "return((" + Object.keys(v).join(",") + ")=>`" + str + "`)(...Object.values(v))")(v) || "";
-  //   } catch (e) {
-  //     console.error(
-  //       "parseStringLiteral",
-  //       v,
-  //       str
-  //     );
-  //     //! DO not return ""; this will list the error for every frame
-  //     console.error(new Error().stack);
-  //   }
-  // };
-
   $createElement(
     {
       tag = "div", //     string OR existing DOM element
       innerHTML = ``, //  capture now so append can append childelements after it
       cssText = ``, //    String of CSS REPLACES existing styles
-      classes = [], //    array of class names
+      classes = [], //    array of class name strings
       styles = {}, //     object with css properties
       attrs = {}, //      {name:value}
       append = [], //     Array of DOM elements to append
@@ -46,12 +26,12 @@ class RTBaseHTMLElement extends HTMLElement {
       // Update any specific styles
       Object.keys(styles).map((key) => (newEl.style[key] = styles[key]));
       // Add any CSS class names provided
-      newEl.classList.add(...classes);
+      classes.length > 0 && newEl.classList.add(...classes);
+      // Set innerHTML if provided
+      innerHTML && (newEl.innerHTML = innerHTML);
       // Prepend and append any elements provided
       newEl.prepend(...prepend.flat());
       newEl.append(...append.flat());
-      // Set innerHTML if provided
-      innerHTML && (tag.innerHTML = innerHTML);
   
       // Copy any other properties provided and return the element
       return Object.assign(newEl, props)
@@ -121,4 +101,4 @@ class RTBaseHTMLElement extends HTMLElement {
       }
       
     }
-    export { RTBaseHTMLElement };
+    export { RTBaseClass };

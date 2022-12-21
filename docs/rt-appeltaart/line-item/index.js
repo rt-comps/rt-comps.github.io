@@ -1,0 +1,1 @@
+rt.loadComponent(import.meta.url, 'v3');
