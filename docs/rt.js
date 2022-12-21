@@ -48,13 +48,13 @@ async function loadTemplate(componentName, url) {
 // Load a new component.
 // Expects...
 // URL of compoment (required)
-// Base Filename of component files (optional)
+// File version (optional)
 // 
-export function loadComponent(url, filename = false) {
+export function loadComponent(url, version = false) {
   // Parse URL in to useful values
   const [ compDir, parentDir, hostName ] = parseURL(url);
-  // If filename not provided then use directory name
-  const compFile = filename || compDir;
+  // If version not provided then use directory name
+  const compFile = `${compDir}${version ? '_'+version : ''}`;
   // Build file path (excluding file extension)
   //  const baseFilePath = `https://${hostName}/${parentDir}/${compDir}/${compFile}`;
   const baseFilePath = `${hostName}/${parentDir}/${compDir}/${compFile}`;
