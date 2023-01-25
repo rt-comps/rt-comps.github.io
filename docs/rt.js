@@ -1,32 +1,30 @@
 // ================================================================
 export const html = (strings, ...values) =>
 String.raw({ raw: strings }, ...values);
-// ================================================================
-//export function defineComponent(url, classDefinition) {}
-// ================================================================
-//export function dispatch({ name, root = document }) {
-//  root.dispatchEvent(new CustomEvent(name, { detail }));
-//}
 
 // ================================================================
-// Extract hostname, component name and path from URL
+// Split a URL in to base path and component name
+// 
 export function parseURL(url){
   // Split URL into array using / as delimiter
   // 'http://test:5500/mypath/component/filename' => ['http','',test:5500','mypath','component','filename']
   const urlArray = url.split('/');
-  // Recover component name - will be second from last element
+  // Recover component name - will be second to last element
   const compName = urlArray[urlArray.length -2];
   // Recover absolute path - everything before second to last element
   const basePath = urlArray.slice(0, urlArray.length-2).join('/');
   // Recover hostname:port - is this used?
-  const hostName = urlArray.slice(0, 3).join('/');
+  //const hostName = urlArray.slice(0, 3).join('/');
 
-  return [compName,basePath,hostName];
+  return [compName,basePath];
+//  return [compName,basePath,hostName];
 }
 
 // ================================================================
 // Add a template to document.head for a component to use when instantiating
-// URL must be absolute
+//
+// url  : URL of template file.  Must be absolute
+//
 async function loadTemplate(url) {
   try {
     let response = await fetch(url);

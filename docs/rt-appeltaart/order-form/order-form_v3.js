@@ -43,36 +43,31 @@ customElements.define(compName,
       })
     }
     // ----- End of connectedCallback
+    //+++++ End of Built-In Functions
 
-    //+++++ End of Custom Functions
     // ----- processMenuItems
     // Create the pictoral menu at the top of the order form based on form HTML
     processMenuItems() {
       // Recover image path from setting in HTML
       const imgPath = this.querySelector("form-config span#imgpath").innerHTML;
 
-      // Select destination element
-      const _imgDiv = this.shadowRoot.querySelector('#menu-items');
       // Collect all <item-data> elements
-      const nodes = this.querySelectorAll('item-data');
+      const nodes = [...this.querySelectorAll('item-data')];
 
-      // Create a new element for each product found with a background image if provided
-      nodes.forEach(element => {
+      // Append a <menu-item> element in the menu for each product found
+      //  include a background image if provided
+      this.shadowRoot.querySelector('#menu-items').append(...nodes.map(element => {
+        let elementAttrs = { id: element.id };
         // Attempt to retrieve image
         let imgNode = element.querySelector('img')
-        let imgStyle = {};
-        if (imgNode) imgStyle = {
-          backgroundImage: `url("${imgPath}/${imgNode.getAttribute('file')}")`,
-        }
+        if (imgNode) elementAttrs.bgimg = `${imgPath}/${imgNode.getAttribute('file')}`
         // Append the new <menu-item> element to the div
-        _imgDiv.append(this.$createElement({
+        return this.$createElement({
           tag: 'menu-item',
           innerHTML: `${element.querySelector('item-title').innerHTML}`,
-          attrs: { id: element.id },
-          styles: imgStyle
+          attrs: elementAttrs
         })
-        );
-      })
+      }));
     }
     // ----- End of processMenuItems
 
