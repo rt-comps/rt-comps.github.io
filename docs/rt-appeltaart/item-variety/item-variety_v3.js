@@ -14,7 +14,9 @@ customElements.define(
         // --- connectedCallback
         connectedCallback() {
             setTimeout(() => {
-                this.shadowRoot.querySelector('#title').innerHTML=this.getAttribute('value');
+                // Set displayed title to combination of 'value' and 'desc' (if provided)
+                this.shadowRoot.querySelector('#title').innerHTML=
+                `${this.getAttribute('value')}${this.hasAttribute('desc')?' '+this.getAttribute('desc'):''}`;
             })
         }
     }

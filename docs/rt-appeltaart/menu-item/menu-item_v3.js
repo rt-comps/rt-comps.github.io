@@ -16,7 +16,6 @@ customElements.define(
         this.dispatchEvent(updateMenu);
       }
       );
-      console.log('Got connected');
     }
   }
 );

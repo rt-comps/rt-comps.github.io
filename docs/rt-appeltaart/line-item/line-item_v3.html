@@ -2,12 +2,13 @@
     <style>
         div#container {
             display: grid;
-            grid-template-columns: 30px 70px auto 70px 70px;
+            grid-template-columns: 30px 50px 70px auto 70px 70px;
             padding: 10px;
             width: 40vw;
         }
 
         span {
+            text-transform: capitalize;
             padding: 2px 5px 2px 5px;
         }
 
@@ -19,6 +20,7 @@
 
     <div id="container">
         <span id="count"></span>
+        <plus-minus></plus-minus>
         <span id="unit"></span>
         <span>
             <slot></slot>
