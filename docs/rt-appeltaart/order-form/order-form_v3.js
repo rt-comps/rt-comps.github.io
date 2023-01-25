@@ -1,37 +1,39 @@
 // ================================================================
-// === order-form
+// === order-form class definition
 
-// get component name from URL directory name
-const [compName, compVerRaw] = import.meta.url.split("/").slice(-2);
-const compVer = compVerRaw.split('.')[0].substring(compName.length + 1);
+// get component name from URL
+const [compName] = rt.parseURL(import.meta.url);
 
-customElements.define(
-  compName,
-  class extends rtBase.RTBaseClass { // Get RTBaseClass definition from module
+// Define the component
+customElements.define(compName,
+  class extends rtBase.RTBaseClass {
+    //+++++ Built-In Functions
     // ----- constructor
     constructor() {
-      // Attach contents of template placed in document.head
-      super().attachShadow({ mode: "open" }).append(this.$getTemplate());
+      // Attach contents of template - placed in document.head by rt.loadComponent()
+      const _sR = super().attachShadow({ mode: "open" });
+      _sR.append(this.$getTemplate());
 
       // ###### Event Listeners
-      // ___updateMenu - Change data to chosen product
+      //___ updateMenu - Change data to chosen product
       this.addEventListener('updateMenu', (e) => {
         // Prevent event from bubbling further up the DOM
         e.stopPropagation();
         // Update the data section with chosen product information
         this.updateData(e.detail.id);
       });
-      // ___
+      //___ add-items_click - Add the currently selected items to the cart
+      _sR.querySelector('#add-items-button').addEventListener('click', () => this.addToCart());
+      //___ place-order_click - Send completed order to appliaction
+      _sR.querySelector('#place-order-button').addEventListener('click', () => this.dispatchOrder());
 
-      // ___ addToCart - Add the currently selected items to the cart
-      this.shadowRoot.querySelector('#add-items-button').addEventListener('click', () => this.addToCart());
-      // ___
+      this.addEventListener('neworder', (e) => console.log(e.detail))
     }
-    // -----
+    // ----- End of constructor
 
     // ----- connectedCallback
     connectedCallback() {
-      //Endure all required DOM has been parsed
+      // Wait for event loop to complete
       setTimeout(() => {
         // Build the product menu based on provided HTML
         this.processMenuItems();
@@ -40,20 +42,21 @@ customElements.define(
         this.style.display = 'inline-block';
       })
     }
-    // -----
+    // ----- End of connectedCallback
 
+    //+++++ End of Custom Functions
     // ----- processMenuItems
-    // Create the pictoral menu at the top of the order form
+    // Create the pictoral menu at the top of the order form based on form HTML
     processMenuItems() {
-      // Recover image path setting from HTML
+      // Recover image path from setting in HTML
       const imgPath = this.querySelector("form-config span#imgpath").innerHTML;
 
-      // Retrieve <div id="prod-imgs>"
+      // Select destination element
       const _imgDiv = this.shadowRoot.querySelector('#menu-items');
-      // Get all <item-data> elements
+      // Collect all <item-data> elements
       const nodes = this.querySelectorAll('item-data');
 
-      // Create an element for each product withh a bachground image if provided
+      // Create a new element for each product found with a background image if provided
       nodes.forEach(element => {
         // Attempt to retrieve image
         let imgNode = element.querySelector('img')
@@ -61,7 +64,7 @@ customElements.define(
         if (imgNode) imgStyle = {
           backgroundImage: `url("${imgPath}/${imgNode.getAttribute('file')}")`,
         }
-        // Append the new element to the div
+        // Append the new <menu-item> element to the div
         _imgDiv.append(this.$createElement({
           tag: 'menu-item',
           innerHTML: `${element.querySelector('item-title').innerHTML}`,
@@ -71,7 +74,7 @@ customElements.define(
         );
       })
     }
-    // -----
+    // ----- End of processMenuItems
 
     // ----- updateData
     // Respond to an updateMenu event
@@ -80,10 +83,10 @@ customElements.define(
       this.querySelectorAll('item-data').forEach((element) => {
         element.removeAttribute('slot');
       });
-      // Add chosen data to slot
-      this.querySelector(`item-data#${newID}`).setAttribute('slot', 'active-data');
+      // Assign chosen data to slot
+      if (newID) this.querySelector(`item-data#${newID}`).setAttribute('slot', 'active-data');
     }
-    // -----
+    // ----- End of updateData
 
     // ------ addToCart
     // Add any line items with count > 0 to cart
@@ -97,13 +100,13 @@ customElements.define(
         const _sR = curItem.shadowRoot;
         // Get the count for the item-line
         const _itemCount = _sR.querySelector('#count');
-        // If count == 0 then move on to next element
+        // If count == 0 then move on to next element and ignore rest of loop
         if (_itemCount.innerHTML === "0") continue;
 
-        console.log(curItem);
+        const itemText = `${curItem.parentNode.parentNode.querySelector('item-title').innerHTML} - ${curItem.parentNode.getAttribute('value')} - ${curItem.innerHTML}`
         this.append(this.$createElement({
           tag: 'line-item',
-          innerHTML: `${curItem.innerHTML}`,
+          innerHTML: itemText,
           attrs: {
             slot: 'cart',
             count: `${_itemCount.innerHTML}`,
@@ -116,6 +119,34 @@ customElements.define(
         _sR.querySelector('#container').style.fontWeight = '';
       }
     }
-    // -----
+    // ----- End of addToCart
+
+    // ----- dispatchOrder
+    // Convert "cart" HTML to an array of objects 
+    //  and dispatch outside form for handling by application
+    dispatchOrder() {
+      // Clean up data area
+      this.updateData();
+      // Collect all items in cart and place in array
+      const lineItems = [...this.querySelectorAll('line-item')];
+      // Process each line item and remove from cart
+      this.$dispatch({
+        name: 'neworder',
+        detail: {
+          orderdetails: lineItems.map(node => {
+            // Strip down node to simple object
+            const newItem = {
+              item: node.innerHTML,
+              count: node.getAttribute('count'),
+              unit: node.getAttribute('unit'),
+            }
+            // Remove the node from the cart
+            node.remove();
+            return newItem;
+          })
+        }
+      });
+    }
+    // ----- End of dispatchOrder
   }
 );

@@ -1,5 +1,5 @@
 // ================================================================
-// === item-line
+// === item-line (displayed in item-data)
 
 // get component name from directory name
 const [compName, compVerRaw] = import.meta.url.split("/").slice(-2);
@@ -13,9 +13,8 @@ customElements.define(
             // Attach contents of template placed in document.head
             super().attachShadow({ mode: "open" }).append(this.$getTemplate());
 
-            // Add onClick events to plus and minus
-            this.shadowRoot.querySelector('#plus').addEventListener('click', () => this.updateCount(1));
-            this.shadowRoot.querySelector('#minus').addEventListener('click', () => this.updateCount(-1));
+            // --- Listeners
+            this.addEventListener('updateCount', (e) => this.updateCount(e));
         }
         // -----
 
@@ -28,8 +27,11 @@ customElements.define(
         // -----
 
         // ----- updateCount
-        // Respond to plus or minus being pressed and update count as required
-        updateCount(value) {
+        // Respond to plus or minus event update count as required
+        updateCount(event) {
+            event.stopPropagation();
+            let value = event.detail.change;
+
             const _count = this.shadowRoot.querySelector('#count');
             if (_count) {
                 // Get the current value

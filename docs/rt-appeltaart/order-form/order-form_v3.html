@@ -70,19 +70,25 @@
             color: black;
         }
     </style>
-
+    <!-- Product types display-->
     <div id="menu-items"></div>
-    <div id="msg"></div>
+    <!-- DEBUG    <div id="msg"></div> -->
+    <!-- Chosen product details section-->
     <div id="item-data-container">
+        <!-- Product details -->
         <div id="item-data">
             <slot name="active-data"></slot>
         </div>
+        <!-- Add chosen products to "cart" -->
         <div id="add-items-button">Add To Order</div>
     </div>
+    <!-- "Shopping cart" section -->
     <div id="cart">
+        <!-- Items currently in the "cart" -->
         <div id="cart-contents">
             <slot name="cart"></slot>
         </div>
+        <!-- Complete the order -->
         <div id="place-order-button">Place Order</div>
     </div>
 </template>
