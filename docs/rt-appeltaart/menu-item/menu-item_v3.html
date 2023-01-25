@@ -1,4 +1,20 @@
 <template id="MENU-ITEM">
-    <style></style>
-    <slot></slot>
+    <style>
+        div {
+            display: flex;
+            align-items: center;
+            height: 150px;
+            width: 200px;
+            margin: 20px;
+            border-radius: 30px;
+            color: aliceblue;
+            text-align: center;
+            text-shadow: 1px 1px black;
+            background-color: green;
+            background-size: 200px;  
+        }
+    </style>
+    <div>
+        <slot></slot>
+    </div>
 </template>
