@@ -1,0 +1,81 @@
+<template id="ORDER-FORM">
+    <style>
+        :host {
+            display: flex;
+            background: pink;
+        }
+
+        div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-flow: row wrap;
+        }
+
+        div#menu-items {
+            border: 3px dashed green;
+        }
+
+        div#msg {
+            background: gray;
+        }
+
+        div#item-data-container {
+            flex-direction: column;
+            background: hotpink;
+            border: 3px dashed red;
+        }
+
+        div#item-data {
+            display: flex;
+            width: 100%;
+        }
+
+        div#add-items-button {
+            height: 50px;
+            width: 150px;
+            border-radius: 15px;
+            background: rgb(78, 78, 255);
+            color: white;
+        }
+
+        div#cart {
+            flex-direction: column;
+            border: 3px dashed yellow;
+        }
+
+        div#cart-contents {
+            flex-direction: column;
+        }
+
+        div#place-order-button {
+            height: 50px;
+            width: 150px;
+            border-radius: 15px;
+            background: rgb(239, 149, 197);
+            color: black;
+        }
+    </style>
+    <!-- Product types display-->
+    <div id="menu-items">
+        <slot name="menu-items"></slot>
+    </div>
+    <!-- Chosen product details section-->
+    <div id="item-data-container">
+        <!-- Product details -->
+        <div id="item-data">
+            <slot name="active-data"></slot>
+        </div>
+        <!-- Add chosen products to "cart" -->
+        <div id="add-items-button">Add To Order</div>
+    </div>
+    <!-- "Shopping cart" section -->
+    <div id="cart">
+        <!-- Items currently in the "cart" -->
+        <div id="cart-contents">
+            <slot name="cart"></slot>
+        </div>
+        <!-- Complete the order -->
+        <div id="place-order-button">Place Order</div>
+    </div>
+</template>

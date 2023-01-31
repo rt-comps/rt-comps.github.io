@@ -1,4 +1,4 @@
-This folder contains files for web components used for the Appeltaart Imporium website.
+This folder contains files for web components used for the Appeltaart Imperium website.
 
 README.md   -   This file
 index.js    -   Loads the standard Roads function library and base class into the global context.
@@ -23,3 +23,5 @@ comp-name_vX.html   -   Contains an HTML template for the component ShadowDOM th
                         page HEAD.
                         The template is defined with an "id" equal to the comp name in upper case. 
 comp-name_vX.js     -   The Class definition of the component
+
+NB All files in the /docs directory are minified, readable files can be found in the /dev directory
