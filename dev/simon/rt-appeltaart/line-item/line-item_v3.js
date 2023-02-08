@@ -13,7 +13,11 @@ customElements.define(
 
             //### Listeners
             // Remove this item when 'delete' button pressed
-            this.shadowRoot.querySelector('#delete').addEventListener('click', () => this.remove());
+            this.shadowRoot.querySelector('#delete').addEventListener('click', () => {
+                const eventBus = this.parentNode.shadowRoot.querySelector('#cart');
+                this.remove();
+                this.$dispatch({name:'updatecount', eventbus: eventBus});
+            });
             // Update total price on count change
             this.addEventListener('updatecount', (e) => this.render(e));
         }
@@ -32,7 +36,7 @@ customElements.define(
             let count = parseInt(_sR.querySelector('#count').innerHTML);
             // When called from an event then update the count
             if (e) {
-                e.stopPropagation();
+                //e.stopPropagation();
                 count += e.detail.change;
                 switch (true) {
                     case (count > 10):
@@ -47,6 +51,9 @@ customElements.define(
                 _sR.querySelector('#unit').innerHTML = `${(this.$euro(unit / 100))}`;
             }
             _sR.querySelector('#count').innerHTML = `${count}`;
+            // Update <line-item> count attribute
+            if (count > 0) this.setAttribute('count', count);
+            else this.removeAttribute('count');
             _sR.querySelector('#total').innerHTML = `${(this.$euro((count * unit) / 100))}`;
         }
     }

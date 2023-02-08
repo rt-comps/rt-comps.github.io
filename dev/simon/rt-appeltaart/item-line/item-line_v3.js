@@ -24,13 +24,11 @@ customElements.define(compName,
         connectedCallback() {
             this.shadowRoot.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
         }
-        //+++++ End of Lifecycle Events
+        //+++ End of Lifecycle Events
 
         //--- updateCount
         // Respond to plus or minus event update count as required
         updateCount(e) {
-            e.stopPropagation();
-
             const _count = this.shadowRoot.querySelector('#count');
             if (_count) {
                 // Get the current value
@@ -41,8 +39,16 @@ customElements.define(compName,
                 if (currentCount > this.maxCount || currentCount < 0) currentCount = 0;
                 // Write back new value
                 _count.innerHTML = `${currentCount}`;
-                // Highlight items that have a count > 0
-                this.shadowRoot.querySelector('#container').style.fontWeight = currentCount ? 'bold' : '';
+                // Some updateds when count > or == to zero
+                if (currentCount > 0){
+                    // Highlight line and make count available in LightDOM
+                    this.shadowRoot.querySelector('#container').style.fontWeight = 'bold';
+                    this.setAttribute('count',currentCount)
+                } else {
+                    // Undo above
+                    this.shadowRoot.querySelector('#container').style.fontWeight = '';
+                    this.removeAttribute('count');
+                }
             };
         }
         //--- End of updateCount
