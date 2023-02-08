@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--<link rel="stylesheet" href="appeltaart.css">-->
+
+    <!-- load all required components -->
+    <script type="module" src="https://rt-comps.github.io/rt-appeltaart/index.js"></script>
+
+    <script type="text/javascript">
+        document.addEventListener('neworder', (e)=>{console.warn(e.detail.orderdetails)})
+    </script>
+    <title>pie-form-slv</title>
+</head>
+
+<body>
+    <!-- Use display: none to hide text until formatting has loaded -->
+    <!-- Is there a better way to stop the browser parsing the innerHTML? -->
+    <order-form style="width:100%; display: none;">
+        <form-config>
+            <span id="imgpath">https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/</span>
+        </form-config>
+        <item-data id="roomboter">
+            <item-title>Ambachtelijke roomboter appeltaart</item-title>
+            <item-desc>Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante
+                kruimellaag</item-desc>
+            <img class="icon" file="HLM003-052-277d8d69.jpg">
+            <item-variety value="large" desc="(12 personen)">
+                <item-line prijs="1750">Normaal</item-line>
+                <item-line prijs="1850">Kruimel</item-line>
+                <item-line prijs="1500">ONGEBAKKEN</item-line>
+                <item-line prijs="1600">Kruimel ONGEBAKKEN</item-line>    
+            </item-variety>
+            <item-variety value="small" desc="(4-6 personen)">
+                <item-line prijs="950">Normaal</item-line>
+                <item-line prijs="1000">Kruimel</item-line>
+                <item-line prijs="850">ONGEBAKKEN</item-line>
+                <item-line prijs="900">Kruimel ONGEBAKKEN</item-line>    
+            </item-variety>
+        </item-data>
+        <item-data id="roomboter-spijs">
+            <item-title>Ambachtelijke roomboter appeltaart met spijs</item-title>
+            <item-desc>Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante kruimellaag.</item-desc>
+            <img class="icon" file="HLM003-051-e1524226777492-a75445d5.jpg">
+            <item-variety value="large" desc="(12 personen)">
+                <item-line prijs="2100">Normaal</item-line>
+                <item-line prijs="2200">Kruimel</item-line>
+                <item-line prijs="1850">ONGEBAKKEN</item-line>
+                <item-line prijs="1950">Kruimel ONGEBAKKEN</item-line>    
+            </item-variety>
+            <item-variety value="small" desc="(4-6 personen)">
+                <item-line prijs="1150">Normaal</item-line>
+                <item-line prijs="1200">Kruimel</item-line>
+                <item-line prijs="1050">ONGEBAKKEN</item-line>
+                <item-line prijs="1075">Kruimel ONGEBAKKEN</item-line>    
+            </item-variety>
+        </item-data>
+        <item-data id="gember-sinaasappel">
+            test text 3
+            <item-title>Appeltaart met rasp van sinaasappel &amp; gember</item-title>
+            <item-desc>Appeltaart met een milde gember &amp; sinaasappel rasp vulling. Met of zonder krokante
+                kruimellaag.</item-desc>
+            <img class="icon" file="HLM003-058-6c70d063.jpg">
+            <item-variety value="large"></item-variety>
+            <item-variety value="small"></item-variety>
+        </item-data>
+        <item-data id="veganistisch">
+            test text 4
+            <item-title>Ambachtelijke veganistische appeltaart</item-title>
+            <item-desc>Veganistische appeltaart, net zo lekker als onze traditionele appeltaart, maar dan geheel
+                plantaardig!</item-desc>
+            <img class="icon" file="HLM003-052-277d8d69.jpg">
+            <item-variety value="large"></item-variety>
+            <item-variety value="small"></item-variety>
+        </item-data>
+        <item-data id="divers">
+            <item-title></item-title>
+            <item-desc></item-desc>
+        </item-data>
+    </order-form>
+</body>
+
+</html>
