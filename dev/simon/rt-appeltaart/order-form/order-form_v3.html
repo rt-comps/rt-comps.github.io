@@ -12,26 +12,26 @@
             flex-flow: row wrap;
         }
 
-        div#menu-items {
+        #menu-items {
             border: 3px dashed green;
         }
 
-        div#msg {
+        #msg {
             background: gray;
         }
 
-        div#item-data-container {
+        #item-data-container {
             flex-direction: column;
             background: hotpink;
             border: 3px dashed red;
         }
 
-        div#item-data {
+        #item-data {
             display: flex;
             width: 100%;
         }
 
-        div#add-items-button {
+        #add-items-button {
             height: 50px;
             width: 150px;
             border-radius: 15px;
@@ -39,16 +39,16 @@
             color: white;
         }
 
-        div#cart {
+        #cart {
             flex-direction: column;
             border: 3px dashed yellow;
         }
 
-        div#cart-contents {
+        #cart-contents {
             flex-direction: column;
         }
 
-        div#place-order-button {
+        #place-order-button {
             height: 50px;
             width: 150px;
             border-radius: 15px;
@@ -67,7 +67,7 @@
             <slot name="active-data"></slot>
         </div>
         <!-- Add chosen products to "cart" -->
-        <div id="add-items-button">Add To Order</div>
+        <div id="add-items-button" style="background-color: rgb(128,128,128)">Add To Order</div>
     </div>
     <!-- "Shopping cart" section -->
     <div id="cart">
@@ -76,6 +76,6 @@
             <slot name="cart"></slot>
         </div>
         <!-- Complete the order -->
-        <div id="place-order-button">Place Order</div>
+        <div id="place-order-button" style="background-color: rgb(128,128,128)">Place Order</div>
     </div>
 </template>

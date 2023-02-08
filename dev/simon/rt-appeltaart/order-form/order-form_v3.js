@@ -7,33 +7,36 @@ const [compName] = rt.parseURL(import.meta.url);
 // Define the component
 customElements.define(compName,
   class extends rtBase.RTBaseClass {
-    //+++++ Lifecycle Events
+    //+++ Lifecycle Events
     //--- constructor
     constructor() {
 
       const _sR = super().attachShadow({ mode: "open" })
       _sR.append(this.$getTemplate());
 
-      // ###### Event Listeners
+      //### Event Listeners
       //___ updatemenu - Change data to chosen product
       this.addEventListener('updatemenu', (e) => this.updateData(e));
+
+      //___ updatecount - Change button style based on count
+      const _itemData = _sR.querySelector('#item-data-container');
+      _itemData.addEventListener('updatecount', (e) => this.enableButton(_itemData, e));
+      const _cart = _sR.querySelector('#cart');
+      _cart.addEventListener('updatecount', (e) => this.enableButton(_cart, e));
+
       //___ add-items_click - Add the currently selected items to the cart
       _sR.querySelector('#add-items-button').addEventListener('click', () => this.addToCart());
       //___ place-order_click - Send completed order to appliaction
       _sR.querySelector('#place-order-button').addEventListener('click', () => this.dispatchOrder());
     }
-    //--- End of constructor
 
     //--- connectedCallback
     connectedCallback() {
-      //      this.waitForSDOM();
       this.processMenuItems();
-      // <order-form> should be defined with 'display: none' to hide any HTML text that could render while components 
-      //  are loading.  By the time we get here it should be safe to change display mode...
+      // Make <order-form> visible - all style should be active by this point
       this.style.display = 'inline-block';
     }
-    //--- End of connectedCallback
-    //+++++ End of Lifecycle Events
+    //+++ End of Lifecycle Events
 
 
     //--- processMenuItems
@@ -59,7 +62,6 @@ customElements.define(compName,
         })
       }));
     }
-    //--- End of processMenuItems
 
     //--- updateData
     // Respond to an updatemenu event
@@ -71,50 +73,92 @@ customElements.define(compName,
       });
       // Assign chosen data to slot
       if (e.detail.id) this.querySelector(`item-data#${e.detail.id}`).setAttribute('slot', 'active-data');
+      // Check whether button should be active
+      this.enableButton(this.shadowRoot.querySelector('#item-data-container'), e);
     }
-    //--- End of updateData
+
+    //--- enableButton
+    // Decided whether a button should be enabled
+    enableButton(node, e) {
+      // If triggered by event then stop event
+      if (e) e.stopPropagation();
+
+      // Button specific values
+      let searchText = '', buttonNode = '';
+      // Set button specific values
+      switch (node.id) {
+        case 'item-data-container':
+          searchText = 'item-data[slot] item-line[count]';
+          buttonNode = node.querySelector('#add-items-button');
+          break;
+        case 'cart':
+          searchText = 'line-item[slot="cart"][count]';
+          buttonNode = node.querySelector('#place-order-button')
+          break;
+        default:
+          // Stop if node.id is unknown or undefined
+          return;
+      }
+
+      // Decide if a button should be enabled
+      if (this.querySelectorAll(searchText).length === 0) {
+        // Disable button by adding inline style
+        buttonNode.style.backgroundColor = 'rgb(128, 128, 128)';
+      }
+      else {
+        // Enable button by removing inline style
+        buttonNode.removeAttribute('style');
+      }
+    }
 
     //--- addToCart
     // Add any line items with count > 0 to cart
     addToCart() {
-      // Get all item-line elements in active item-data element
-      const activeItemLines = this.querySelectorAll('[slot="active-data"] item-line');
-
-      // Create a line-item for any elements with a count > 0
-      for (let x = 0; x < activeItemLines.length; x++) {
-        const curItem = activeItemLines[x];
-        const _sR = curItem.shadowRoot;
-        // Get the count for the item-line
-        const _itemCount = _sR.querySelector('#count');
-        // If count == 0 then move on to next element and ignore rest of loop
-        if (_itemCount.innerHTML === "0") continue;
-
-        const itemText = `${curItem.parentNode.parentNode.querySelector('item-title').innerHTML} - ${curItem.parentNode.getAttribute('value')} - ${curItem.innerHTML}`
-        this.append(this.$createElement({
+      // Check if button is 'enabled'
+      if (this.shadowRoot.querySelector('#add-items-button').hasAttribute('style')) return;
+      // Get all <item-line> elements in active <item-data> with a count > 0 
+      const activeItemLines = [...this.querySelectorAll('[slot="active-data"] item-line[count]')];
+      // Add a new <line-item> to cart
+      //  Spread node list to array (inner '...'), 
+      //  return a array of new elements (.map) 
+      //  then spread this array to append these elements to <order-form> (outer '...') 
+      this.append(...activeItemLines.map((node) => {
+        // Construct new elements text
+        const itemText = `${node.parentNode.parentNode.querySelector('item-title').innerHTML} - ${node.parentNode.getAttribute('value')} - ${node.innerHTML}`;
+        // Get item count
+        const itemCount = node.getAttribute('count');
+        // Create the new element
+        const newEl = this.$createElement({
           tag: 'line-item',
           innerHTML: itemText,
           attrs: {
             slot: 'cart',
-            count: `${_itemCount.innerHTML}`,
-            unit: `${parseInt(curItem.getAttribute('prijs'))}`
+            count: itemCount,
+            unit: node.getAttribute('prijs')
           }
-        }));
-
-        // Reset count value to avoid any multi-press detritus
-        _itemCount.innerHTML = '0';
-        _sR.querySelector('#container').style.fontWeight = '';
-      }
+        })
+        // tidy up the <item-line>, ie reset count to zero
+        node.updateCount({ detail: { change: (0 - parseInt(itemCount)) } });
+        // Send the new element to .append()
+        return newEl
+      }))
+      //      _button.style.backgroundColor = 'rgb(128, 128, 128)';
+//      console.log(this.shadowRoot.querySelector('#item-data-container'));
+      this.enableButton(this.shadowRoot.querySelector('#item-data-container'));
+      this.enableButton(this.shadowRoot.querySelector('#cart'));
     }
-    //--- End of addToCart
 
     //--- dispatchOrder
     // Convert "cart" HTML to an array of objects 
     //  and dispatch outside form for handling by application
     dispatchOrder() {
+      // Check if button is 'enabled'
+      if (this.shadowRoot.querySelector('#place-order-button').hasAttribute('style')) return;
+
       // 'Close' data area
       this.$dispatch({ name: 'updatemenu' });
       // Collect all items in cart and place in array
-      const lineItems = [...this.querySelectorAll('line-item')];
+      const lineItems = [...this.querySelectorAll('line-item[count]')];
       // If any line items, process each and remove it from cart
       if (lineItems.length > 0) {
         this.$dispatch({
@@ -137,7 +181,7 @@ customElements.define(compName,
           }
         });
       }
+      this.enableButton(this.shadowRoot.querySelector('#cart'));
     }
-    //--- End of dispatchOrder
   }
 );
