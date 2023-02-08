@@ -66,15 +66,22 @@ customElements.define(compName,
     //--- updateData
     // Respond to an updatemenu event
     updateData(e) {
-      e.stopPropagation();
       // Clear any previous slot settings
       this.querySelectorAll('item-data').forEach((element) => {
         element.removeAttribute('slot');
       });
-      // Assign chosen data to slot
-      if (e.detail.id) this.querySelector(`item-data#${e.detail.id}`).setAttribute('slot', 'active-data');
-      // Check whether button should be active
-      this.enableButton(this.shadowRoot.querySelector('#item-data-container'), e);
+      const _button = this.shadowRoot.querySelector('#add-items-button');
+      _button.style.display = 'none';
+      if (e) {
+        e.stopPropagation()
+        // Assign chosen data to slot
+        if (e.detail.id) {
+          this.querySelector(`item-data#${e.detail.id}`).setAttribute('slot', 'active-data');
+          _button.style.display = '';
+        }
+        // Check whether button should be active
+        this.enableButton(this.shadowRoot.querySelector('#item-data-container'), e);
+      };
     }
 
     //--- enableButton
@@ -143,9 +150,10 @@ customElements.define(compName,
         return newEl
       }))
       //      _button.style.backgroundColor = 'rgb(128, 128, 128)';
-//      console.log(this.shadowRoot.querySelector('#item-data-container'));
+      //      console.log(this.shadowRoot.querySelector('#item-data-container'));
       this.enableButton(this.shadowRoot.querySelector('#item-data-container'));
       this.enableButton(this.shadowRoot.querySelector('#cart'));
+      this.updateData();
     }
 
     //--- dispatchOrder
@@ -156,7 +164,8 @@ customElements.define(compName,
       if (this.shadowRoot.querySelector('#place-order-button').hasAttribute('style')) return;
 
       // 'Close' data area
-      this.$dispatch({ name: 'updatemenu' });
+      this.updateData();
+      //      this.$dispatch({ name: 'updatemenu' });
       // Collect all items in cart and place in array
       const lineItems = [...this.querySelectorAll('line-item[count]')];
       // If any line items, process each and remove it from cart
