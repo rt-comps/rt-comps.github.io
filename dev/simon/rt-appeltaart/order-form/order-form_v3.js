@@ -79,7 +79,7 @@ customElements.define(compName,
         // Assign chosen data to slot
         if (e.detail.id) {
           this.querySelector(`item-data#${e.detail.id}`).setAttribute('slot', 'active-data');
-          _button.style.display = '';
+          _button.removeAttribute('style');//.style.display = '';
         }
         // Check whether button should be active
         this.enableAddButton();
