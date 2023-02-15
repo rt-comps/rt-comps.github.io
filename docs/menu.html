@@ -10,20 +10,31 @@
     <script type="module" src="https://rt-comps.github.io/rt-appeltaart/index.js"></script>
 
     <script type="text/javascript">
+        function euro(value) {
+            // Convert number of cents to currency
+            return Intl.NumberFormat("nl-NL", {
+                style: "currency",
+                currency: "eur",
+            }).format(value / 100);
+        }
+
         document.addEventListener('neworder', (e) => {
             if (e.detail.orderdetails) {
+                // Keep count
+                let orderTotal = 0
+                // Create array of strings from array of objects
                 const orderLines = e.detail.orderdetails.map((line) => {
-                    const value = Intl.NumberFormat("nl-NL", {
-                        style: "currency",
-                        currency: "eur",
-                    }).format((line.unit*line.count)/100);
-                    return `${line.count} ${line.item} @ ${value}`
+                    orderTotal += (line.unit * line.count);
+                    return `${line.count} ${line.item} @ ${euro(line.unit)}`
                 })
-                alert(`You ordered\n${orderLines.join('\n')}`)
+                // Add a total line to the end of the array
+                orderLines.push(`Total: ${euro(orderTotal)}\n`);
+                // Output as alert
+                alert(`You ordered\n${orderLines.join('\n')}`);
             }
         })
     </script>
-     <title>pie-form-slv</title>
+    <title>pie-form-slv</title>
 </head>
 
 <body>
@@ -42,30 +53,31 @@
                 <item-line prijs="1750">Normaal</item-line>
                 <item-line prijs="1850">Kruimel</item-line>
                 <item-line prijs="1500">ONGEBAKKEN</item-line>
-                <item-line prijs="1600">Kruimel ONGEBAKKEN</item-line>    
+                <item-line prijs="1600">Kruimel ONGEBAKKEN</item-line>
             </item-variety>
             <item-variety value="small" desc="(4-6 personen)">
                 <item-line prijs="950">Normaal</item-line>
                 <item-line prijs="1000">Kruimel</item-line>
                 <item-line prijs="850">ONGEBAKKEN</item-line>
-                <item-line prijs="900">Kruimel ONGEBAKKEN</item-line>    
+                <item-line prijs="900">Kruimel ONGEBAKKEN</item-line>
             </item-variety>
         </item-data>
         <item-data id="roomboter-spijs">
             <item-title>Ambachtelijke roomboter appeltaart met spijs</item-title>
-            <item-desc>Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante kruimellaag.</item-desc>
+            <item-desc>Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante
+                kruimellaag.</item-desc>
             <img class="icon" file="HLM003-051-e1524226777492-a75445d5.jpg">
             <item-variety value="large" desc="(12 personen)">
                 <item-line prijs="2100">Normaal</item-line>
                 <item-line prijs="2200">Kruimel</item-line>
                 <item-line prijs="1850">ONGEBAKKEN</item-line>
-                <item-line prijs="1950">Kruimel ONGEBAKKEN</item-line>    
+                <item-line prijs="1950">Kruimel ONGEBAKKEN</item-line>
             </item-variety>
             <item-variety value="small" desc="(4-6 personen)">
                 <item-line prijs="1150">Normaal</item-line>
                 <item-line prijs="1200">Kruimel</item-line>
                 <item-line prijs="1050">ONGEBAKKEN</item-line>
-                <item-line prijs="1075">Kruimel ONGEBAKKEN</item-line>    
+                <item-line prijs="1075">Kruimel ONGEBAKKEN</item-line>
             </item-variety>
         </item-data>
         <item-data id="gember-sinaasappel">

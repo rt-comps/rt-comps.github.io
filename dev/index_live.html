@@ -10,16 +10,27 @@
     <script type="module" src="https://rt-comps.github.io/rt-appeltaart/index.js"></script>
 
     <script type="text/javascript">
-        document.addEventListener('neworder', (e) => {
-            if (e.detail.orderdetails) {
-                const orderLines = e.detail.orderdetails.map((line) => {
-                    const value = Intl.NumberFormat("nl-NL", {
+        function euro(value){
+            // Convert number of cents to currency
+            return Intl.NumberFormat("nl-NL", {
                         style: "currency",
                         currency: "eur",
-                    }).format((line.unit*line.count)/100);
-                    return `${line.count} ${line.item} @ ${value}`
+                    }).format(value/100);
+        }
+
+        document.addEventListener('neworder', (e) => {
+            if (e.detail.orderdetails) {
+                // Keep count
+                let orderTotal = 0
+                // Create array of strings from array of objects
+                const orderLines = e.detail.orderdetails.map((line) => {
+                    orderTotal += (line.unit*line.count);
+                    return `${line.count} ${line.item} @ ${euro(line.unit)}`
                 })
-                alert(`You ordered\n${orderLines.join('\n')}`)
+                // Add a total line to the end of the array
+                orderLines.push(`Total: ${euro(orderTotal)}\n`);
+                // Output as alert
+                alert(`You ordered\n${orderLines.join('\n')}`);
             }
         })
     </script>
