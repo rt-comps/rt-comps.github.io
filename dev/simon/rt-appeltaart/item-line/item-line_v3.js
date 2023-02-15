@@ -39,7 +39,7 @@ customElements.define(compName,
                 if (currentCount > this.maxCount || currentCount < 0) currentCount = 0;
                 // Write back new value
                 _count.innerHTML = `${currentCount}`;
-                // Some updateds when count > or == to zero
+                // Handle zero transistions
                 if (currentCount > 0){
                     // Highlight line and make count available in LightDOM
                     this.shadowRoot.querySelector('#container').style.fontWeight = 'bold';
