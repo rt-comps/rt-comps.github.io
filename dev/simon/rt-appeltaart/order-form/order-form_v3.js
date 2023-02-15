@@ -19,15 +19,17 @@ customElements.define(compName,
       this.addEventListener('updatemenu', (e) => this.updateData(e));
 
       //___ updatecount - Change button style based on count
-      const _itemData = _sR.querySelector('#item-data-container');
-      _itemData.addEventListener('updatecount', (e) => this.enableButton(_itemData, e));
-      const _cart = _sR.querySelector('#cart');
-      _cart.addEventListener('updatecount', (e) => this.enableButton(_cart, e));
+      _sR.querySelector('#item-data-container')
+        .addEventListener('updatecount', (e) => this.enableAddButton(e));
+      _sR.querySelector('#cart')
+        .addEventListener('updatecount', (e) => this.enableOrderButton(e));
 
       //___ add-items_click - Add the currently selected items to the cart
-      _sR.querySelector('#add-items-button').addEventListener('click', () => this.addToCart());
+      _sR.querySelector('#add-but')
+        .addEventListener('click', () => this.addToCart());
       //___ place-order_click - Send completed order to appliaction
-      _sR.querySelector('#place-order-button').addEventListener('click', () => this.dispatchOrder());
+      _sR.querySelector('#place-but')
+        .addEventListener('click', () => this.dispatchOrder());
     }
 
     //--- connectedCallback
@@ -70,7 +72,7 @@ customElements.define(compName,
       this.querySelectorAll('item-data').forEach((element) => {
         element.removeAttribute('slot');
       });
-      const _button = this.shadowRoot.querySelector('#add-items-button');
+      const _button = this.shadowRoot.querySelector('#add-but');
       _button.style.display = 'none';
       if (e) {
         e.stopPropagation()
@@ -80,55 +82,49 @@ customElements.define(compName,
           _button.style.display = '';
         }
         // Check whether button should be active
-        this.enableButton(this.shadowRoot.querySelector('#item-data-container'), e);
+        this.enableAddButton();
       };
     }
 
-    //--- enableButton
-    // Decided whether a button should be enabled
-    enableButton(node, e) {
-      // If triggered by event then stop event
+    //--- enableAddButton
+    // Control state of 'Add To Order' button
+    enableAddButton(e) {
       if (e) e.stopPropagation();
+      const node = this.shadowRoot.querySelector('#item-data-container');
+      const buttonNode = node.querySelector('#add-but');
 
-      // Button specific values
-      let searchText = '', buttonNode = '';
-      // Set button specific values
-      switch (node.id) {
-        case 'item-data-container':
-          searchText = 'item-data[slot] item-line[count]';
-          buttonNode = node.querySelector('#add-items-button');
-          break;
-        case 'cart':
-          searchText = 'line-item[slot="cart"][count]';
-          buttonNode = node.querySelector('#place-order-button')
-          break;
-        default:
-          // Stop if node.id is unknown or undefined
-          return;
-      }
-
-      // Decide if a button should be enabled
-      if (this.querySelectorAll(searchText).length === 0) {
-        // Disable button by adding inline style
+      if (this.querySelectorAll('item-data[slot] item-line[count]').length === 0) {
         buttonNode.style.backgroundColor = 'rgb(128, 128, 128)';
-      }
-      else {
-        // Enable button by removing inline style
+        buttonNode.innerHTML = 'Close';
+      } else {
         buttonNode.removeAttribute('style');
+        buttonNode.innerHTML = 'Add To Order';
       }
+    }
+
+    //--- enableOrderButton
+    // Control state of 'Place Order' button
+    enableOrderButton(e) {
+      if (e) e.stopPropagation();
+      const node = this.shadowRoot.querySelector('#cart');
+      const buttonNode = node.querySelector('#place-but');
+
+      if (this.querySelectorAll('line-item[slot="cart"][count]').length === 0)
+        buttonNode.style.display = 'none';
+      else buttonNode.removeAttribute('style');
     }
 
     //--- addToCart
     // Add any line items with count > 0 to cart
     addToCart() {
       // Check if button is 'enabled'
-      if (this.shadowRoot.querySelector('#add-items-button').hasAttribute('style')) return;
-      // Get all <item-line> elements in active <item-data> with a count > 0 
+      if (this.shadowRoot.querySelector('#add-but').hasAttribute('style')) {
+        this.updateData();
+        return;
+      }
+      // Get array of all <item-line> elements in active <item-data> with a count > 0 
       const activeItemLines = [...this.querySelectorAll('[slot="active-data"] item-line[count]')];
-      // Add a new <line-item> to cart
-      //  Spread node list to array (inner '...'), 
-      //  return a array of new elements (.map) 
-      //  then spread this array to append these elements to <order-form> (outer '...') 
+      // Add a new <line-item> to cart for each element of the array
       this.append(...activeItemLines.map((node) => {
         // Construct new elements text
         const itemText = `${node.parentNode.parentNode.querySelector('item-title').innerHTML} - ${node.parentNode.getAttribute('value')} - ${node.innerHTML}`;
@@ -144,15 +140,15 @@ customElements.define(compName,
             unit: node.getAttribute('prijs')
           }
         })
-        // tidy up the <item-line>, ie reset count to zero
+        // <item-line> has been processed so count to zero
         node.updateCount({ detail: { change: (0 - parseInt(itemCount)) } });
         // Send the new element to .append()
         return newEl
       }))
       //      _button.style.backgroundColor = 'rgb(128, 128, 128)';
       //      console.log(this.shadowRoot.querySelector('#item-data-container'));
-      this.enableButton(this.shadowRoot.querySelector('#item-data-container'));
-      this.enableButton(this.shadowRoot.querySelector('#cart'));
+      this.enableAddButton();
+      this.enableOrderButton();
       this.updateData();
     }
 
@@ -161,7 +157,7 @@ customElements.define(compName,
     //  and dispatch outside form for handling by application
     dispatchOrder() {
       // Check if button is 'enabled'
-      if (this.shadowRoot.querySelector('#place-order-button').hasAttribute('style')) return;
+      if (this.shadowRoot.querySelector('#place-but').hasAttribute('style')) return;
 
       // 'Close' data area
       this.updateData();
@@ -190,7 +186,7 @@ customElements.define(compName,
           }
         });
       }
-      this.enableButton(this.shadowRoot.querySelector('#cart'));
+      this.enableOrderButton();
     }
   }
 );

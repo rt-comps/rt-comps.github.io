@@ -12,6 +12,12 @@
             flex-flow: row wrap;
         }
 
+        .button {
+            height: 50px;
+            width: 150px;
+            border-radius: 15px;
+        }
+
         #menu-items {
             border: 3px dashed green;
         }
@@ -31,10 +37,7 @@
             width: 100%;
         }
 
-        #add-items-button {
-            height: 50px;
-            width: 150px;
-            border-radius: 15px;
+        #add-but {
             background: rgb(78, 78, 255);
             color: white;
         }
@@ -48,10 +51,7 @@
             flex-direction: column;
         }
 
-        #place-order-button {
-            height: 50px;
-            width: 150px;
-            border-radius: 15px;
+        #place-but {
             background: rgb(239, 149, 197);
             color: black;
         }
@@ -67,7 +67,7 @@
             <slot name="active-data"></slot>
         </div>
         <!-- Add chosen products to "cart" -->
-        <div id="add-items-button" style="display:none; background-color: rgb(128,128,128)">Add To Order</div>
+        <div id="add-but" class="button" style="display:none; background-color: rgb(128,128,128);">Close</div>
     </div>
     <!-- "Shopping cart" section -->
     <div id="cart">
@@ -76,6 +76,6 @@
             <slot name="cart"></slot>
         </div>
         <!-- Complete the order -->
-        <div id="place-order-button" style="display: none; background-color: rgb(128,128,128)">Place Order</div>
+        <div id="place-but" class="button" style="display: none;">Place Order</div>
     </div>
 </template>
