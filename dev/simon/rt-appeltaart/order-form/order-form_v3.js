@@ -73,7 +73,7 @@ customElements.define(compName,
         element.removeAttribute('slot');
       });
       const _button = this.shadowRoot.querySelector('#add-but');
-      _button.style.display = 'none';
+//      _button.style.display = 'none';
       if (e) {
         e.stopPropagation()
         // Assign chosen data to slot
