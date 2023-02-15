@@ -73,7 +73,7 @@ customElements.define(compName,
         element.removeAttribute('slot');
       });
       const _button = this.shadowRoot.querySelector('#add-but');
-//      _button.style.display = 'none';
+      _button.style.display = 'none';
       if (e) {
         e.stopPropagation()
         // Assign chosen data to slot
@@ -119,6 +119,8 @@ customElements.define(compName,
     addToCart() {
       // Check if button is 'enabled'
       if (this.shadowRoot.querySelector('#add-but').hasAttribute('style')) {
+        console.log(this.shadowRoot.querySelector('#add-but').getAttribute('style'));
+        console.warn('Add Button was disabled')
         this.updateData();
         return;
       }
