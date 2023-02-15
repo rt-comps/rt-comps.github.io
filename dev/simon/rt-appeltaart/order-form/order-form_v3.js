@@ -118,12 +118,12 @@ customElements.define(compName,
     // Add any line items with count > 0 to cart
     addToCart() {
       // Check if button is 'enabled'
-      if (this.shadowRoot.querySelector('#add-but').hasAttribute('style')) {
+/*      if (this.shadowRoot.querySelector('#add-but').hasAttribute('style')) {
         console.log(this.shadowRoot.querySelector('#add-but').getAttribute('style'));
         console.warn('Add Button was disabled')
         this.updateData();
         return;
-      }
+      }*/
       // Get array of all <item-line> elements in active <item-data> with a count > 0 
       const activeItemLines = [...this.querySelectorAll('[slot="active-data"] item-line[count]')];
       // Add a new <line-item> to cart for each element of the array
