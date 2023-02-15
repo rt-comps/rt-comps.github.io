@@ -20,9 +20,9 @@ customElements.define(compName,
 
       //___ updatecount - Change button style based on count
       _sR.querySelector('#item-data-container')
-        .addEventListener('updatecount', (e) => this.enableAddButton(e));
+        .addEventListener('updatecount', (e) => this.displayAddButton(e));
       _sR.querySelector('#cart')
-        .addEventListener('updatecount', (e) => this.enableOrderButton(e));
+        .addEventListener('updatecount', (e) => this.displayOrderButton(e));
 
       //___ add-items_click - Add the currently selected items to the cart
       _sR.querySelector('#add-but')
@@ -66,7 +66,7 @@ customElements.define(compName,
     }
 
     //--- updateData
-    // Respond to an updatemenu event
+    // Display requested data (updatemenu event) or clear data
     updateData(e) {
       // Clear any previous slot settings
       this.querySelectorAll('item-data').forEach((element) => {
@@ -81,14 +81,14 @@ customElements.define(compName,
           this.querySelector(`item-data#${e.detail.id}`).setAttribute('slot', 'active-data');
           _button.removeAttribute('style');//.style.display = '';
         }
-        // Check whether button should be active
-        this.enableAddButton();
+        // Update button appearance
+        this.displayAddButton();
       };
     }
 
-    //--- enableAddButton
-    // Control state of 'Add To Order' button
-    enableAddButton(e) {
+    //--- displayAddButton
+    // Determine appearance of 'Add To Order' button
+    displayAddButton(e) {
       if (e) e.stopPropagation();
       const node = this.shadowRoot.querySelector('#item-data-container');
       const buttonNode = node.querySelector('#add-but');
@@ -102,9 +102,9 @@ customElements.define(compName,
       }
     }
 
-    //--- enableOrderButton
-    // Control state of 'Place Order' button
-    enableOrderButton(e) {
+    //--- displayOrderButton
+    // Determine appearance of 'Place Order' button
+    displayOrderButton(e) {
       if (e) e.stopPropagation();
       const node = this.shadowRoot.querySelector('#cart');
       const buttonNode = node.querySelector('#place-but');
@@ -117,7 +117,7 @@ customElements.define(compName,
     //--- addToCart
     // Add any line items with count > 0 to cart
     addToCart() {
-      // Get array of any <item-line> elements in active <item-data> with a count > 0 
+      // Get array of any <item-line> nodes in active <item-data> with a count > 0 
       const activeItemLines = [...this.querySelectorAll('[slot="active-data"] item-line[count]')];
       // Check if there is anything to do
       if (activeItemLines.length > 0) {
@@ -142,11 +142,11 @@ customElements.define(compName,
           // Send the new element to .append()
           return newEl
         }))
-        //      _button.style.backgroundColor = 'rgb(128, 128, 128)';
-        //      console.log(this.shadowRoot.querySelector('#item-data-container'));
-        this.enableAddButton();
-        this.enableOrderButton();
+        // Update appearance of buttons
+        this.displayAddButton();
+        this.displayOrderButton();
       }
+      // Whether closing or adding, data is removed
       this.updateData();
     }
 
@@ -154,13 +154,7 @@ customElements.define(compName,
     // Convert "cart" HTML to an array of objects 
     //  and dispatch outside form for handling by application
     dispatchOrder() {
-      // Check if button is 'enabled'
-      if (this.shadowRoot.querySelector('#place-but').hasAttribute('style')) return;
-
-      // 'Close' data area
-      this.updateData();
-      //      this.$dispatch({ name: 'updatemenu' });
-      // Collect all items in cart and place in array
+      // Collect any items in cart and place in array
       const lineItems = [...this.querySelectorAll('line-item[count]')];
       // If any line items, process each and remove it from cart
       if (lineItems.length > 0) {
@@ -184,7 +178,7 @@ customElements.define(compName,
           }
         });
       }
-      this.enableOrderButton();
+      this.displayOrderButton();
     }
   }
 );
