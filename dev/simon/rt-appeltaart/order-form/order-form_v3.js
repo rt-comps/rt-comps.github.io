@@ -117,40 +117,36 @@ customElements.define(compName,
     //--- addToCart
     // Add any line items with count > 0 to cart
     addToCart() {
-      // Check if button is 'enabled'
-/*      if (this.shadowRoot.querySelector('#add-but').hasAttribute('style')) {
-        console.log(this.shadowRoot.querySelector('#add-but').getAttribute('style'));
-        console.warn('Add Button was disabled')
-        this.updateData();
-        return;
-      }*/
-      // Get array of all <item-line> elements in active <item-data> with a count > 0 
+      // Get array of any <item-line> elements in active <item-data> with a count > 0 
       const activeItemLines = [...this.querySelectorAll('[slot="active-data"] item-line[count]')];
-      // Add a new <line-item> to cart for each element of the array
-      this.append(...activeItemLines.map((node) => {
-        // Construct new elements text
-        const itemText = `${node.parentNode.parentNode.querySelector('item-title').innerHTML} - ${node.parentNode.getAttribute('value')} - ${node.innerHTML}`;
-        // Get item count
-        const itemCount = node.getAttribute('count');
-        // Create the new element
-        const newEl = this.$createElement({
-          tag: 'line-item',
-          innerHTML: itemText,
-          attrs: {
-            slot: 'cart',
-            count: itemCount,
-            unit: node.getAttribute('prijs')
-          }
-        })
-        // <item-line> has been processed so count to zero
-        node.updateCount({ detail: { change: (0 - parseInt(itemCount)) } });
-        // Send the new element to .append()
-        return newEl
-      }))
-      //      _button.style.backgroundColor = 'rgb(128, 128, 128)';
-      //      console.log(this.shadowRoot.querySelector('#item-data-container'));
-      this.enableAddButton();
-      this.enableOrderButton();
+      // Check if there is anything to do
+      if (activeItemLines.length > 0) {
+        // Add a new <line-item> to cart for each element of the array
+        this.append(...activeItemLines.map((node) => {
+          // Construct new elements text
+          const itemText = `${node.parentNode.parentNode.querySelector('item-title').innerHTML} - ${node.parentNode.getAttribute('value')} - ${node.innerHTML}`;
+          // Get item count
+          const itemCount = node.getAttribute('count');
+          // Create the new element
+          const newEl = this.$createElement({
+            tag: 'line-item',
+            innerHTML: itemText,
+            attrs: {
+              slot: 'cart',
+              count: itemCount,
+              unit: node.getAttribute('prijs')
+            }
+          })
+          // <item-line> has been processed so count to zero
+          node.updateCount({ detail: { change: (0 - parseInt(itemCount)) } });
+          // Send the new element to .append()
+          return newEl
+        }))
+        //      _button.style.backgroundColor = 'rgb(128, 128, 128)';
+        //      console.log(this.shadowRoot.querySelector('#item-data-container'));
+        this.enableAddButton();
+        this.enableOrderButton();
+      }
       this.updateData();
     }
 
