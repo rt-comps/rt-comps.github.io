@@ -7,7 +7,7 @@ const [compName] = rtlib.parseURL(import.meta.url);
 // Define the element usin the template in the associated .html file
 customElements.define(
     compName,
-    class extends rtlBC.RTBaseClass {
+    class extends rtBC.RTBaseClass {
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {
