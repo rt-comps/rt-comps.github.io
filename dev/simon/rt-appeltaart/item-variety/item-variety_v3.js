@@ -1,10 +1,10 @@
 // ================================================================
 // get component name from directory name
-const [compName] = rt.parseURL(import.meta.url);
+const [compName] = rtlib.parseURL(import.meta.url);
 
 customElements.define(
     compName,
-    class extends rtBase.RTBaseClass {
+    class extends rtlBC.RTBaseClass {
         //+++ Lifecycle events
         // --- Contructor
         constructor() {

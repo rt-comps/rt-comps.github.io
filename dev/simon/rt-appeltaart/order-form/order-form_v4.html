@@ -1,0 +1,122 @@
+<template id="ORDER-FORM">
+    <style>
+        /* === Element Standards === */
+        div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-flow: row wrap;
+            padding: 5px;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        /* === Classes === */
+        /* DIV placed over another, filling parent container */
+        div.overlay {
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            bottom: 0%;
+            right: 0%;
+            z-index: 10;
+        }
+
+        /* A button */
+        div.button {
+            height: 50px;
+            width: 150px;
+        }
+
+        /* The Order Form Container */
+        #container {
+            border: 1px dashed black;
+            flex-wrap: nowrap;
+            align-items: flex-start;
+        }
+
+        /* Container for Menu and Overlay */
+        #menu-container {
+            position: relative;
+            flex-basis: 100%;
+            align-self: stretch;
+            border: 1px dashed green;
+        }
+
+        /* The Menu Section */
+        #menu {
+            border: 1px dashed blue;
+            align-self: stretch;
+        }
+
+        #details-container {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Item Details Section */
+        #details {
+            color: white;
+            background-color: black;
+        }
+
+        /* The Cart Section */
+        #cart {
+            flex-direction: column;
+            flex: 0 0 200px;
+            border: 3px dashed yellow;
+        }
+
+        #cart-contents {
+            flex-direction: column;
+        }
+
+
+/*        #item-data {
+            display: flex;
+            width: 100%;
+        }
+*/
+        #add-but {
+            background: rgb(78, 78, 255);
+            color: white;
+        }
+
+
+        #place-but {
+            background: rgb(239, 149, 197);
+            color: black;
+        }
+    </style>
+    <!-- Product types display-->
+    <div id="container">
+        <div id="menu-container">
+            <div id="menu">
+                <slot name="menu-items"></slot>
+            </div>
+            <div id="details-container" class="overlay" style="visibility: hidden;">
+                <!-- Chosen product details section-->
+                <div id="details">
+                    <!-- Product details -->
+                    <slot name="active-data"></slot>
+                    <!-- Add chosen products to "cart" -->
+                    <div id="add-but" class="button" style="display:none; background-color: rgb(128,128,128);">Close
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- "Shopping cart" section -->
+        <div id="cart">
+            <!-- Items currently in the "cart" -->
+            <div id="cart-contents">
+                <slot name="cart"></slot>
+            </div>
+            <!-- Order buttons - Only one visible at a time -->
+            <div id="order-buts">
+                <!-- Recover previous order-->
+                <div id="revover-but" class="button" style="display: none">Recover Order</div>
+                <!-- Complete the order -->
+                <div id="place-but" class="button" style="display: none;">Place Order</div>
+            </div>
+        </div>
+    </div>
+</template>

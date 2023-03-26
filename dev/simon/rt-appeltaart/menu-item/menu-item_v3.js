@@ -1,15 +1,15 @@
 // ================================================================
 // get component name from directory name
 //const [compName, compVerRaw] = import.meta.url.split("/").slice(-2);
-const [compName] = rt.parseURL(import.meta.url);
+const [compName] = rtlib.parseURL(import.meta.url);
 
 customElements.define(
   compName,
-  class extends rtBase.RTBaseClass {
+  class extends rtlBC.RTBaseClass {
     //+++++ Lifecycle Events
     //--- constructor
     constructor() {
-      // Attach contents of template - placed in document.head by rt.loadComponent()
+      // Attach contents of template - placed in document.head by rtlib.loadComponent()
       super().attachShadow({ mode: "open" }).append(this.$getTemplate());
 
       //###### Event Listeners
