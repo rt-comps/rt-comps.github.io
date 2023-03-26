@@ -5,9 +5,12 @@
 async function loadGlobalMods() {
   // Assumes that modules are accesible at the same location.
   const basePath = import.meta.url.split('/').slice(0, -2).join('/');
-  // Pull in modules and assign to global namespace
+  // RT function library
   window.rtlib = await import(`${basePath}/rt.js`);
+  // RT BaseClass
   window.rtBC = await import(`${basePath}/rt_baseclass.js`);
+  // Place current version in global variable
+  window.appelTartVer = '4';
 }
 
 // First load shared modules in to global scope then load components
