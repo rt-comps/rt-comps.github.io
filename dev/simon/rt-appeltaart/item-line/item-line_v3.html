@@ -2,24 +2,33 @@
     <style>
         #container {
             display: grid;
-            grid-template-columns: 30px 50px 70px auto;
+            grid-template-columns: 70px 70px auto;
             column-gap: 5px;
             padding: 5px;
         }
 
-        span#count {
+        /*        span#count {
             text-align: right;
             background-color: red;
         }
-
+*/
         span#prijs {
             text-align: right;
             background-color: blue;
         }
+
+        span#count {
+            flex-basis: 100%;
+            text-align: center;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
     </style>
     <div id="container">
-        <span id="count">0</span>
-        <plus-minus></plus-minus>
+        <plus-minus colors="white,black">
+            <span id="count" slot="count">0</span>
+        </plus-minus>
         <span id="prijs"></span>
         <span>
             <slot></slot>

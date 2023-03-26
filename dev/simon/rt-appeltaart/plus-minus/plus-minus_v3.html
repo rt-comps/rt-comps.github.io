@@ -1,22 +1,26 @@
 <template id="PLUS-MINUS">
     <style>
         div {
-            display: grid;
-            grid-template-columns: 20px 20px;
-            column-gap: 5px;
-           /* padding: 5px; */
+            display: flex;
+            width: 100%;
+            padding: 3px;
+            border-radius: 3px;
         }
 
         span#plus,
         span#minus {
+            flex: 0 0 15px;
             padding: 0px 2px 0px 2px;
+            border: 1px solid black;
             border-radius: 5px;
+            color: black;
+            background-color: white;
             text-align: center;
-            background: white;
         }
     </style>
     <div>
         <span id="plus">+</span>
+        <slot name="count"></slot>
         <span id="minus">-</span>
     </div>
 </template>

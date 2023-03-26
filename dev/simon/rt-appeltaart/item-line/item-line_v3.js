@@ -2,11 +2,11 @@
 // === item-line (displayed in item-data)
 
 // get component name from directory name
-const [compName] = rt.parseURL(import.meta.url);
+const [compName] = rtlib.parseURL(import.meta.url);
 
 // Define the element usin the template in the associated .html file
 customElements.define(compName,
-    class extends rtBase.RTBaseClass {
+    class extends rtlBC.RTBaseClass {
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {

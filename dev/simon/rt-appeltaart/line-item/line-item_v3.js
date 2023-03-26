@@ -1,10 +1,10 @@
 // ================================================================
 // === line-item (displayed in cart)
-const [compName] = rt.parseURL(import.meta.url);
+const [compName] = rtlib.parseURL(import.meta.url);
 
 customElements.define(
     compName,
-    class extends rtBase.RTBaseClass {
+    class extends rtlBC.RTBaseClass {
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {

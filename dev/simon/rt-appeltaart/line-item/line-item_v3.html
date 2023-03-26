@@ -2,31 +2,35 @@
     <style>
         div#container {
             display: grid;
-            grid-template-columns: 30px 50px 70px auto 70px 70px;
-            padding: 10px;
-            width: 40vw;
-        }
-
-        span {
-            text-transform: capitalize;
-            padding: 2px 5px 2px 5px;
+            grid-template-columns: 70px auto 70px 70px;
+            column-gap: 10px;
         }
 
         span#delete {
-            border-radius: 5px;
+            color: white;
             background-color: red;
+            text-align: center;
+            padding: 3px;
+            border-radius: 5px;
+            height: fit-content;
+        }
+
+        span#count {
+            flex-basis: 100%;
+            text-align: center;
         }
     </style>
 
     <div id="container">
-        <span id="count"></span>
-        <plus-minus></plus-minus>
-        <span id="unit"></span>
+        <plus-minus>
+            <span id="count" slot="count"></span>
+        </plus-minus>
+        <span id="unit" style="display:none"></span>
         <span>
             <slot></slot>
         </span>
         <span id="total"></span>
         <span id="delete">DELETE</span>
     </div>
-    <hr/>
+    <hr />
 </template>

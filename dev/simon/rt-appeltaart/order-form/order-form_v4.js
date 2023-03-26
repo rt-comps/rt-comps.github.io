@@ -14,12 +14,18 @@ customElements.define(compName,
       const _sR = super().attachShadow({ mode: "open" })
       _sR.append(this.$getTemplate());
 
+      //### Retrive form sizes and define defaults
+      const attributes = this.attributes;
+      _sR.querySelector('#container').style.width = attributes['form-width'] ? attributes['form-width'].value : '800px';
+      _sR.querySelector('#container').style.height = attributes['form-height'] ? attributes['form-height'].value : '600px';
+      _sR.querySelector('#cart').style.flex = `0 0 ${attributes['cart-width'] ? attributes['cart-width'].value : '300px'}`;
+
       //### Event Listeners
       //___ updatemenu - Change data to chosen product
       this.addEventListener('updatemenu', (e) => this.updateData(e));
 
       //___ updatecount - Change button style based on count
-      _sR.querySelector('#item-data-container')
+      _sR.querySelector('#menu-container')
         .addEventListener('updatecount', (e) => this.displayAddButton(e));
       _sR.querySelector('#cart')
         .addEventListener('updatecount', (e) => this.displayOrderButton(e));
@@ -79,14 +85,20 @@ customElements.define(compName,
       this.querySelectorAll('item-data').forEach((element) => {
         element.removeAttribute('slot');
       });
+      // Hide button
       const _button = this.shadowRoot.querySelector('#add-but');
       _button.style.display = 'none';
+      // Hide overlay
+      const _overlay = this.shadowRoot.querySelector('#details-container');
+      _overlay.style.visibility = 'hidden';
       if (e) {
         e.stopPropagation()
         // Assign chosen data to slot
         if (e.detail.id) {
           this.querySelector(`item-data#${e.detail.id}`).setAttribute('slot', 'active-data');
-          _button.removeAttribute('style');//.style.display = '';
+          // Display button & overlay (remove hiding)
+          _button.removeAttribute('style');
+          _overlay.removeAttribute('style');
         }
         // Update button appearance
         this.displayAddButton();
@@ -97,7 +109,7 @@ customElements.define(compName,
     // Determine appearance of 'Add To Order' button
     displayAddButton(e) {
       if (e) e.stopPropagation();
-      const node = this.shadowRoot.querySelector('#item-data-container');
+      const node = this.shadowRoot.querySelector('#details');
       const buttonNode = node.querySelector('#add-but');
 
       if (this.querySelectorAll('item-data[slot] item-line[count]').length === 0) {
@@ -130,14 +142,14 @@ customElements.define(compName,
       if (activeItemLines.length > 0) {
         // Add a new <line-item> to cart for each element of the array
         this.append(...activeItemLines.map((node) => {
-          // Construct new elements text
-          const itemText = `${node.parentNode.parentNode.querySelector('item-title').innerHTML} - ${node.parentNode.getAttribute('value')} - ${node.innerHTML}`;
+          // Construct new element's description
+          const itemHTML = `<div>${node.parentNode.parentNode.querySelector('item-title').innerHTML}</div><div>${node.parentNode.getAttribute('value')}</div><div>${node.innerHTML}</div>`;
           // Get item count
           const itemCount = node.getAttribute('count');
           // Create the new element
           const newEl = this.$createElement({
             tag: 'line-item',
-            innerHTML: itemText,
+            innerHTML: itemHTML,
             attrs: {
               slot: 'cart',
               count: itemCount,
@@ -186,7 +198,7 @@ customElements.define(compName,
           }
         }
         // Save the last order on the user's local storage
-        localStorage.setItem('lastOrder',JSON.stringify(outputObj.detail.orderdetails));
+        localStorage.setItem('lastOrder', JSON.stringify(outputObj.detail.orderdetails));
         // Dispatch the event
         this.$dispatch(outputObj);
       }
