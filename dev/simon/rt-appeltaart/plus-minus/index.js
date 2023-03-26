@@ -1,1 +1,1 @@
-rt.loadComponent(import.meta.url, '3');
+rtlib.loadComponent(import.meta.url, '3');

@@ -5,11 +5,11 @@ const [compName] = rtlib.parseURL(import.meta.url);
 
 customElements.define(
   compName,
-  class extends rtlBC.RTBaseClass {
+  class extends rtBC.RTBaseClass {
     //+++++ Lifecycle Events
     //--- constructor
     constructor() {
-      // Attach contents of template - placed in document.head by rtlib.loadComponent()
+      // Attach contents of template - placed in document.head byrtlib.loadComponent()
       super().attachShadow({ mode: "open" }).append(this.$getTemplate());
 
       //###### Event Listeners

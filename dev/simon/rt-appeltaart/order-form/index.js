@@ -13,5 +13,5 @@ Promise.all(
     // Stop timer
     console.timeEnd(`loadModules for ${moduleName}`);
     // Load this component, with optional version
-    rtlib.loadComponent(import.meta.url, '4');
+   rtlib.loadComponent(import.meta.url, '4');
   });  

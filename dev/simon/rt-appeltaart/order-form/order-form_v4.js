@@ -6,7 +6,7 @@ const [compName] = rtlib.parseURL(import.meta.url);
 
 // Define the component
 customElements.define(compName,
-  class extends rtlBC.RTBaseClass {
+  class extends rtBC.RTBaseClass {
     //+++ Lifecycle Events
     //--- constructor
     constructor() {
