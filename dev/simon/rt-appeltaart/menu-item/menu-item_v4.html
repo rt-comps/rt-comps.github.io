@@ -2,19 +2,37 @@
     <style>
         div {
             display: flex;
+        }
+
+        #container {
+            max-width: 300px;
+            min-width: 300px;
             align-items: center;
-            height: 150px;
-            width: 200px;
-            margin: 20px;
-            border-radius: 30px;
-            color: aliceblue;
-            text-align: center;
-            text-shadow: 1px 1px black;
+            background-color: black;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        #img {
+            display: block;
+            width: 100px;
+            height: 75px;
+            border-radius: 15px;
             background-color: green;
-            background-size: 200px;  
+            background-size: 100px;
+        }
+
+        #text {
+            padding: 5px;
+            flex-basis: 200px;
+            flex-wrap: wrap;
         }
     </style>
-    <div>
-        <slot></slot>
+    <div id="container">
+        <div id="img"></div>
+        <div id="text">
+            <slot>No description provided</slot>
+        </div>
     </div>
 </template>

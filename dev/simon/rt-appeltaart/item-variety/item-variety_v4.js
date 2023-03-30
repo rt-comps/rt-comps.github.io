@@ -9,15 +9,25 @@ customElements.define(
         // --- Contructor
         constructor() {
             // Attach contents of template placed in document.head
-            super().attachShadow({ mode: "open" }).append(this.$getTemplate());
+            const _sR = super().attachShadow({ mode: "open" });
+            _sR.append(this.$getTemplate());
+
+            _sR.querySelector('#title').addEventListener('click', () => this.toggleDisplay(_sR.querySelector('#lines')));
         }
 
         // --- connectedCallback
         connectedCallback() {
-                // Set displayed title to combination of 'value' and 'desc' (if provided)
-                this.shadowRoot.querySelector('#title').innerHTML=
-                `${this.$attr('value')}${this.hasAttribute('desc')?' '+this.$attr('desc'):''}`;
+            const _sR = this.shadowRoot;
+            // Set displayed title to combination of 'value' and 'desc' (if provided)
+            _sR.querySelector('#title').innerHTML =
+                `${this.$attr('value')}${this.hasAttribute('desc') ? ' ' + this.$attr('desc') : ''}`;
+            if (this.hasAttribute('default')) _sR.querySelector('#lines').removeAttribute('style');
         }
         //+++ End Of Lifecycle events
+
+        toggleDisplay (_target) {
+            if (_target.hasAttribute('style')) _target.removeAttribute('style');
+            else _target.style.display = 'none';
+        }
     }
 );
