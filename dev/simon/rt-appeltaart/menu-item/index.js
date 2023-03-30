@@ -1,1 +1,1 @@
-rtlib.loadComponent(import.meta.url, appelTartVer);
+rtlib.loadComponent(import.meta.url, appelTaartVer);

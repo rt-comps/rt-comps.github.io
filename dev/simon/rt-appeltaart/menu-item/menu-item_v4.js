@@ -1,6 +1,5 @@
 // ================================================================
 // get component name from directory name
-//const [compName, compVerRaw] = import.meta.url.split("/").slice(-2);
 const [compName] = rtlib.parseURL(import.meta.url);
 
 customElements.define(
@@ -21,7 +20,7 @@ customElements.define(
     //--- connectedCallback
     connectedCallback() {
             // Set background image - if provided
-            if (this.hasAttribute('bgimg')) this.shadowRoot.querySelector('div').style.backgroundImage = `url("${this.$attr('bgimg')}")`;
+            if (this.hasAttribute('bgimg')) this.shadowRoot.querySelector('#img').style.backgroundImage = `url("${this.$attr('bgimg')}")`;
     }
     //--- End of connectedCallback
     //+++++ End of Lifecycle Events

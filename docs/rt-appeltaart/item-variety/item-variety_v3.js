@@ -1,1 +1,0 @@
-const[compName]=rt.parseURL(import.meta.url);customElements.define(compName,class extends rtBase.RTBaseClass{constructor(){super().attachShadow({mode:"open"}).append(this.$getTemplate())}connectedCallback(){this.shadowRoot.querySelector("#title").innerHTML=`${this.$attr("value")}${this.hasAttribute("desc")?" "+this.$attr("desc"):""}`}});

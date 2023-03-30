@@ -16,9 +16,13 @@ customElements.define(compName,
 
       //### Retrive form sizes and define defaults
       const attributes = this.attributes;
-      _sR.querySelector('#container').style.width = attributes['form-width'] ? attributes['form-width'].value : '800px';
-      _sR.querySelector('#container').style.height = attributes['form-height'] ? attributes['form-height'].value : '600px';
-      _sR.querySelector('#cart').style.flex = `0 0 ${attributes['cart-width'] ? attributes['cart-width'].value : '300px'}`;
+      _sR.querySelector('#container').style.width = attributes['form-width'] ? attributes['form-width'].value : '1000px';
+      // _sR.querySelector('#container').style.height = attributes['form-height'] ? attributes['form-height'].value : '600px';
+      const cartWidth = attributes['cart-width'] ? attributes['cart-width'].value : '350px';
+      const _cart = _sR.querySelector('#cart');
+      _cart.style.flex = `0 0 ${cartWidth}`;
+      _cart.style.maxWidth = cartWidth;
+
 
       //### Event Listeners
       //___ updatemenu - Change data to chosen product
@@ -57,7 +61,7 @@ customElements.define(compName,
       const nodes = [...this.querySelectorAll('item-data')];
       // ...then create a new <menu-item> element for each, assigned to 'menu-items' slot  
       this.append(...nodes.map(element => {
-        let elementAttrs = { id: element.id, slot: 'menu-items' };
+        let elementAttrs = { id: element.id, slot: 'menu-items', style: 'justify-self: center' };
         // Attempt to retrieve image
         let imgNode = element.querySelector('img')
         // Add bgimg attribute if img element found
@@ -143,7 +147,7 @@ customElements.define(compName,
         // Add a new <line-item> to cart for each element of the array
         this.append(...activeItemLines.map((node) => {
           // Construct new element's description
-          const itemHTML = `<div>${node.parentNode.parentNode.querySelector('item-title').innerHTML}</div><div>${node.parentNode.getAttribute('value')}</div><div>${node.innerHTML}</div>`;
+          const itemHTML = `<div>${node.parentNode.parentNode.querySelector('item-title').innerHTML}</div><div>- ${node.parentNode.getAttribute('value')}</div><div>- ${node.innerHTML}</div>`;
           // Get item count
           const itemCount = node.getAttribute('count');
           // Create the new element

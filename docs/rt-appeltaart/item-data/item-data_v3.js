@@ -1,1 +1,0 @@
-const[compName]=rt.parseURL(import.meta.url);customElements.define(compName,class extends rtBase.RTBaseClass{constructor(){super().attachShadow({mode:"open"}).append(this.$getTemplate())}connectedCallback(){setTimeout(()=>{this.querySelector("item-title").setAttribute("slot","title"),this.querySelector("item-desc").setAttribute("slot","desc")})}});

@@ -1,14 +1,21 @@
 <template id="ORDER-FORM">
     <style>
-        /* === Element Standards === */
+        /* === Element Defaults === */
+        * {
+            font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+        }
+
         div {
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             flex-flow: row wrap;
-            padding: 5px;
             border-radius: 10px;
             box-sizing: border-box;
+        }
+
+        hr {
+            width: 100%;
         }
 
         /* === Classes === */
@@ -28,54 +35,77 @@
             width: 150px;
         }
 
-        /* The Order Form Container */
+        /* === IDs === */
+        /* Order Form Container */
         #container {
-            border: 1px dashed black;
+            /* border: 1px dashed black; */
             flex-wrap: nowrap;
             align-items: flex-start;
+            min-height: fit-content;
         }
 
         /* Container for Menu and Overlay */
         #menu-container {
             position: relative;
+            justify-content: space-around;
             flex-basis: 100%;
             align-self: stretch;
-            border: 1px dashed green;
+            border: 1px solid black;
         }
 
         /* The Menu Section */
         #menu {
-            border: 1px dashed blue;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: min-content;
+            grid-gap: 20px;
+            /* border: 1px dashed blue; */
             align-self: stretch;
+            padding: 20px;
+            width: 100%;
         }
 
+        /* Details overlay */
         #details-container {
             background-color: rgba(0, 0, 0, 0.2);
         }
 
-        /* Item Details Section */
         #details {
+            flex: 0 0 500px;
+            min-width: 500px;
+            max-width: 500px;
             color: white;
             background-color: black;
         }
 
-        /* The Cart Section */
+        /* Cart Section */
         #cart {
             flex-direction: column;
-            flex: 0 0 200px;
-            border: 3px dashed yellow;
+            overflow: hidden;
+            padding: 5px;
+            border: 1px solid black;
+            border-left: 0px;
+        }
+
+        #cart-title {
+            font-size: xx-large;
+            background-color: rgb(224, 224, 224);
+            padding: 3px;
+            width: 100%;
         }
 
         #cart-contents {
             flex-direction: column;
         }
 
-
-/*        #item-data {
-            display: flex;
+        #order-buts {
+            background-color: rgb(224, 224, 224);
             width: 100%;
+            min-height: 20px;
+            padding: 5px;
         }
-*/
+
+        /* Buttons */
         #add-but {
             background: rgb(78, 78, 255);
             color: white;
@@ -83,12 +113,12 @@
 
 
         #place-but {
-            background: rgb(239, 149, 197);
-            color: black;
+            background: rgb(130, 130, 130);
+            color: white;
         }
     </style>
-    <!-- Product types display-->
     <div id="container">
+        <!-- Product types display-->
         <div id="menu-container">
             <div id="menu">
                 <slot name="menu-items"></slot>
@@ -99,21 +129,26 @@
                     <!-- Product details -->
                     <slot name="active-data"></slot>
                     <!-- Add chosen products to "cart" -->
-                    <div id="add-but" class="button" style="display:none; background-color: rgb(128,128,128);">Close
+                    <div id="add-but" class="button" style="background-color: rgb(128,128,128);">Close
                     </div>
                 </div>
             </div>
         </div>
         <!-- "Shopping cart" section -->
         <div id="cart">
+            <div id="cart-title">Shopping Cart</div>
+            <hr />
+            <!-- <div id="hr"></div> -->
             <!-- Items currently in the "cart" -->
             <div id="cart-contents">
-                <slot name="cart"></slot>
+                <slot name="cart">
+                    <div>Empty<br />&nbsp;</div>
+                </slot>
             </div>
             <!-- Order buttons - Only one visible at a time -->
             <div id="order-buts">
                 <!-- Recover previous order-->
-                <div id="revover-but" class="button" style="display: none">Recover Order</div>
+                <div id="recover-but" class="button" style="display: none">Recover Order</div>
                 <!-- Complete the order -->
                 <div id="place-but" class="button" style="display: none;">Place Order</div>
             </div>

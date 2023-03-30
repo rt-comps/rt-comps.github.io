@@ -10,7 +10,7 @@ async function loadGlobalMods() {
   // RT BaseClass
   window.rtBC = await import(`${basePath}/rt_baseclass.js`);
   // Place current version in global variable
-  window.appelTartVer = '4';
+  window.appelTaartVer = '4';
 }
 
 // First load shared modules in to global scope then load components
