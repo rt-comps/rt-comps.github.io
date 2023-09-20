@@ -4,7 +4,7 @@ const moduleName = import.meta.url.split('/').slice(-2)[0];
 console.time(`loadModules for ${moduleName}`);
 
 // List of dependencies
-const components = ['menu-item', 'item-data', 'line-item', 'pickup-locations', 'form-field'];
+const components = ['dp-arrow', 'dp-date'];
 
 // Trigger the Loading of all dependencies then load this component
 Promise.all(
@@ -13,5 +13,5 @@ Promise.all(
   // Stop timer
   console.timeEnd(`loadModules for ${moduleName}`);
   // Load this component, with optional version
-  rtlib.loadComponent(import.meta.url, appelTaartVer);
+  rtlib.loadComponent(import.meta.url);
 });  

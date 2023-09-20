@@ -1,9 +1,9 @@
-A component that displays of data for all product types of a given product variety
+A component that displays of data for all product types (<item-line>s) of a given product variety
 
 Attributes:
 - Required: 
     - value
-        - A unique value that defines this variety
+        - A value that should be unique within the product variety
 - Optional: 
     - desc
         - Further text to describe this variety

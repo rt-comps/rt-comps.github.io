@@ -14,9 +14,14 @@ customElements.define(
             //### Listeners
             // Remove this item when 'delete' button pressed
             this.shadowRoot.querySelector('#delete').addEventListener('click', () => {
-                const eventBus = this.parentNode.shadowRoot.querySelector('#cart');
+                this.$dispatch({
+                    name: 'cartmod',
+                    detail: {
+                        prodID: this.getAttribute('prodid'),
+                        action: 'remove'
+                    }
+                });
                 this.remove();
-                this.$dispatch({name:'updatecount', eventbus: eventBus});
             });
             // Update total price on count change
             this.addEventListener('updatecount', (e) => this.render(e));
@@ -36,7 +41,7 @@ customElements.define(
             let count = parseInt(_sR.querySelector('#count').innerHTML);
             // When called from an event then update the count
             if (e) {
-                //e.stopPropagation();
+                e.stopPropagation();
                 count += e.detail.change;
                 switch (true) {
                     case (count > 10):
@@ -45,6 +50,14 @@ customElements.define(
                     case (count < 0):
                         count = 0;
                 }
+                this.$dispatch({
+                    name: 'cartmod',
+                    detail: {
+                        prodID: this.getAttribute('prodid'),
+                        count: e.detail.change,
+                        action: 'update'
+                    }
+                });
             } else {
                 // If triggered by connectedCallback then initialise the elements
                 count = parseInt(this.$attr('count'));

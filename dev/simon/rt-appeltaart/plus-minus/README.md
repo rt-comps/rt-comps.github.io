@@ -1,4 +1,6 @@
-A component that provides +/-1 functionality when + and - buttons are clicked
+A component that provides +1/-1 functionality when + and - buttons are clicked
+
+Any enclosed elements will be placed between the + and - elements
 
 Attributes:
 - Required: None
@@ -7,13 +9,14 @@ Attributes:
 Events:
 - Dispatched: 
     - "updatecount"
-        - Send the provided value
+    Send a value to adjust a listening component's count
+
 - Listened:
     - "plus_click"
         - Dispatch "updatecount" with a value of 1
     - "minus_click"
         - Dispatch "updatecount" with a value of -1
 
-Dependancies: None
+Component Dependancies: None
 
 Notes: None
