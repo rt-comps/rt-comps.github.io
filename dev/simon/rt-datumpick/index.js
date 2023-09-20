@@ -10,7 +10,7 @@ async function loadGlobalMods() {
   // RT BaseClass
   window.rtBC = await import(`${basePath}/rt_baseclass.js`);
   // Place current version in global variable
-  window.appelTaartVer = '5'
+  //window.appelTaartVer = '5'
 }
 
 // First load shared modules in to global scope then load components
@@ -20,7 +20,7 @@ loadGlobalMods().then(() => {
 
   // List of dependancies
   //  components will be loaded in parallel, so load order cannot be depended on.
-  const components = ['order-form','../rt-datumpick'];
+  const components = ["date-picker"];
 
   // Load all required top-level components
   Promise.all(components.map((componentName) => import(`./${componentName}/index.js`))).then(() => {

@@ -1,5 +1,5 @@
 // ================================================================
-// === item-line (displayed in item-data)
+// === item-line
 
 // get component name from directory name
 const [compName] = rtlib.parseURL(import.meta.url);

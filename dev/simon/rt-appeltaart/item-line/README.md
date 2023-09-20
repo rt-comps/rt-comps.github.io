@@ -1,5 +1,7 @@
 A component that displays the data for one type of a product variety and allows a quantity to be chosen
 
+Enclosed elements provide the content for the RHS of the element
+
 Attributes:
 - Required: 
     - prijs
@@ -7,16 +9,15 @@ Attributes:
 - Optional: None
 
 Events:
-- Dispatched: None
+- Dispatched: none
 - Listened:
     - "updatecount"
         - Respond to event from plus/minus button press
 
-Dependancies:
+Component Dependancies:
 - plus-minus
 
 Notes:
-This component is similar to <line-item> but the description only refers to the type
-as product and variety are implied by location in the DOM
+This component is similar to <line-item> but the description is simpler as product and variety are implied by location of the element in the DOM
 
 The text changes to BOLD when count != 0
