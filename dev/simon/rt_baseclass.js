@@ -65,6 +65,12 @@ class RTBaseClass extends HTMLElement {
     }).format(value);
   }
 
+  //--- $nlDate
+  // Formate a date object to NL string
+  $localeDate(date, locale, options) {
+    return Intl.DateTimeFormat(locale, options).format(date);
+  }
+
   //--- $getTemplate
   // Returns an HTML node based on the contents of a named <template> section in the document.head
   // NB: Requires that the <template> element was created previously!
