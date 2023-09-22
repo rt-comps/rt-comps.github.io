@@ -66,8 +66,8 @@ class RTBaseClass extends HTMLElement {
   }
 
   //--- $nlDate
-  // Formate a date object to NL string
-  $localeDate(date, locale, options) {
+  // Formate a date object to locale (default NL)  string
+  $localeDate(date, locale = 'nl-NL', options = {}) {
     return Intl.DateTimeFormat(locale, options).format(date);
   }
 
