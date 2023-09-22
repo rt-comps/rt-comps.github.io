@@ -3,25 +3,6 @@ export const html = (strings, ...values) =>
   String.raw({ raw: strings }, ...values);
 
 // ================================================================
-export function getDay(index) {
-  // Provide the correct day string from an immutable array
-  if (typeof index === 'number') {
-    const days = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
-    return days[index];
-  }
-}
-
-// ================================================================
-export function getMonth(index) {
-  // Provide the correct day string from an immutable array
-  if (typeof index === 'number') {
-    const months = ['jan', 'feb', 'mrt', 'apr', 'mei', 'juni', 'juli', 'aug', 'sep', 'okt', 'nov', 'dec'];
-    return months[index];
-  }
-}
-
-
-// ================================================================
 // Split a URL in to base path, component and file names
 // 
 // Returns ["<componentName>","<filePath>"]
