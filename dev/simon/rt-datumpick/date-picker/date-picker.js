@@ -7,67 +7,116 @@ const [compName] = rtlib.parseURL(import.meta.url);
 // Define custom element
 customElements.define(compName,
     class extends rtBC.RTBaseClass {
+        // Allow this component to participate in forms
+        static formAssociated = true;
+        // Private class fields
+        #_sR;
+        #_internals;
+        #_eventBus;
+        #_maxWeek;
+        #_value;
+
         //+++ Lifecycle Events
         //--- constructor
         constructor() {
-            const _sR = super().attachShadow({ mode: "open" })
-            _sR.append(this.$getTemplate());
+            // Need to run before can access 'this'
+            super();
+            // Make shadowRoot accessible via private class field
+            this.#_sR = this.attachShadow({ mode: "open" })
+            this.#_sR.append(this.$getTemplate());
 
-            // Useful nodes
-            const $_eventBus = _sR.querySelector('#container')
+            // Allow form participation
+            this.#_internals = this.attachInternals();
 
-            // Local properties
-            if (this.hasAttribute('maxweek')) $_eventBus.$maxWeek = parseInt(this.getAttribute('maxweek')) - 1;
-
-            // Define custom events for arrow clicks 
-            const decWeek = {
-                name: 'changeWeek',
-                detail: { change: -1 },
-                composed: false,
-                eventbus: $_eventBus
-            };
-            const incWeek = {
-                name: 'changeWeek',
-                detail: { change: 1 },
-                composed: false,
-                eventbus: $_eventBus
-            };
+            // Initialise other private class fields
+            this.#_eventBus = this.#_sR.querySelector('#container')
+            this.#_maxWeek = this.hasAttribute('maxweek') ? parseInt(this.getAttribute('maxweek')) - 1 : undefined;
+            // Initialise property that can be accessed by children via the parentNode property
+            this.#_eventBus._week = 0;
+            this.#_eventBus._locale = this.getAttribute('locale') || undefined;
 
             //### Event Listners
-            _sR.querySelector('#al').addEventListener('click', () => this.arrowRespond(decWeek));
-            _sR.querySelector('#ar').addEventListener('click', () => this.arrowRespond(incWeek));
+            this.#_sR.querySelector('#al').addEventListener('click', () => this.arrowRespond(-1));
+            this.#_sR.querySelector('#ar').addEventListener('click', () => this.arrowRespond(1));
             this.addEventListener('datepicked', (e) => this.dpRespond(e));
 
+            // Disable any days that are define by the 'invalid' attribute
             if (this.hasAttribute('invalid')) {
                 // Convert 'invalid' parameter value to array of integers
                 const invalidDays = this.getAttribute('invalid').split(',').map(Number);
                 // Get all <dp-date> nodes
-                const dateNodes = _sR.querySelectorAll('dp-date');
-                // Set all invalid days, allowing for more that 1 week of days in picker
+                const dateNodes = this.#_sR.querySelectorAll('dp-date');
+                // Set all invalid days, allowing for display of more than 1 week in picker
                 dateNodes.forEach(node => { if (invalidDays.indexOf((node.getAttribute('day')) % 7) > -1) { node.setAttribute('invalid', ''); } });
             }
+        }
+
+        //--- formAssociatedCallback
+        // triggered when component is associated with (or dissociated from) a form
+        formAssociatedCallback() {
+            // If this is an association then add listener for formData request
+            if (this.#_internals.form) {
+                // Set form values when the FormData() contructor is invoked (via submit or new)
+                this.#_internals.form.addEventListener('formdata', (e) => e.formData.set(this.name, this.#_value));
+            }
+        }
+
+        //--- formResetCallback
+        // respond to the enclosing form being reset
+        formResetCallback() {
+            this.#_value = null;
         }
         //+++ End of Lifecycle Events
 
         //--- arrowRespond
         // Clear highlighting and change week
-        arrowRespond(event) {
-            const days = [...this.shadowRoot.querySelectorAll('dp-date:not([invalid])')];
+        arrowRespond(change) {
+            // Find all child <dp-date> elements that are not labelled 'invalid'
+            const days = [...this.#_sR.querySelectorAll('dp-date:not([invalid])')];
+            // Clear highlighting for all <dp-date> elements
             days.forEach(el => {
                 el.shadowRoot.querySelector('#container').classList.remove('chosen');
             })
-            this.$dispatch(event);
+            // Apply change to _week
+            this.#_eventBus._week += change;
+            // Limit lowest value to zero
+            if (this.#_eventBus._week < 0) this.#_eventBus._week = 0;
+            // Adhere to upper limit - if set
+            if (this.#_maxWeek && (this.#_eventBus._week > this.#_maxWeek)) this.#_eventBus._week = this.#_maxWeek;
+            // Let child <dp-date> components know that _week has changed
+            this.$dispatch({
+                name: 'changeWeek',
+                composed: false,
+                eventbus: this.#_eventBus
+            });
         }
-        
+
         //--- dpRespond
-        // Highlight the chosen date
+        // Respond to a date being chosen
         dpRespond(e) {
-            const days = [...this.shadowRoot.querySelectorAll('dp-date:not([invalid])')];
-            days.forEach(el => {
-                const cont = el.shadowRoot.querySelector('#container');
-                if (el.getAttribute('day') === e.detail.day) cont.classList.add('chosen');
-                else cont.classList.remove('chosen');
+            // Store chosen value
+            this.#_value = this.$localeDate(e.detail.date, this.#_eventBus._locale, { weekday: 'short', month: 'short', year: 'numeric', day: 'numeric' });
+            /// Inform all <dp-date> elements to reset to an unchosen state if not the chosen one
+            this.$dispatch({
+                name: 'choiceMade',
+                detail: { day: e.detail.day },
+                composed: false,
+                eventbus: this.#_eventBus
             })
         }
+
+        // Expose some standard form element properties and methods
+        get value() { return this.#_value; }
+        //set value(v) { this.#_input.value = v; }
+
+        get name() { return this.getAttribute('name'); }
+        //get form() { return this.#_internals.form; }
+        //get validity() { return this.#_internals.validity; }
+
+        // Check validity of value provided
+        checkValidity() { return this.#_value ? true : false }
+        //reportValidity() { return this.#_internals.reportValidity(); }
+        //focus() {  };
+
     }
 );
