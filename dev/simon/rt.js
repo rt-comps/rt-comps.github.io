@@ -41,15 +41,15 @@ async function loadTemplate(url) {
         return response.text()
       })
       .then((htmlText) => { document.head.insertAdjacentHTML('beforeend', htmlText) });
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
   }
 }
 
 // ================================================================
 // Load a new component.
 //
-// url      : URL of calling file - assume it is in component directory
+// url      : URL of calling file - assumed it is in component directory
 // version  : Numeric version of code to use
 // 
 export function loadComponent(url, version = false) {
@@ -65,7 +65,6 @@ export function loadComponent(url, version = false) {
     .then(() => {
       const js_module = `${baseFile}.js`;
       import(js_module)
-        // .then((module) => console.log("loaded", js_module))
         .catch((err) => console.error("failed import", js_module, err));
     })
 }
