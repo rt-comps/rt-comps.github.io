@@ -56,6 +56,7 @@ class RTBaseClass extends HTMLElement {
         (x) => Number(x) || console.error(attr, "contains illegal number", x)
       );
   }
+
   //--- $euro
   // format value as Euro NL currency string
   $euro(value) {
@@ -73,7 +74,7 @@ class RTBaseClass extends HTMLElement {
 
   //--- $getTemplate
   // Returns an HTML node based on the contents of a named <template> section in the document.head
-  // NB: Requires that the <template> element was created previously!
+  // NB: Assumes that the <template> element was created previously using rt.loadComponent()!
   $getTemplate(template_id = this.nodeName) {
     let template = document.getElementById(template_id);
     if (template) return template.content.cloneNode(true);
