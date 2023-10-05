@@ -385,8 +385,8 @@ customElements.define(compName,
             localStorage.setItem('userDeets', JSON.stringify(output));
             // If no then clear any existing data
           } else localStorage.removeItem('userDeets');
-          form.reset();
 
+          form.reset();
 
           console.log('Form Submitted!');
         }
