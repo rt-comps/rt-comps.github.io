@@ -59,15 +59,16 @@ customElements.define(compName,
                 const today = new Date();
                 // A useful value
                 const dateId = parseInt(this.getAttribute('day'));
+                const currentWeek = this.parentNode._week || 0;
 
                 // Disable date if calculated as in the past or labelled as invalid - color used as enable/disable flag
-                this.#_sR.querySelector('#container').style.color = ((this.hasAttribute('invalid') || (this.parentNode._week === 0 && (today.getDay() > dateId))) ? "rgb(204,204,204)" : "rgb(0,0,0)");
+                this.#_sR.querySelector('#container').style.color = ((this.hasAttribute('invalid') || (currentWeek === 0 && (today.getDay() > dateId))) ? "rgb(204,204,204)" : "rgb(0,0,0)");
 
                 /// Determine what the date object value for this instance should be
                 // Reset #_date to today
                 this.#_date = today;
                 // Modify #_date to the correct value in a way that handles a month boundary when required
-                this.#_date.setDate(today.getDate() + (7 * this.parentNode._week) + (dateId - today.getDay()));
+                this.#_date.setDate(today.getDate() + (7 * currentWeek) + (dateId - today.getDay()));
 
                 /// Perform value rendering
                 // localised day name
