@@ -64,19 +64,15 @@ customElements.define(compName,
         //--- formResetCallback
         // respond to the enclosing form being reset
         formResetCallback() {
-            this.#_value = null;
+            this.clearChosen();
         }
         //+++ End of Lifecycle Events
 
         //--- arrowRespond
         // Clear highlighting and change week
         arrowRespond(change) {
-            // Find all child <dp-date> elements that are not labelled 'invalid'
-            const days = [...this.#_sR.querySelectorAll('dp-date:not([invalid])')];
-            // Clear highlighting for all <dp-date> elements
-            days.forEach(el => {
-                el.shadowRoot.querySelector('#container').classList.remove('chosen');
-            })
+            // Reset any chosen value
+            this.clearChosen();
             // Apply change to _week
             this.#_eventBus._week += change;
             // Limit lowest value to zero
@@ -105,6 +101,18 @@ customElements.define(compName,
             })
         }
 
+        //--- clearChosen
+        clearChosen() {
+            // Find all child <dp-date> elements that are not labelled 'invalid'
+            const days = [...this.#_sR.querySelectorAll('dp-date:not([invalid])')];
+            // Clear highlighting for all <dp-date> elements
+            days.forEach(el => {
+                el.shadowRoot.querySelector('#container').classList.remove('chosen');
+            })
+            // Clear the form value
+            this.#_value = null;
+        }
+
         // Expose some standard form element properties and methods
         get value() { return this.#_value; }
         //set value(v) { this.#_input.value = v; }
@@ -116,7 +124,7 @@ customElements.define(compName,
         // Check validity of value provided
         checkValidity() { return this.#_value ? true : false }
         //reportValidity() { return this.#_internals.reportValidity(); }
-        //focus() {  };
+        focus() { this.#_sR.querySelector('#container').focus() };
 
     }
 );
