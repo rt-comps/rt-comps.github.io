@@ -65,6 +65,14 @@ customElements.define(compName,
         // respond to the enclosing form being reset
         formResetCallback() {
             this.clearChosen();
+            // Reset week and inform all <dp-date> components of the change
+            this.#_eventBus._week = 0;
+            this.$dispatch({
+                name: 'changeWeek',
+                composed: false,
+                eventbus: this.#_eventBus
+            });
+
         }
         //+++ End of Lifecycle Events
 
@@ -92,25 +100,28 @@ customElements.define(compName,
         dpRespond(e) {
             // Store chosen value
             this.#_value = this.$localeDate(e.detail.date, this.#_eventBus._locale, { weekday: 'short', month: 'short', year: 'numeric', day: 'numeric' });
-            /// Inform all <dp-date> elements to reset to an unchosen state if not the chosen one
-            this.$dispatch({
-                name: 'choiceMade',
-                detail: { day: e.detail.day },
-                composed: false,
-                eventbus: this.#_eventBus
-            })
+            // Inform all <dp-date> about choice
+            this.dispatchChoice(e.detail.day);
         }
 
         //--- clearChosen
+        // Tell all <dp-date> components to clear any highlight
         clearChosen() {
-            // Find all child <dp-date> elements that are not labelled 'invalid'
-            const days = [...this.#_sR.querySelectorAll('dp-date:not([invalid])')];
-            // Clear highlighting for all <dp-date> elements
-            days.forEach(el => {
-                el.shadowRoot.querySelector('#container').classList.remove('chosen');
-            })
+            // '-1' should not match a <dp-date> component
+            this.dispatchChoice('-1');
             // Clear the form value
             this.#_value = null;
+        }
+
+        //--- dispatchChoice
+        // Tell all <dp-date> components to clear highlight if not chosen
+        dispatchChoice(day){
+            this.$dispatch({
+                name: 'choiceMade',
+                detail: { day },
+                composed: false,
+                eventbus: this.#_eventBus
+            })
         }
 
         // Expose some standard form element properties and methods
