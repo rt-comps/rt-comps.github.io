@@ -46,7 +46,7 @@ customElements.define(compName,
                         this.#_input.type = inputType;
                         break;
                     case 'post':
-                        // constrain postcode to 4 digits and 2 alpha - with or without space
+                        // constrain postcode to 4 digits and 2 alpha - with or without a space
                         this.#_input.pattern = "[0-9]{4} {0,1}[A-Za-z]{2}";
                         break;
                 }
@@ -54,6 +54,8 @@ customElements.define(compName,
 
             // Use 'label' attribute for field label
             _sR.querySelector('label').insertAdjacentHTML('afterbegin', `${this.getAttribute('label') || 'Name Missing'}&nbsp;`);
+            // Needed for Safari
+            this.addEventListener('focus',()=>this.focus());
         }
 
         //--- formAssociatedCallback
@@ -73,9 +75,9 @@ customElements.define(compName,
         }
         //+++ End of Lifecycle Events
 
-        // Expose some standard form element properties and methods
+        //### Expose some standard form element properties and methods
         get value() { return this.#_input.value; }
-        //set value(v) { this.#_input.value = v; }
+        set value(v) { this.#_input.value = v; }
 
         get name() { return this.getAttribute('name'); }
         //get form() { return this.#_internals.form; }
