@@ -57,7 +57,7 @@ customElements.define(compName,
             // If this is an association then add listener for formData request
             if (this.#_internals.form) {
                 // Set form values when the FormData() contructor is invoked (via submit or new)
-                this.#_internals.form.addEventListener('formdata', (e) => e.formData.set(this.name, this.#_value));
+                this.#_internals.form.addEventListener('formdata', (e) => e.formData.set('picked-date', this.#_value));
             }
         }
 

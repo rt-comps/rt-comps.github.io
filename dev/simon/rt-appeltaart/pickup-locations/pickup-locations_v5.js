@@ -41,12 +41,10 @@ customElements.define(
       if (this.#_internals.form) {
         // Attach a listener to update the form values for this component when form is submitted
         this.#_internals.form.addEventListener('formdata', (e) => {
-          const name = this.getAttribute('name');
-          // Handle no checked radio buttons - should not be needed because of validation check?
           const location = this.#_sR.querySelector('input[name="location"]:checked');
           const time = this.#_sR.querySelector('input[name="time-slot"]:checked');
-          e.formData.append(`${name}-location`, location ? location.value : '');
-          e.formData.append(`${name}-time`, time ? time.value : '');
+          e.formData.append(`pickup-location`, location ? location.value : '');
+          e.formData.append(`pickup-time`, time ? time.value : '');
         });
       }
     }
@@ -138,13 +136,9 @@ customElements.define(
     focus() {
       console.log('focusing');
       const times = this.#_sR.querySelector('#pu-times');
-      console.log(times.style.display ? true : false)
-      console.log(this.#_sR.querySelector('#fs-time'));
       if (times.style.display) {
-        console.log('focusing up');
         this.#_sR.querySelector('#fs-pickup').focus();}
       else {
-        console.log('focusing down');
         this.#_sR.querySelector('#fs-time').focus();}
     }
   }
