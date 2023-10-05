@@ -50,6 +50,14 @@ customElements.define(
         });
       }
     }
+
+    //--- formResetCallback
+    // respond to the enclosing form being reset
+    formResetCallback() {
+      const checked = [...this.#_sR.querySelectorAll('input:checked')];
+      checked.forEach(el => el.checked = false);
+      this.#_times.style.display = 'none';
+    }
     //+++++ End of Lifecycle Events
 
     //--- render
@@ -103,7 +111,7 @@ customElements.define(
       }
     }
 
-    //-- updateLoc
+    //--- updateLoc
     // Update pickup times when user selects location
     updateLoc(e) {
       // Unhide 'times' on the first time a location is chosen
@@ -117,6 +125,27 @@ customElements.define(
       // uncheck any previously checked radio buttons
       const isChecked = this.shadowRoot.querySelector('input[name="time-slot"]:checked')
       if (isChecked) isChecked.checked = false;
+    }
+
+    //### Expose some standard form element properties and methods
+    //--- checkValidity
+    // Ensure a value has been chosen
+    checkValidity() {
+      return (this.#_sR.querySelector('input[name="location"]:checked') && this.#_sR.querySelector('input[name="time-slot"]:checked')) ? true : false;
+    }
+    //--- focus
+    // Push focus to correct element
+    focus() {
+      console.log('focusing');
+      const times = this.#_sR.querySelector('#pu-times');
+      console.log(times.style.display ? true : false)
+      console.log(this.#_sR.querySelector('#fs-time'));
+      if (times.style.display) {
+        console.log('focusing up');
+        this.#_sR.querySelector('#fs-pickup').focus();}
+      else {
+        console.log('focusing down');
+        this.#_sR.querySelector('#fs-time').focus();}
     }
   }
 );
