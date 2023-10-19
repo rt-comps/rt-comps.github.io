@@ -20,7 +20,7 @@ loadGlobalMods().then(() => {
 
   // List of dependancies
   //  components will be loaded in parallel, so load order cannot be depended on.
-  const components = ['order-form','../rt-datumpick'];
+  const components = ['ate-form'];
 
   // Load all required top-level components
   Promise.all(components.map((componentName) => import(`./${componentName}/index.js`))).then(() => {

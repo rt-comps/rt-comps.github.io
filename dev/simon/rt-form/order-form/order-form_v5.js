@@ -33,6 +33,8 @@ customElements.define(compName,
       //### Event Listeners
       //___ updatemenu - Respond to product choice
       this.addEventListener('updatemenu', (e) => this.updateItemData(e));
+      //___ orderaccept - Reset the form
+      this.addEventListener('orderaccept', () => this.accepted());
       //___ updatecount - Respond to +/- presses when choosing items
       this.#_sR.querySelector('#menu-container').addEventListener('updatecount', (e) => this.displayDetailButton(e));
       //___ cartmod - Respond to +/- presses to items in cart
@@ -89,7 +91,7 @@ customElements.define(compName,
 
       /// Move user's form to shadowDOM
       const srcNode = this.querySelector('div[slot="user-details"]');
-      this.#_form = this.shadowRoot.querySelector('form[id="details-form"]');
+      this.#_form = this.#_sR.querySelector('form#details-form');
       this.#_form.append(...srcNode.children);
 
     }
@@ -309,9 +311,9 @@ customElements.define(compName,
           this.#_form.querySelector(`[name=${key}]`).value = value;
         }
       }
-      
+
       // Unhide form
-      this.shadowRoot.querySelector('#form-container').style.visibility = 'visible';
+      this.#_sR.querySelector('#form-container').style.visibility = 'visible';
       // Update button visibility in cart
       this.displayCartButtons();
     }
@@ -328,16 +330,14 @@ customElements.define(compName,
     //--- dispatchOrder
     // Catch the form submit event and ensure required values have been provided
     dispatchOrder() {
-      // Get form node
-      const form = this.shadowRoot.querySelector('#details-form');
       // Continue if form found
-      if (form) {
+      if (this.#_form) {
         //### Check form data validity
         // Set fail flag
         let firstFail = false;
 
         // Collect all possible field types
-        const nodes = form.querySelectorAll('form-field, pickup-locations, date-picker');
+        const nodes = this.#_form.querySelectorAll('form-field, pickup-locations, date-picker');
         // Check validity of each field type and set focus to first field to fail check
         for (const el of nodes) {
           // console.log(`${el.localName}: ${el.checkValidity()}`);
@@ -353,45 +353,47 @@ customElements.define(compName,
         if (!firstFail) {
           //### Dispatch order and reset form
           // Collect the current form data
-          const formValues = new FormData(form);
+          const formValues = new FormData(this.#_form);
           //         console.log([...formValues.entries()]);
-          // Get current order from local storage
-          const newOrder = localStorage.getItem('currentOrder');
           // Dispatch an event containing the order details
           this.$dispatch({
             name: 'neworder',
             detail: {
               person: Object.fromEntries(formValues.entries()),
-              order: JSON.parse(newOrder)
+              order: JSON.parse(localStorage.getItem('currentOrder'))
             }
           });
 
-          // ### Clean up
-          // Hide the details form
-          this.shadowRoot.querySelector('#form-container').style.visibility = '';
-          // Set last order on the user's local storage to current order
-          localStorage.setItem('lastOrder', newOrder);
-          // Clear the cart
-          localStorage.removeItem('currentOrder');
-          this.updateCart();
-          //  Reset the buttons
-          this.displayCartButtons();
-          // Check if user has chosen to save their details
-          const saveFields = this.#_sR.querySelector('#savefields');
-          // If yes then put details in object and store as JSON string
-          if (saveFields && saveFields.checked) {
-            const fields = [...this.#_sR.querySelectorAll(`#details-form form-field,textarea`)];
-            const output = fields.reduce((acc, el) => ({ ...acc, [el.name]: el.value }), {});
-            localStorage.setItem('userDeets', JSON.stringify(output));
-            // If no then clear any existing data
-          } else localStorage.removeItem('userDeets');
-
-          form.reset();
-
-          console.log('Form Submitted!');
         }
       }
       else console.warn('Form submission failed: form not found');
+    }
+
+    //--- accepted
+    // Reset the component once order has been accepted
+    accepted() {
+      // Hide the details form
+      this.#_sR.querySelector('#form-container').style.visibility = '';
+      // Set last order on the user's local storage to current order
+      localStorage.setItem('lastOrder', localStorage.getItem('currentOrder'));
+      // Clear the cart
+      localStorage.removeItem('currentOrder');
+      this.updateCart();
+      //  Reset the buttons
+      this.displayCartButtons();
+      // Check if user has chosen to save their details
+      const saveFields = this.#_sR.querySelector('#savefields');
+      // If yes then put details in object and store as JSON string
+      if (saveFields && saveFields.checked) {
+        const fields = [...this.#_sR.querySelectorAll(`#details-form form-field,textarea`)];
+        const output = fields.reduce((acc, el) => ({ ...acc, [el.name]: el.value }), {});
+        localStorage.setItem('userDeets', JSON.stringify(output));
+        // If no then clear any existing data
+      } else localStorage.removeItem('userDeets');
+
+      this.#_form.reset();
+
+      console.log('Form Submitted!');
     }
   }
 );
