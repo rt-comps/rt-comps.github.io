@@ -9,8 +9,8 @@ const components = ['item-line'];
 // Load all dependencies
 Promise.all(
   components.map((componentName) => import(`../${componentName}/index.js`))
-  ).then(() => {
-    console.timeEnd(`loadModules for ${moduleName}`);
-    // Load this component, with optional preferred version specified
-rtlib.loadComponent(import.meta.url, appelTaartVer);
-  }); 
+).then(() => {
+  console.timeEnd(`loadModules for ${moduleName}`);
+  // Load this component, with optional preferred version specified
+  rtlib.loadComponent(import.meta.url);
+}); 
