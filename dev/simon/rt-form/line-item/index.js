@@ -12,5 +12,5 @@ Promise.all(
   ).then(() => {
     console.timeEnd(`loadModules for ${moduleName}`);
     // Load this component, with optional preferred version specified
-rtlib.loadComponent(import.meta.url, appelTaartVer);
+rtlib.loadComponent(import.meta.url);
   }); 

@@ -9,8 +9,6 @@ async function loadGlobalMods() {
   window.rtlib = await import(`${basePath}/rt.js`);
   // RT BaseClass
   window.rtBC = await import(`${basePath}/rt_baseclass.js`);
-  // Place current version in global variable
-  window.formVer = '5'
 }
 
 // First load shared modules in to global scope then load components
