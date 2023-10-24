@@ -340,7 +340,6 @@ customElements.define(compName,
         const nodes = this.#_form.querySelectorAll('form-field, pickup-locations, date-picker');
         // Check validity of each field type and set focus to first field to fail check
         for (const el of nodes) {
-          // console.log(`${el.localName}: ${el.checkValidity()}`);
           if (!el.checkValidity()) {
             if (!firstFail) {
               el.focus();
@@ -354,7 +353,6 @@ customElements.define(compName,
           //### Dispatch order and reset form
           // Collect the current form data
           const formValues = new FormData(this.#_form);
-          //         console.log([...formValues.entries()]);
           // Dispatch an event containing the order details
           this.$dispatch({
             name: 'neworder',

@@ -45,7 +45,7 @@ customElements.define(
                         // this.insertAdjacentHTML('afterbegin', htmlText)
                     });
             } catch (e) {
-                console.log(e);
+                console.warn(e);
             }
         }
 
@@ -78,7 +78,7 @@ customElements.define(
                             this.#_sR.querySelector('order-form').accepted();
                         } else {
                             alert('Order submission failed');
-                            console.log(text);
+                            console.warn(text);
                         }
                     });
             }
