@@ -2,7 +2,6 @@
 // Start timer (informational)
 const moduleName = import.meta.url.split('/').slice(-2)[0];
 console.time(`loadModules for ${moduleName}`);
-
 // List of dependencies
 const components = ['menu-item', 'item-data', 'line-item', 'pickup-locations', 'form-field'];
 
