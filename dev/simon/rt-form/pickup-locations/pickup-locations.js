@@ -134,7 +134,6 @@ customElements.define(
     //--- focus
     // Push focus to correct element
     focus() {
-      console.log('focusing');
       const times = this.#_sR.querySelector('#pu-times');
       if (times.style.display) {
         this.#_sR.querySelector('#fs-pickup').focus();}

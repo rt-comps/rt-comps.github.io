@@ -42,7 +42,7 @@ async function loadTemplate(url) {
       })
       .then((htmlText) => { document.head.insertAdjacentHTML('beforeend', htmlText) });
   } catch (err) {
-    console.log(err);
+    console.warn(err);
   }
 }
 
