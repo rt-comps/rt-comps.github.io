@@ -1,0 +1,1 @@
+const moduleName=import.meta.url.split("/").slice(-2)[0];console.time(`loadModules for ${moduleName}`);const components=["../rt-form","../rt-datumpick"];Promise.all(components.map(componentName=>import(`../${componentName}/index.js`))).then(()=>{console.timeEnd(`loadModules for ${moduleName}`);rtlib.loadComponent(import.meta.url)});

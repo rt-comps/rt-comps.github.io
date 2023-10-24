@@ -18,29 +18,31 @@ customElements.define(
 
             // Get the menu file
             this.getMenu();
-
+            
             // Catch form output event and display final order details
-            this.addEventListener('neworder', (e) => this.dispatchOrder(e));
-
+            this.addEventListener('neworder', (e) => this.dispatchOrder(e));            
         }
-
+        
         //--- connectedCallback
         connectedCallback() {
         }
         //+++ End OF Lifecycle Events
 
         //--- getMenu
-        // Retrieve the menu from a 'menu.html' file.  The file needs to be adjacent to the page containg the <ate-form> element 
+        // Retrieve the menu from a 'menu.html' file.  The file needs to be adjacent to the page containg the <ati-form> element 
         getMenu() {
             const url = 'menu.html';
             try {
-                return fetch(url)
+//                return fetch(url)
+                fetch(url)
                     .then((response) => {
                         if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
                         return response.text()
                     })
                     .then((htmlText) => {
-                        this.#_sR.querySelector('div').insertAdjacentHTML('afterbegin', htmlText)
+                        // Load content in to shadow DOM - doesn't work if imported in to light DOM?
+                       this.#_sR.querySelector('div').insertAdjacentHTML('afterbegin', htmlText)
+                        // this.insertAdjacentHTML('afterbegin', htmlText)
                     });
             } catch (e) {
                 console.log(e);
