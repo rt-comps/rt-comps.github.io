@@ -12,6 +12,6 @@ Promise.all(
 ).then(() => {
   // Stop timer
   console.timeEnd(`loadModules for ${moduleName}`);
-  // Load this component, with optional version
+  // Load this component
   rtlib.loadComponent(import.meta.url);
 });  
