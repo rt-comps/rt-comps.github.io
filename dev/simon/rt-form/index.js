@@ -1,7 +1,7 @@
 // ===== Import all required modules and components
 
 // --- loadGlobalMods()
-// Load base modules into global scope
+// Load base modules into global scope if not already loaded
 async function loadGlobalMods() {
   // Assumes that modules are accesible at the same location.
   const basePath = import.meta.url.split('/').slice(0, -2).join('/');
@@ -9,8 +9,6 @@ async function loadGlobalMods() {
   if (!rtlib) window.rtlib = await import(`${basePath}/rt.js`);
   // RT BaseClass
   if (!rtBC) window.rtBC = await import(`${basePath}/rt_baseclass.js`);
-  // Place current version in global variable
-  window.appelTaartVer = '5'
 }
 
 // First load shared modules in to global scope then load components
