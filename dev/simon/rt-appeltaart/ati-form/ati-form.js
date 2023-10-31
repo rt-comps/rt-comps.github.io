@@ -39,6 +39,7 @@ customElements.define(
         // 
         // Both fetch() and response.text() are async functions
         getMenu() {
+            ///asdjhsagdjhasgdjh
             const url = 'menu.html';
             const pageUrl = document.location.href;
             console.warn(`lastIndex: ${pageUrl.lastIndexOf('/')}`);
