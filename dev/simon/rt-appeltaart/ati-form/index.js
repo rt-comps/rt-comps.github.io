@@ -3,6 +3,7 @@
 const moduleName = import.meta.url.split('/').slice(-2)[0];
 console.time(`loadModules for ${moduleName}`);
 
+console.warn(document.location.href);
 const url = 'menu.html';
 try {
     fetch(url)
