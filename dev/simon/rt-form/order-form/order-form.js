@@ -3,6 +3,7 @@
 
 // Recover component name from URL
 const [compName] = rtlib.parseURL(import.meta.url);
+console.log(compName);
 
 // Define the component
 customElements.define(compName,

@@ -1,9 +1,11 @@
 // ================================================================
 // === ate-form
 //
-// This is a container for a form so does not have a template but instead loads the form contents from a definition file
-// Note: Template file must be provided for loadComponent() function
-// Note2: Form must be loaded into shadowDOM for it to be rendered
+// This is a container for an order form
+// It provides functions for loading the menu HTML and responds to a new order being placed
+// 
+// Note: Template file exist, even though it is unnecessary, for rt.loadComponent() to function
+// Note 2: Form HTML must be loaded into shadowDOM for it to be rendered
 //
 const [compName] = rtlib.parseURL(import.meta.url);
 
@@ -33,7 +35,7 @@ customElements.define(
         //+++ End OF Lifecycle Events
 
         //--- getMenu
-        // Retrieve the menu from a 'menu.html' file.  The file needs to be adjacent to the page containg the <ati-form> element
+        // Retrieve the menu from a 'menu.html' file.  The file (currently) needs to be adjacent to the page containg the <ati-form> element
         // 
         // Both fetch() and response.text() are async functions
         getMenu() {
@@ -46,9 +48,10 @@ customElements.define(
                         return response.text()
                     })
                     .then((htmlText) => {
-                        // Once response.text() is available then append to shadow DOM
+                        // Once response.text() is available then create a fragment and then append to shadow DOM
+                        // This produces a similar result to $getTemplate
                         const frag = document.createRange().createContextualFragment(htmlText);
-                       this.#_sR.appendChild(frag);
+                        this.#_sR.appendChild(frag);
                     });
             } catch (e) {
                 console.warn(e);
@@ -79,7 +82,7 @@ customElements.define(
                 fetch(handler, options)
                     .then((response) => { if (response.ok) return response.text(); })
                     .then((text) => {
-                        document.querySelector('#Debug').innerHTML = text;
+                        //document.querySelector('#Debug').innerHTML = text;
                         if (text.slice(-2) === 'OK' && text.slice(-3) !== 'NOK') {
                             this.#_sR.querySelector('order-form').accepted();
                         } else {
