@@ -5,7 +5,7 @@ console.time(`loadModules for ${moduleName}`);
 
 if (customElements.get('order-form')){
   console.warn('order-form already defined!!');
-  return;
+  stop();
 }
 
 // List of dependencies
