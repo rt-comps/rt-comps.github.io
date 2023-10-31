@@ -6,6 +6,7 @@ console.time(`loadModules for ${moduleName}`);
 if (customElements.get('order-form')){
   console.warn('order-form already defined!!');
   stop();
+  //asdfdsf
 }
 
 // List of dependencies
