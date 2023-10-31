@@ -3,7 +3,7 @@
 
 // Recover component name from URL
 const [compName] = rtlib.parseURL(import.meta.url);
-console.log(compName);
+console.warn(`${customElements.get(compName)?'Component already exists':'Good to continue'}`);
 
 // Define the component
 customElements.define(compName,
