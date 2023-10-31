@@ -4,9 +4,7 @@ const moduleName = import.meta.url.split('/').slice(-2)[0];
 console.time(`loadModules for ${moduleName}`);
 
 if (customElements.get('order-form')){
-  console.warn('order-form already defined!!');
-  stop();
-  //asdfdsf
+  throw new Error('order-form already defined!!');
 }
 
 // List of dependencies
