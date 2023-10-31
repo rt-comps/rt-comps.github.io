@@ -3,29 +3,9 @@
 const moduleName = import.meta.url.split('/').slice(-2)[0];
 console.time(`loadModules for ${moduleName}`);
 
-console.warn(document.location.href);
-const url = 'menu.html';
-try {
-    fetch(url)
-        .then((response) => {
-            // Once response has been received, check for error
-            if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
-            return response.text()
-        })
-        // .then((htmlText) => {
-        //     // Once response.text() is available then create a fragment and then append to shadow DOM
-        //     // This produces a similar result to $getTemplate
-        //     const frag = document.createRange().createContextualFragment(htmlText);
-        //     this.#_sR.appendChild(frag);
-        // });
-} catch (e) {
-    console.warn(e);
-}
-
 if (customElements.get('order-form')){
   throw new Error('order-form already defined!!');
 }
-
 
 // List of dependencies
 const components = ['../rt-form', '../rt-datumpick'];

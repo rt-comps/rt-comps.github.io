@@ -40,6 +40,10 @@ customElements.define(
         // Both fetch() and response.text() are async functions
         getMenu() {
             const url = 'menu.html';
+            const pageUrl = document.location.href;
+            console.warn(`lastIndex: ${pageUrl.lastIndexOf('/')}`);
+            console.warn(`Length: ${pageUrl.length}`);
+            // if (pageUrl.lastIndexOf('/') === page)
             try {
                 fetch(url)
                     .then((response) => {
