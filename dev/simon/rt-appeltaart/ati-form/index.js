@@ -3,6 +3,11 @@
 const moduleName = import.meta.url.split('/').slice(-2)[0];
 console.time(`loadModules for ${moduleName}`);
 
+if (customElements.get('order-form')){
+  console.warn('order-form already defined!!');
+  return;
+}
+
 // List of dependencies
 const components = ['../rt-form', '../rt-datumpick'];
 
