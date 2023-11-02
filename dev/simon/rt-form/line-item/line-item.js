@@ -71,7 +71,7 @@ customElements.define(
             else this.removeAttribute('count');
             this.#_sR.querySelector('#total').innerHTML = `${(this.$euro((count * unit) / 100))}`;
             // Publish delete icon
-            this.#_sR.querySelector('img').src = `${compPath}/imgs/trashicon.jpeg`;
+            this.#_sR.querySelector('img').src = `${compPath}/imgs/trashican.jpeg`;
         }
     }
 );
