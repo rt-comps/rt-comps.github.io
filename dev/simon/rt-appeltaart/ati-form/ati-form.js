@@ -7,7 +7,7 @@
 // Note: Template file exist, even though it is unnecessary, for rt.loadComponent() to function
 // Note 2: Form HTML must be loaded into shadowDOM for it to be rendered
 //
-const [compName] = rtlib.parseURL(import.meta.url);
+const [compName, compPath] = rtlib.parseURL(import.meta.url);
 
 customElements.define(
     compName,
@@ -35,31 +35,33 @@ customElements.define(
         //+++ End OF Lifecycle Events
 
         //--- getMenu
-        // Retrieve the menu from a 'menu.html' file.  The file (currently) needs to be adjacent to the page containg the <ati-form> element
-        // 
-        // Both fetch() and response.text() are async functions
+        // Retrieve the menu from file specified in the datafile attribute.
+        // The file (currently) needs to hosted in the <ati-form> element directory
         getMenu() {
-            ///asdjhsagdjhasgdjh
-            const url = 'menu.html';
-            const pageUrl = document.location.href;
-            console.warn(`lastIndex: ${pageUrl.lastIndexOf('/')}`);
-            console.warn(`Length: ${pageUrl.length}`);
-            // if (pageUrl.lastIndexOf('/') === page)
-            try {
-                fetch(url)
-                    .then((response) => {
-                        // Once response has been received, check for error
-                        if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
-                        return response.text()
-                    })
-                    .then((htmlText) => {
-                        // Once response.text() is available then create a fragment and then append to shadow DOM
-                        // This produces a similar result to $getTemplate
-                        const frag = document.createRange().createContextualFragment(htmlText);
-                        this.#_sR.appendChild(frag);
-                    });
-            } catch (e) {
-                console.warn(e);
+            // Check that the datafile attribute has been provided
+            if (this.hasAttribute('datafile') && this.getAttribute('datafile')) {
+                // Determing the path to the menu data file
+                const url = `${compPath}/${this.getAttribute('datafile')}`;
+                try {
+                    fetch(url)
+                        // Wait for the response
+                        .then((response) => {
+                            // Once response has been received, check for error
+                            if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
+                            return response.text()
+                        })
+                        //Wait for the text to be available
+                        .then((htmlText) => {
+                            // Create a fragment and then append to shadow DOM
+                            const frag = document.createRange().createContextualFragment(htmlText);
+                            this.#_sR.appendChild(frag);
+                        });
+                } catch (e) {
+                    console.warn(e);
+                }
+            } else {
+                const frag = document.createRange().createContextualFragment('<h1 style="color: red;">datafile attribute not provided</h1>');
+                this.#_sR.appendChild(frag);
             }
         }
 
