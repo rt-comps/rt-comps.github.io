@@ -1,0 +1,92 @@
+<html>
+
+<head>
+    <title>CSS Testing</title>
+    <style>
+        div {
+            background-color: rgb(188, 188, 247);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        div.overlay {
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            bottom: 0%;
+            right: 0%;
+            z-index: 10;
+        }
+
+        #container {
+            align-items: flex-start;
+            width: 800px;
+            height: 600px;
+            background-color: lightgray;
+        }
+
+        #main-container {
+            position: relative;
+            background-color: blueviolet;
+            height: 100%;
+            flex-grow: 1;
+        }
+
+        #main {
+            background-color: rgb(195, 251, 195);
+            position: relative;
+            height: inherit;
+            flex-basis: 100%;
+        }
+
+        #side {
+            background-color: rgb(251, 178, 178);
+            height: 300px;
+            width: 200px;
+            flex: none;
+            flex-direction: column;
+        }
+
+        #top {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <script>
+        function toggleBlock() {
+            const block = document.querySelector('#top');
+            if (block.style.visibility) block.removeAttribute('style')
+            else block.style.visibility = 'hidden';
+        }
+
+        function doSomething(){
+            console.log(window.getComputedStyle(document.querySelector('#top')));
+        }
+    </script>
+</head>
+
+<body>
+    <div id="container">
+        <div id="main-container">
+            <div id="main">
+                <div style="color: white; background-color: black;">The main panel</div>
+                <div>Line 2</div>
+                <div>Line 3</div>
+            </div>
+            <div id="top" class="overlay">
+                <div style="color: white; background-color: red;">The top panel</div>
+            </div>
+        </div>
+        <div id="side">
+            The side panel
+            <div onClick="toggleBlock()" style="background-color: white; user-select: none; -webkit-user-select: none;">
+                Toggle Block</div>
+            <div onClick="doSomething()">Do Something</div>
+        </div>
+    </div>
+</body>
+
+</html>
