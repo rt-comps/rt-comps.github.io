@@ -35,12 +35,13 @@ export function parseURL(url, getFile = false) {
 //
 async function loadTemplate(url) {
   try {
+    // return the value from the end of this chain
     return fetch(url)
       .then((response) => {
         if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
         return response.text()
       })
-      .then((htmlText) => { document.head.insertAdjacentHTML('beforeend', htmlText) });
+      .then((htmlText) => document.head.insertAdjacentHTML('beforeend', htmlText));
   } catch (err) {
     console.warn(err);
   }
