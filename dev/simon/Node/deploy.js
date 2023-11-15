@@ -10,11 +10,10 @@
 // > npm install --save uglify-js html-minifier
 // ----------------------------
 
-let output;
-
 // ### Load modules 
 // Allow FileSystem access
 const fs = require('fs');
+const { minify } = require('uglify-js');
 // Minifiers
 const uglify = require('uglify-js').minify;
 const mini = require('html-minifier').minify;
@@ -25,61 +24,78 @@ const miniOpt = {
     minifyCSS: true
 }
 
-// Read in project name, if provided
-const proj = process.argv[2] || 'rt-appeltaart';
-// Define some paths
-const projPath = '../../..';
-const devPath = `${projPath}/dev/simon`;
-const srcPath = `${devPath}/${proj}`;
-const stgPath = `${devPath}/tmp/${proj}`;
-const dstPath = `${projPath}/docs`;
+try {
+    // ### Local Functions
+    // --- walk
+    // Recursively find all the files in the given path
+    // This gets past the fact that 'recursive' option of readdir() does not seem to work 
+    function walk(path, result = []) {
+        // List all entries in this path
+        fs.readdirSync(path, { withFileTypes: true }).forEach(
+            // Add each list item to the array with path
+            (item) => {
+                const thisRes = `${path}/${item.name}`;
+                // If item is directory then walk this new directory
+                if (item.isDirectory()) walk(`${path}/${item.name}`, result)
+                // If item is a file then ad to list
+                else result.push(`${path.replace(devPath, '')}/${item.name}`)
+            }
+        );
+        return result;
+    }
 
-// --- walk
-// Recursively find all the files in the path
-// This gets past the fact that 'recursive' option of readdir() does not work 
-function walk(path, result = []) {
-    // List all entries in this path
-    fs.readdirSync(path, { withFileTypes: true }).forEach(
-        // Add each list item to the array with path
-        (item) => {
-            const thisRes = `${path}/${item.name}`;
-            // If item is directory then walk this new directory rather than add to results
-            if (item.isDirectory()) walk(`${path}/${item.name}`, result)
-            else result.push(`${path.replace(devPath, '')}/${item.name}`)
-        }
-    );
-    return result;
-}
-let err;
+    // ### Define some paths
+    // Read in project name, if provided
+    const comp = process.argv[2] || 'rt-appeltaart';
+    // Assume script is called from within project dir structure and determine the
+    // base path from that
+    const execPath = process.cwd();
+    console.log(execPath);
+    if (execPath.indexOf('github.io') < 0) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
+    const compPath = execPath.slice(0, execPath.indexOf('github.io') + 9);
+    console.log(compPath);
+    const devPath = `${compPath}/dev/simon`;
+    const srcPath = `${devPath}/${comp}`;
+    const stgPath = `${devPath}/tmp`;
+    const dstPath = `${compPath}/docs`;
 
-// Check that 
-if (!fs.existsSync(srcPath)) err = `Project ${proj.toUpperCase()} not found!`;
+    // ### Pre-flight checks
+    // Check that the component can be found  
+    if (!fs.existsSync(srcPath)) throw new Error(`Component ${comp.toUpperCase()} not found!`, { cause: 'custom' });
+    // Check if a previous attempt failed
+    if (fs.existsSync(stgPath)) throw new Error(`Staging DIR already exists!\nSomething must have gone wrong previously\nExiting...`, { cause: 'custom' });
 
-if (fs.existsSync(stgPath)) err = `Staging DIR already exists!\nSomething must have gone wrong\nExiting...`;
+    // ### Main Code
+    const pathOpt = { recursive: true };
+    // const readOpt = { encoding };
 
-if (err) console.log(err);
-else {
-    // Create the staging directory
-    // fs.mkdirSync(stgPath, { recursive: true });
     // Create array of files to process
     const files = walk(srcPath);
-    const count = files.length;
-    // // Create new files in staging
-    for (let x = 0; x < count; x++) {
-        const fileType = files[x].substring(files[x].lastIndexOf('.') + 1);
+    // Process all files in array
+    for (let file of files) {
+        // Create staging path required for this file if it has not been previously created
+        const filePath = `${stgPath}${file.slice(0, file.lastIndexOf('/'))}`;
+        if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, pathOpt);
+        // Process file based on type
+        const fileType = file.substring(file.lastIndexOf('.') + 1);
         switch (fileType) {
+            // Use uglify-js with default settings for JS
             case 'js':
+                fs.writeFileSync(`${stgPath}${file}`, uglify(fs.readFileSync(`${devPath}${file}`, 'utf8')).code);
                 break;
+            // Use html-minifier for HTML
             case 'html':
             case 'htm':
+                fs.writeFileSync(`${stgPath}${file}`, mini(fs.readFileSync(`${devPath}${file}`, 'utf8'), miniOpt));
                 break;
+            // Ignore these file types
             case 'md':
                 break;
+            // Copy all other file types
             default:
         }
-        console.log(fileType);
     }
-    //    console.log(typeof output);
-    //    if (typeof output === 'object') console.log(Object.getOwnPropertyNames(output));
-    console.log(files);
+} catch (e) {
+    if (e.cause && e.cause === 'custom') console.log(e.message);
+    else console.log(e)
 }
