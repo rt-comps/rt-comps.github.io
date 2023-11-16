@@ -73,7 +73,8 @@ customElements.define(
             // Process order
             if (e.detail) {
                 // Define API request parameters
-                const handler = 'http://localhost:5100/mydev/API/sendmail.php';
+                // ForProd: { "handler": "https://roads-technology.com/rtform/sendmail.php" }
+                const handler = 'http://localhost:5100/dev/API/sendmail.php';
                 const options = {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
