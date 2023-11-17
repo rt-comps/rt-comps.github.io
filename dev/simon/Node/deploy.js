@@ -43,6 +43,29 @@ try {
         return result;
     }
 
+    // --- constSub
+    // Make substitions of constants required when moving from dev to prod environments
+    //  Substitutions are define in the source file as follows (JSON format)
+    //      ForProd: { "<nameOfConstant": "<valueOfConstant", ... }
+    //  "ForProd:" can be used multiple times in a file and each instance can define 1+ properties
+    function constSub(contents) {
+        // Find all substitutions provided in file and merge in to single object
+        const subs = contents.match(/ForProd\:.*/g).reduce((acc, el) => {
+            // Merge extracted object into final object
+            return { ...acc, ...JSON.parse(el.slice(9)) };
+        }, {})
+        // Perform substitutions
+        for (const sub in subs) {
+            const strReplace = typeof subs[sub] === 'string' ? `'${subs[sub]}'` : subs[sub];
+            // Search for constant assignment statement
+            const strMatch = contents.match(new RegExp(`${sub} =.*`, 'g'));
+            // If found then 
+            if (strMatch) contents = contents.replace(strMatch[0], `${sub} = ${strReplace};`);
+            else console.warn(`Unable to find "${sub}" in content`);
+        }
+        return contents;
+    }
+
     // ### Define some paths
     // Read in project name, if provided
     const comp = process.argv[2] || 'rt-appeltaart';
@@ -63,56 +86,47 @@ try {
     if (fs.existsSync(stgPath)) throw new Error(`Staging DIR already exists!\nSomething must have gone wrong previously\nExiting...`, { cause: 'custom' });
 
     // ### Main Code
-    const pathOpt = { recursive: true };
 
     // Create array of files to process
     const files = walk(srcPath);
     // Process all files in array
-    for (let file of files) {
+    for (const file of files) {
         // Create staging path required for this file if it has not been previously created
-        // const filePath = `${stgPath}${file.slice(0, file.lastIndexOf('/'))}`;
-        // if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
+        const filePath = `${stgPath}${file.slice(0, file.lastIndexOf('/'))}`;
+        if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
         // Process file based on type
         const fileType = file.substring(file.lastIndexOf('.') + 1);
         switch (fileType) {
             // Use uglify-js with default settings for JS
             case 'js':
-                // Find substitutions when moving dev to prod
-                // Get file contents
-                const contents = fs.readFileSync(`${devPath}${file}`, 'utf8');
-                // Check if any required substitions
-                if (contents.indexOf('ForProd') > -1) {
-                    console.log(file);
-                    // Find any occurences in file and merge in to single object
-                    let subs = contents.match(/ForProd\:.*/g).reduce((acc,el)=>{
-
-                        const temp = JSON.parse(element.slice(9));
-                   
-                    }, {})
-                }
-
-                // fs.writeFileSync(`${stgPath}${file}`, uglify(fs.readFileSync(`${devPath}${file}`, 'utf8')).code);
+                // Find any required constant substitutions when moving dev to prod
+                // Get original file contents <string>
+                let contents = fs.readFileSync(`${devPath}${file}`, 'utf8');
+                // Check if any required substitions are present
+                if (contents.indexOf('ForProd:') > -1) contents = constSub(contents);
+                // Minify and save to staging
+                fs.writeFileSync(`${stgPath}${file}`, uglify(contents).code);
                 break;
             // Use html-minifier for HTML
             case 'html':
             case 'htm':
-                // fs.writeFileSync(`${stgPath}${file}`, mini(fs.readFileSync(`${devPath}${file}`, 'utf8'), miniOpt));
+                fs.writeFileSync(`${stgPath}${file}`, mini(fs.readFileSync(`${devPath}${file}`, 'utf8'), miniOpt));
                 break;
             // Ignore these file types
             case 'md':
                 break;
             // Copy all other file types
             default:
-            // fs.copyFileSync(`${devPath}${file}`, `${stgPath}${file}`);
+                fs.copyFileSync(`${devPath}${file}`, `${stgPath}${file}`);
         }
     }
 
     const rmOpts = { recursive: true, force: true };
     // Move files from stage to 'docs' folder
-    // fs.rmSync(`${dstPath}/${comp}`, rmOpts);
-    // fs.renameSync(`${stgPath}/${comp}`, `${dstPath}/${comp}`);
+    fs.rmSync(`${dstPath}/${comp}`, rmOpts);
+    fs.renameSync(`${stgPath}/${comp}`, `${dstPath}/${comp}`);
     // // Tidy up
-    // fs.rmSync(stgPath, rmOpts);
+    fs.rmSync(stgPath, rmOpts);
 } catch (e) {
     if (e.cause && e.cause === 'custom') console.log(e.message);
     else console.log(e)
