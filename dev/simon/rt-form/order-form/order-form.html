@@ -2,7 +2,10 @@
     <style>
         /* === Element Defaults === */
         * {
-            font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+            --ff-fb: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+            --fs-fb: 16px;
+            font-family: var(--ff, var(--ff-fb));
+            font-size: var(--fs, var(--fs-fb));
         }
 
         date-picker {
