@@ -169,13 +169,15 @@ customElements.define(compName,
 
       // Choose which button to display
       let newBut;
-      // Is the cart empty
+      // Is the cart empty?
       const cartEmpty = this.querySelectorAll('line-item[slot="cart"][count]').length === 0;
+      // Is an overlay active?
+      const noOverlay = this.#_form.parentElement.style.visibility !== 'visible' && this.#_details.style.visibility !== 'visible';
       switch (true) {
         case ((cartEmpty || fiddle) && localStorage.getItem('lastOrder') !== null):
           newBut = 'last';
           break;
-        case this.#_form.parentElement.style.visibility !== 'visible' && !cartEmpty:
+        case  noOverlay && !cartEmpty:
           newBut = 'further';
           break;
         default:
