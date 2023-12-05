@@ -7,7 +7,21 @@
     <form-config style="display: none">
         <span id="imgpath">https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/</span>
     </form-config>
-    <!-- Form data starts here -->
+    <!-- Menu data starts here -->
+    <item-data id="veganistisch">
+        <item-title>Ambachtelijke veganistische appeltaart</item-title>
+        <item-desc>Veganistische appeltaart, net zo lekker als onze traditionele appeltaart, maar dan geheel
+            plantaardig!</item-desc>
+        <img class="icon" file="HLM003-052-277d8d69.jpg">
+        <item-variety value="groot" desc="(12 personen)" default>
+            <item-line prodid="01011" prijs="2300">Normaal</item-line>
+            <item-line prodid="01012" prijs="2150">ONGEBAKKEN</item-line>
+        </item-variety>
+        <item-variety value="klein" desc="(4-6 personen)">
+            <item-line prodid="01021" prijs="1250">Normaal</item-line>
+            <item-line prodid="01022" prijs="1150">ONGEBAKKEN</item-line>
+        </item-variety>
+    </item-data>
     <item-data id="roomboter">
         <item-title>Ambachtelijke roomboter appeltaart</item-title>
         <item-desc>Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante
@@ -52,14 +66,6 @@
         <item-variety value="large"></item-variety>
         <item-variety value="small"></item-variety>
     </item-data>
-    <item-data id="veganistisch">
-        <item-title>Ambachtelijke veganistische appeltaart</item-title>
-        <item-desc>Veganistische appeltaart, net zo lekker als onze traditionele appeltaart, maar dan geheel
-            plantaardig!</item-desc>
-        <img class="icon" file="HLM003-052-277d8d69.jpg">
-        <item-variety value="large"></item-variety>
-        <item-variety value="small"></item-variety>
-    </item-data>
     <item-data id="divers">
         <item-title></item-title>
         <item-desc></item-desc>
@@ -79,7 +85,7 @@
             </pickup-locations>
         </h5>
         <h5>
-            <div id="pick-container">
+            <div class="pick-container">
                 <date-picker name="pu-date" maxweek="4" invalid="0,6" locale="gb-GB"></date-picker>
             </div>
         </h5>
