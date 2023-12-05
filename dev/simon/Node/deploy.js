@@ -1,8 +1,10 @@
 // ----------------------------
 // ### Node script to deploy a project
+//
+// Usage: node <pathToScript>/deploy.js [componentName]
 // 
-// Code is taken from the specified project (Defaul: 'rt-appeltaart'),
-// minified and files in 'doc' directory are over-written.
+// Code is taken from the specified component (Default: 'rt-appeltaart'),
+// minified and component dir in 'doc' directory is over-written.
 //
 // Commit must be done manually
 //
@@ -10,10 +12,26 @@
 // > npm install --save uglify-js html-minifier
 // ----------------------------
 
+// ### Determine required paths
+// Read in project name, if provided
+const comp = process.argv[2] || 'rt-appeltaart';
+// Get current working directory
+const workingDir = process.cwd();
+// Ensure script has been called from within project directory
+if (workingDir.indexOf('github.io') < 0) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
+// Files are output to 'docs' directory of project
+const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs`;
+// Get the path of this executable
+const execPath = process.argv[1];
+// Assume component directories are at same level as 'Node' directory (where script is placed)
+const devPath = execPath.slice(0, execPath.indexOf('/Node'));
+// Determine source and staging dirs 
+const srcPath = `${devPath}/${comp}`;
+const stgPath = `${devPath}/tmp`;
+
 // ### Load modules 
 // Allow FileSystem access
 const fs = require('fs');
-const { minify } = require('uglify-js');
 // Minifiers
 const uglify = require('uglify-js').minify;
 const mini = require('html-minifier').minify;
@@ -66,18 +84,6 @@ try {
         return contents;
     }
 
-    // ### Define some paths
-    // Read in project name, if provided
-    const comp = process.argv[2] || 'rt-appeltaart';
-    // Assume script is called from within project dir structure and determine the
-    // base path from that
-    const execPath = process.cwd();
-    if (execPath.indexOf('github.io') < 0) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
-    const basePath = execPath.slice(0, execPath.indexOf('github.io') + 9);
-    const devPath = `${basePath}/dev/simon`;
-    const srcPath = `${devPath}/${comp}`;
-    const stgPath = `${devPath}/tmp`;
-    const dstPath = `${basePath}/docs`;
 
     // ### Pre-flight checks
     // Check that the component can be found  
