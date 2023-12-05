@@ -10,16 +10,24 @@ customElements.define(compName,
     // Declare private class fields
     #_sR;
     #_form;
+    #_menu;
 
     //+++ Lifecycle Events
     //--- constructor
     constructor() {
       // Initialise 'this'
       super();
-      // Attach shadowDOM
+      // Attach shadowDOM and store in private field
       this.#_sR = this.attachShadow({ mode: "open" });
       // Attach contents of template placed in document.head
       this.#_sR.append(this.$getTemplate());
+
+      // Set this component as the 'eventbus'
+      this.id = 'eventBus';
+
+      // Store some useful nodes in private fields
+      this.#_form = this.#_sR.querySelector('#user-form');
+      this.#_menu = this.#_sR.querySelector('#menu-container');
 
       //### Retrive form sizes and define defaults
       const attributes = this.attributes;
@@ -28,46 +36,51 @@ customElements.define(compName,
       const _cart = this.#_sR.querySelector('#cart');
       _cart.style.flex = `0 0 ${cartWidth}`;
       _cart.style.maxWidth = cartWidth;
-      this.id = 'eventBus';
 
       //### Event Listeners
-      //___ updatemenu - Respond to product choice
+      //___ updatemenu - Display product information when product chosen
       this.addEventListener('updatemenu', (e) => this.updateItemData(e));
-      //___ orderaccept - Reset the form
-      this.addEventListener('orderaccept', () => this.accepted());
-      //___ updatecount - Respond to +/- presses when choosing items
-      this.#_sR.querySelector('#menu-container').addEventListener('updatecount', (e) => this.displayDetailButton(e));
-      //___ cartmod - Respond to +/- presses to items in cart
-      this.#_sR.querySelector('#cart').addEventListener('cartmod', (e) => this.modifyCart(e));
+
+      /// Responding to +/- clicks
+      //___ updatecount - Determine any detail overlay button appearance changes
+      this.#_menu.addEventListener('updatecount', (e) => this.displayDetailButton(e));
+      //___ cartmod - Respond to +/- presses in a <line-item> and re-render cart
+      _cart.addEventListener('cartmod', (e) => this.modifyCurrentOrder(e));
+
+      /// Button Actions
+      ///- Cart
       //___ add-items_click - Add the currently selected items to the cart
-      this.#_sR.querySelector('#add-but').addEventListener('click', () => this.addToCart());
+      this.#_sR.querySelector('#prod-add-but').addEventListener('click', () => this.addToCart());
       //___ place-order_click - Send completed order to out of form
       this.#_sR.querySelector('#further-but').addEventListener('click', () => this.continueOrder());
       //___ recover-order_click - Fill cart with the items from the last order
       this.#_sR.querySelector('#recover-but').addEventListener('click', () => this.recoverOrder());
-      this.#_sR.querySelector('#sub-but').addEventListener('click', () => this.dispatchOrder());
+      ///- Form
+      // Submit the order
+      this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.dispatchOrder());
+      // Hide the form
+      this.#_sR.querySelector('#cancel-but').addEventListener('click', () => this.hideForm());
     }
 
     //--- connectedCallback
     connectedCallback() {
-      this.initialiseMenu();
+      this.initialiseAll();
       // Make <order-form> visible - all style should be active by this point
       this.style.display = 'inline-block';
     }
     //+++ End of Lifecycle Events
 
 
-    //--- initialiseMenu
+    //--- initialiseAll
     // Performs the following actions
     // - Create the pictoral menu at the top of the order form based on form HTML
     // - Restore cart if there were previously items present
     // - Move form HTML into the shadowDOM
     // - Prepopulate form if saved details found
-    initialiseMenu() {
+    initialiseAll() {
       /// Create pictorial menu
       // Recover image path from setting in HTML
       const imgPath = this.querySelector("form-config span#imgpath").innerHTML;
-
       // Collect all <item-data> elements
       const nodes = [...this.querySelectorAll('item-data')];
       // ...then create a new <menu-item> element for each, assigned to 'menu-items' slot  
@@ -85,15 +98,16 @@ customElements.define(compName,
         })
       }));
 
-      /// Restore cart
+      /// Restore cart contents
       if (localStorage.getItem('currentOrder')) this.updateCart();
       this.displayCartButtons();
 
-      /// Move user's form to shadowDOM
+      /// Move user's form to shadowDOM - as a form cannot be slotted
       const srcNode = this.querySelector('div[slot="user-details"]');
-      this.#_form = this.#_sR.querySelector('form#details-form');
-      this.#_form.append(...srcNode.children);
+      if (srcNode) {
 
+        this.#_form.append(...srcNode.children);
+      } else console.warn('No details form provided');
     }
 
     //--- updateItemData
@@ -128,18 +142,14 @@ customElements.define(compName,
     displayDetailButton(e) {
       if (e) e.stopPropagation();
       // Get button node
-      const buttonNode = this.shadowRoot.querySelector('#add-but');
-      // Determine button appearance based on whether anything has been selected for addition
-      if (this.querySelectorAll('item-data[slot] item-line[count]').length === 0) {
-        // When no selection, button is grey and says 'cancel'
-        buttonNode.classList.remove('buttonadd');
-        // buttonNode.style.backgroundColor = 'rgb(128, 128, 128)';
-        buttonNode.innerHTML = 'Annuleren';
-      } else {
+      const buttonNode = this.shadowRoot.querySelector('#prod-add-but');
+      // Has anything been selected?
+      if (this.querySelectorAll('item-data[slot] item-line[count]').length > 0) {
         // When something selected, button reverts to style and says 'Add'
-        buttonNode.classList.add('buttonadd');
-        // buttonNode.removeAttribute('style');
         buttonNode.innerHTML = 'Toevoegen';
+      } else {
+        // When no selection, button is grey and says 'cancel'
+        buttonNode.innerHTML = 'Annuleren';
       }
     }
 
@@ -147,23 +157,21 @@ customElements.define(compName,
     // Manage which buttons in the cart are displayed
     displayCartButtons(fiddle = false) {
       const buttons = {
-        order: this.#_sR.getElementById('sub-but'),
         further: this.#_sR.getElementById('further-but'),
         last: this.#_sR.getElementById('recover-but')
       }
       // Start by hiding all buttons
       for (const button in buttons) if (buttons.hasOwnProperty(button)) buttons[button].style.display = 'none';
 
-      //Choose which button to display
+      // Choose which button to display
       let newBut;
+      // Is the cart empty
+      const cartEmpty = this.querySelectorAll('line-item[slot="cart"][count]').length === 0;
       switch (true) {
-        case ((this.querySelectorAll('line-item[slot="cart"][count]').length === 0 || fiddle) && localStorage.getItem('lastOrder') !== null):
+        case ((cartEmpty || fiddle) && localStorage.getItem('lastOrder') !== null):
           newBut = 'last';
           break;
-        case this.#_sR.querySelector('#form-container').style.visibility === 'visible':
-          newBut = 'order';
-          break;
-        case (this.querySelectorAll('line-item[slot="cart"][count]').length !== 0):
+        case this.#_sR.querySelector('#form-container').style.visibility !== 'visible' && !cartEmpty:
           newBut = 'further';
           break;
         default:
@@ -176,11 +184,11 @@ customElements.define(compName,
     //--- updateCart
     // Recreate the cart from the currentOrder local storage item
     updateCart() {
-      // Delete any current cart contents
+      // Delete all current cart contents
       const currentCartContents = [...this.querySelectorAll('line-item')];
       currentCartContents.forEach((node) => node.remove());
 
-      // Recover order from local stortage
+      // Recover current order details from local stortage
       const localData = JSON.parse(localStorage.getItem('currentOrder'));
       // Initialise order total
       let orderTotal = 0;
@@ -217,7 +225,7 @@ customElements.define(compName,
         ));
       };
 
-      // Display order total if there is something in the cart
+      // Display new order total
       this.#_sR.querySelector('#total').innerHTML = this.$euro(orderTotal / 100);
 
       // Re-determine if cart button visibilty should change
@@ -225,7 +233,9 @@ customElements.define(compName,
     }
 
     //--- updateCurOrderStor
-    // Update the value of the currentOrder local storage item and rebuild cart
+    // The currentOrder local storage instance holds the order information (JSON string of array of objects)
+    // When a change is made to the order then the currentOrder instance is updated as required 
+    //  and the cart is rebuilt from the new contents of this instance
     updateCurOrderStor(itemObj) {
       // itemObj must contain an action property
       if (itemObj.action) {
@@ -269,9 +279,9 @@ customElements.define(compName,
       }
     }
 
-    //--- modifyCart
+    //--- modifyCurrentOrder
     // Catch event and send details on for cart modification
-    modifyCart(e) {
+    modifyCurrentOrder(e) {
       e.stopPropagation();
       this.updateCurOrderStor(e.detail);
     }
@@ -289,7 +299,7 @@ customElements.define(compName,
           count: parseInt(node.getAttribute('count')),
           action: 'update'
         });
-        // Remove the item-line count attribute by setting to zero
+        // Reset the <item-line> count attribute to zero
         node.updateCount({ detail: { change: (0 - parseInt(node.getAttribute('count'))) } });
       });
 
@@ -298,6 +308,7 @@ customElements.define(compName,
     }
 
     //--- continueOrder
+    // Display the form and pre-populate fields if previous data found
     continueOrder() {
       /// Prepopulate form if saved details found
       const details = localStorage.getItem('userDeets');
@@ -311,9 +322,11 @@ customElements.define(compName,
           this.#_form.querySelector(`[name=${key}]`).value = value;
         }
       }
+      // Resize menu-container DIV height to size of form
+      this.#_menu.style.height = `${(Math.ceil(this.#_form.parentElement.getBoundingClientRect().height)) + 5}px`
 
       // Unhide form
-      this.#_sR.querySelector('#form-container').style.visibility = 'visible';
+      this.#_form.parentElement.style.visibility = 'visible';
       // Update button visibility in cart
       this.displayCartButtons();
     }
@@ -327,15 +340,13 @@ customElements.define(compName,
       this.updateCart();
     }
 
-    //--- dispatchOrder
-    // Catch the form submit event and ensure required values have been provided
-    dispatchOrder() {
+    //--- validateForm
+    // Determine if the form has been completed as required
+    validateForm() {
+      // Declare flag
+      let firstFail = false;
       // Continue if form found
       if (this.#_form) {
-        //### Check form data validity
-        // Set fail flag
-        let firstFail = false;
-
         // Collect all possible field types
         const nodes = this.#_form.querySelectorAll('form-field, pickup-locations, date-picker');
         // Check validity of each field type and set focus to first field to fail check
@@ -347,39 +358,43 @@ customElements.define(compName,
             }
           }
         }
+      } else firstFail = false;
 
-        // Disptach order if all checks pass
-        if (!firstFail) {
-          //### Dispatch order and reset form
-          // Collect the current form data
-          const formValues = new FormData(this.#_form);
-          // Dispatch an event containing the order details
-          this.$dispatch({
-            name: 'neworder',
-            detail: {
-              person: Object.fromEntries(formValues.entries()),
-              order: JSON.parse(localStorage.getItem('currentOrder'))
-            }
-          });
+      // Return valid status
+      return !firstFail;
+    }
 
-        }
-      }
-      else console.warn('Form submission failed: form not found');
+    //--- dispatchOrder
+    // Catch the form submit event
+    dispatchOrder() {
+      // Disptach order if all checks pass
+      if (this.validateForm()) {
+        //### Dispatch order and reset form
+        // Collect the current form data
+        const formValues = new FormData(this.#_form);
+        // Dispatch an event containing the order details
+        this.$dispatch({
+          name: 'neworder',
+          detail: {
+            person: Object.fromEntries(formValues.entries()),
+            order: JSON.parse(localStorage.getItem('currentOrder'))
+          }
+        });
+      } else console.warn('Form submission failed: form not found');
     }
 
     //--- accepted
     // Reset the component once order has been accepted
+    // This called from the wrapping order dispatch code
     accepted() {
-      // Hide the details form
-      this.#_sR.querySelector('#form-container').style.visibility = '';
       // Set last order on the user's local storage to current order
       localStorage.setItem('lastOrder', localStorage.getItem('currentOrder'));
       // Clear the cart
       localStorage.removeItem('currentOrder');
       this.updateCart();
-      //  Reset the buttons
-      this.displayCartButtons();
-      // Check if user has chosen to save their details
+      // Reset display
+      this.hideForm();
+      // Save user details if chosen
       const saveFields = this.#_sR.querySelector('#savefields');
       // If yes then put details in object and store as JSON string
       if (saveFields && saveFields.checked) {
@@ -388,10 +403,24 @@ customElements.define(compName,
         localStorage.setItem('userDeets', JSON.stringify(output));
         // If no then clear any existing data
       } else localStorage.removeItem('userDeets');
-
+      // Reset the form elements
       this.#_form.reset();
-
+      //DEBUG
       console.log('Form Submitted!');
+    }
+
+    //--- hideForm
+    // Hide form and reset menu-container DIV height
+    // Any details already entered and the cart are unaffected
+    hideForm() {
+      // Reset menu-container DIV height to fit menu items
+      this.#_menu.style.height = '';
+      // Hide the form
+      this.#_form.parentElement.style.visibility = '';
+      // Scroll to top of page
+      window.scrollTo(0,0);
+      // Update buttons in the shopping cart
+      this.displayCartButtons();
     }
   }
 );
