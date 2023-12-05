@@ -9,8 +9,9 @@ customElements.define(compName,
   class extends rtBC.RTBaseClass {
     // Declare private class fields
     #_sR;
-    #_form;
     #_menu;
+    #_details
+    #_form;
 
     //+++ Lifecycle Events
     //--- constructor
@@ -27,6 +28,7 @@ customElements.define(compName,
 
       // Store some useful nodes in private fields
       this.#_form = this.#_sR.querySelector('#user-form');
+      this.#_details = this.#_sR.querySelector('#details-container');
       this.#_menu = this.#_sR.querySelector('#menu-container');
 
       //### Retrive form sizes and define defaults
@@ -40,6 +42,7 @@ customElements.define(compName,
       //### Event Listeners
       //___ updatemenu - Display product information when product chosen
       this.addEventListener('updatemenu', (e) => this.updateItemData(e));
+      this.addEventListener('detailresize', () => this.showOverlay(this.#_details, true));
 
       /// Responding to +/- clicks
       //___ updatecount - Determine any detail overlay button appearance changes
@@ -59,7 +62,7 @@ customElements.define(compName,
       // Submit the order
       this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.dispatchOrder());
       // Hide the form
-      this.#_sR.querySelector('#cancel-but').addEventListener('click', () => this.hideForm());
+      this.#_sR.querySelector('#cancel-but').addEventListener('click', () => this.hideOverlay(this.#_form.parentElement));
     }
 
     //--- connectedCallback
@@ -126,14 +129,15 @@ customElements.define(compName,
       });
 
       // Set correct data (if any) and handle display of details overlay
-      const _details = this.#_sR.querySelector('#details-container');
       if (newData) {
         this.querySelector(`item-data#${newData}`).setAttribute('slot', 'active-data');
-        _details.style.visibility = 'visible';
+        if (this.#_details.style.visibility !== 'visible') this.showOverlay(this.#_details);
+        // _details.style.visibility = 'visible';
         // Set button appearance
         this.displayDetailButton();
       } else {
-        _details.style.visibility = '';
+        this.hideOverlay(this.#_details);
+        // _details.style.visibility = '';
       }
     }
 
@@ -171,7 +175,7 @@ customElements.define(compName,
         case ((cartEmpty || fiddle) && localStorage.getItem('lastOrder') !== null):
           newBut = 'last';
           break;
-        case this.#_sR.querySelector('#form-container').style.visibility !== 'visible' && !cartEmpty:
+        case this.#_form.parentElement.style.visibility !== 'visible' && !cartEmpty:
           newBut = 'further';
           break;
         default:
@@ -322,13 +326,8 @@ customElements.define(compName,
           this.#_form.querySelector(`[name=${key}]`).value = value;
         }
       }
-      // Resize menu-container DIV height to size of form
-      this.#_menu.style.height = `${(Math.ceil(this.#_form.parentElement.getBoundingClientRect().height)) + 5}px`
-
-      // Unhide form
-      this.#_form.parentElement.style.visibility = 'visible';
-      // Update button visibility in cart
-      this.displayCartButtons();
+      // Display user details form
+      this.showOverlay(this.#_form.parentElement);
     }
 
     //--- recoverOrder
@@ -409,17 +408,35 @@ customElements.define(compName,
       console.log('Form Submitted!');
     }
 
-    //--- hideForm
-    // Hide form and reset menu-container DIV height
-    // Any details already entered and the cart are unaffected
-    hideForm() {
-      // Reset menu-container DIV height to fit menu items
+    //--- showOverlay
+    // Display the requested overlay and resize menu-container DIV height to fit contents
+    showOverlay(node, childSize) {
+      // Determine element to use for size
+      const sizeNode = childSize ? node.querySelector('div') : node;
+      // Reset menu height
       this.#_menu.style.height = '';
-      // Hide the form
-      this.#_form.parentElement.style.visibility = '';
-      // Scroll to top of page
-      window.scrollTo(0,0);
-      // Update buttons in the shopping cart
+      // Determine if current height is sufficient
+      const resize = sizeNode.getBoundingClientRect().height > this.#_menu.getBoundingClientRect().height ? true : false;
+      // If necessary resize
+      if (resize) this.#_menu.style.height = `${Math.ceil(sizeNode.getBoundingClientRect().height) + 5}px`;
+      if (node.style.visibility !== 'visible') {
+        // Make overlay visible
+        node.style.visibility = 'visible';
+        // Re-calculate which buttons should be visible in cart
+        this.displayCartButtons();
+      }
+    }
+
+    //--- hideOverlay
+    // Hide overlay and reset menu-container DIV height
+    hideOverlay(node) {
+      // Reset menu-container DIV height to original size
+      this.#_menu.style.height = '';
+      // Hide the overlay
+      node.style.visibility = '';
+      // Reset browser to top of page
+      window.scrollTo(0, 0);
+      // Re-calculate which buttons should be visible in cart
       this.displayCartButtons();
     }
   }
