@@ -1,7 +1,52 @@
-<!-- Use to change form font family and font size -->
-<!-- <style>
-    * {
-        --ff: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
-        --fs: 16px;
-    }
-</style> -->
+<template id="ATI-FORM">
+    <style>
+        /*
+        Can use this to change form font family and font size -->
+        * {
+            --ff: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+            --fs: 16px;
+        }
+        */
+        #container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            visibility: hidden;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        dialog {
+            padding: 25px 25px 5px 5px;
+            border-radius: 10px;
+        }
+
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        #x {
+            position: absolute;
+            top: 0;
+            right: 0;
+            border: 1px solid black;
+            border-top: none;
+            border-right: none;
+            height: 25px;
+        }
+
+        #x img {
+            width: 25px;
+        }
+    </style>
+    <!-- <div id="container"> -->
+        <dialog>
+            <div id="x"><img src=""></div>
+        </dialog>
+    <!-- </div> -->
+</template>

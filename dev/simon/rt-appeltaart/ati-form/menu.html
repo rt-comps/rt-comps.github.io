@@ -92,7 +92,7 @@
         <h2>Uw gegevens</h2>
         <label>Save Details <input id="savefields" type="checkbox"></label>
         <style>
-            div#formfields {
+            #formfields {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
@@ -102,6 +102,21 @@
                 width: 100%;
                 flex-flow: row;
                 justify-content: space-around;
+            }
+
+            .flow-row {
+                flex: 1 1 auto;
+                flex-flow: row;
+                justify-content: space-around;
+            }
+
+            .flow-col {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 auto;
+                align-items: flex-end;
+                padding-top: 20px;
+                padding-bottom: 20px;
             }
 
             div#formfields hr {
@@ -124,7 +139,7 @@
             }
 
             label {
-                width:100%;
+                width: 100%;
             }
 
             textarea {
@@ -135,12 +150,12 @@
         </style>
         <div id="formfields">
             <hr />
-            <div id="bedrijf">
+            <div class="flow-row">
                 <form-field name="bedrijfsnaam" label="Bedrijfsnaam"></form-field>
                 <form-field name="kostplaat" label="Kostenplaats"></form-field>
             </div>
             <hr />
-            <div id="persoon">
+            <div class="flow-col">
                 <form-field name="voornaam" label="Voornaam" required></form-field>
                 <form-field name="achtnaam" label="Achternaam" required></form-field>
                 <form-field name="email" label="E-mail" type="email" required></form-field>
