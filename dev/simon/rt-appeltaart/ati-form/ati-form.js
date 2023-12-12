@@ -21,12 +21,19 @@ customElements.define(
             // Attach contents of template previously placed in document.head
             super()
             this.#_sR = this.attachShadow({ mode: "open" });
+            this.#_sR.append(this.$getTemplate())
 
             // Get the menu file
             this.getMenu();
 
+            this.#_sR.querySelector('#x img').src = `${compPath}/img/close-wht.png`
+
             // Catch form output event and display final order details
             this.addEventListener('neworder', (e) => this.dispatchOrder(e));
+            this.#_sR.querySelector('#x').addEventListener('click', ()=> {
+                // this.#_sR.querySelector('#container').style.visibility = '';
+                // this.#_sR.querySelector('div dialog').close()});
+                this.#_sR.querySelector('dialog').close()});
         }
 
         //--- connectedCallback
@@ -54,14 +61,14 @@ customElements.define(
                         .then((htmlText) => {
                             // Create a fragment and then append to shadow DOM
                             const frag = document.createRange().createContextualFragment(htmlText);
-                            this.#_sR.appendChild(frag);
+                            this.#_sR.querySelector('dialog').appendChild(frag);
                         });
                 } catch (e) {
                     console.warn(e);
                 }
             } else {
                 const frag = document.createRange().createContextualFragment('<h1 style="color: red;">datafile attribute not provided</h1>');
-                this.#_sR.appendChild(frag);
+                this.#_sR.querySelector('dialog').appendChild(frag);
             }
         }
 
@@ -100,6 +107,11 @@ customElements.define(
                     });
             }
 
+        }
+
+        show(){
+            // this.#_sR.querySelector('#container').style.visibility = 'visible';
+            this.#_sR.querySelector('dialog').showModal();
         }
 
     }

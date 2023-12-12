@@ -2,7 +2,7 @@
 // === order-form class definition
 
 // Recover component name from URL
-const [compName] = rtlib.parseURL(import.meta.url);
+const [compName, compPath] = rtlib.parseURL(import.meta.url);
 
 // Define the component
 customElements.define(compName,
@@ -28,7 +28,8 @@ customElements.define(compName,
 
       // Store some useful nodes in private fields
       this.#_form = this.#_sR.querySelector('#user-form');
-      this.#_details = this.#_sR.querySelector('#details-container');
+      // this.#_details = this.#_sR.querySelector('#details-container');
+      this.#_details = this.#_sR.querySelector('#deets');
       this.#_menu = this.#_sR.querySelector('#menu-container');
 
       //### Retrive form sizes and define defaults
@@ -42,7 +43,7 @@ customElements.define(compName,
       //### Event Listeners
       //___ updatemenu - Display product information when product chosen
       this.addEventListener('updatemenu', (e) => this.updateItemData(e));
-      this.addEventListener('detailresize', () => this.showOverlay(this.#_details, true));
+      this.addEventListener('detailresize', () => this.resizeMenu());
 
       /// Responding to +/- clicks
       //___ updatecount - Determine any detail overlay button appearance changes
@@ -51,18 +52,21 @@ customElements.define(compName,
       _cart.addEventListener('cartmod', (e) => this.modifyCurrentOrder(e));
 
       /// Button Actions
-      ///- Cart
+      ///- Product Details
+      //___ close dialog
+      this.#_sR.querySelector('#deets-close').addEventListener('click', () => this.updateItemData());
       //___ add-items_click - Add the currently selected items to the cart
       this.#_sR.querySelector('#prod-add-but').addEventListener('click', () => this.addToCart());
+      ///- Cart
       //___ place-order_click - Send completed order to out of form
       this.#_sR.querySelector('#further-but').addEventListener('click', () => this.continueOrder());
       //___ recover-order_click - Fill cart with the items from the last order
       this.#_sR.querySelector('#recover-but').addEventListener('click', () => this.recoverOrder());
       ///- Form
-      // Submit the order
+      //___ Submit the order
       this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.dispatchOrder());
-      // Hide the form
-      this.#_sR.querySelector('#cancel-but').addEventListener('click', () => this.hideOverlay(this.#_form.parentElement));
+      //___ Hide the form
+      this.#_sR.querySelector('#cancel-but').addEventListener('click', () => this.showForm(false));//this.hideOverlay(this.#_form.parentElement));
     }
 
     //--- connectedCallback
@@ -100,6 +104,10 @@ customElements.define(compName,
           attrs: elementAttrs
         })
       }));
+      // Add image to details dialog
+      this.#_sR.querySelector('#deets-close img').src=`${compPath}/img/close-blk.png`;
+
+      this.#_menu.querySelector('#menu').style.display = '';
 
       /// Restore cart contents
       if (localStorage.getItem('currentOrder')) this.updateCart();
@@ -122,39 +130,42 @@ customElements.define(compName,
         e.stopPropagation();
         newData = e.detail.id;
       }
-
       // Clear any previous slot settings
       this.querySelectorAll('item-data').forEach((element) => {
         element.removeAttribute('slot');
       });
-
       // Set correct data (if any) and handle display of details overlay
       if (newData) {
+        // Slot in correct product data
         this.querySelector(`item-data#${newData}`).setAttribute('slot', 'active-data');
-        if (this.#_details.style.visibility !== 'visible') this.showOverlay(this.#_details);
-        // _details.style.visibility = 'visible';
-        // Set button appearance
+        // Display the dialog
+        this.#_details.show();
+        // Hide the button
         this.displayDetailButton();
       } else {
-        this.hideOverlay(this.#_details);
-        // _details.style.visibility = '';
+        // Close the dialog
+        this.#_details.close();
+        // Resize menu to original size
+        this.resizeMenu();
       }
+      // Ensure the correct button is visible in cart
+      this.displayCartButtons();
     }
 
     //--- displayDetailButton
     // Determine appearance of button for details overlay
     displayDetailButton(e) {
       if (e) e.stopPropagation();
-      // Get button node
-      const buttonNode = this.shadowRoot.querySelector('#prod-add-but');
+      let newDisplay;
       // Has anything been selected?
       if (this.querySelectorAll('item-data[slot] item-line[count]').length > 0) {
         // When something selected, button reverts to style and says 'Add'
-        buttonNode.innerHTML = 'Toevoegen';
+        newDisplay = '';
       } else {
         // When no selection, button is grey and says 'cancel'
-        buttonNode.innerHTML = 'Annuleren';
+        newDisplay = 'none';
       }
+      this.shadowRoot.querySelector('#prod-add-but').style.display = newDisplay;
     }
 
     //--- displayCartButtons
@@ -172,12 +183,13 @@ customElements.define(compName,
       // Is the cart empty?
       const cartEmpty = this.querySelectorAll('line-item[slot="cart"][count]').length === 0;
       // Is an overlay active?
-      const noOverlay = this.#_form.parentElement.style.visibility !== 'visible' && this.#_details.style.visibility !== 'visible';
+      // const noOverlay = this.#_form.parentElement.style.visibility !== 'visible' && this.#_details.style.visibility !== 'visible';
+      const noOverlay = this.#_form.parentElement.style.display === 'none' && !this.#_details.hasAttribute('open');
       switch (true) {
         case ((cartEmpty || fiddle) && localStorage.getItem('lastOrder') !== null):
           newBut = 'last';
           break;
-        case  noOverlay && !cartEmpty:
+        case noOverlay && !cartEmpty:
           newBut = 'further';
           break;
         default:
@@ -329,7 +341,8 @@ customElements.define(compName,
         }
       }
       // Display user details form
-      this.showOverlay(this.#_form.parentElement);
+      // this.showOverlay(this.#_form.parentElement);
+      this.showForm(true);
     }
 
     //--- recoverOrder
@@ -394,7 +407,7 @@ customElements.define(compName,
       localStorage.removeItem('currentOrder');
       this.updateCart();
       // Reset display
-      this.hideForm();
+      this.showForm(false);
       // Save user details if chosen
       const saveFields = this.#_sR.querySelector('#savefields');
       // If yes then put details in object and store as JSON string
@@ -412,34 +425,36 @@ customElements.define(compName,
 
     //--- showOverlay
     // Display the requested overlay and resize menu-container DIV height to fit contents
-    showOverlay(node, childSize) {
-      // Determine element to use for size
-      const sizeNode = childSize ? node.querySelector('div') : node;
+    resizeMenu() {
       // Reset menu height
       this.#_menu.style.height = '';
       // Determine if current height is sufficient
-      const resize = sizeNode.getBoundingClientRect().height > this.#_menu.getBoundingClientRect().height ? true : false;
+      const resize = this.#_details.getBoundingClientRect().height > this.#_menu.getBoundingClientRect().height ? true : false;
       // If necessary resize
-      if (resize) this.#_menu.style.height = `${Math.ceil(sizeNode.getBoundingClientRect().height) + 5}px`;
-      if (node.style.visibility !== 'visible') {
-        // Make overlay visible
-        node.style.visibility = 'visible';
-        // Re-calculate which buttons should be visible in cart
-        this.displayCartButtons();
-      }
+      if (resize) this.#_menu.style.height = `${Math.ceil(this.#_details.getBoundingClientRect().height) + 5}px`;
     }
 
     //--- hideOverlay
     // Hide overlay and reset menu-container DIV height
-    hideOverlay(node) {
-      // Reset menu-container DIV height to original size
-      this.#_menu.style.height = '';
-      // Hide the overlay
-      node.style.visibility = '';
-      // Reset browser to top of page
-      window.scrollTo(0, 0);
-      // Re-calculate which buttons should be visible in cart
+    // hideOverlay(node) {
+    //   // Reset menu-container DIV height to original size
+    //   this.#_menu.style.height = '';
+    //   // Hide the overlay
+    //   node.style.visibility = '';
+    //   // Reset browser to top of page
+    //   window.scrollTo(0, 0);
+    //   // Re-calculate which buttons should be visible in cart
+    //   this.displayCartButtons();
+    // }
+
+    //--- showForm
+    // show == true - hide product menu / display user-defined form
+    // show == false - hide user-define form / display product menu
+    showForm(show) {
+      this.#_menu.querySelector('#menu').style.display = show ? 'none' : '';
+      this.#_menu.querySelector('#form-container').style.display = show ? '' : 'none';
       this.displayCartButtons();
     }
+
   }
 );
