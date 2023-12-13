@@ -77,7 +77,7 @@
 
         /* === IDs === */
         /* Order Form Container */
-        #container {
+        #order-form-container {
             /* border: 1px dashed black; */
             flex-wrap: nowrap;
             align-items: flex-start;
@@ -86,7 +86,7 @@
         }
 
         /* Container for Menu and Overlay */
-        #menu-container {
+        #menu-items-container {
             position: relative;
             justify-content: space-around;
             flex-basis: 100%;
@@ -107,13 +107,13 @@
 
         /* Product Details Overlay */
         #deets {
-            width: 500px;
-            color: white;
-            background-color: black;
+            /* width: 500px; */
+            background: var(--MENU-ITEM-BACKGROUND, burlywood);
+            color: var(--MENU-ITEM-COLOR, black);
             border: none;
             outline: none;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: var(--MENU-ITEM-BORDER-RADIUS, 10px);
+            padding: var(--MENU-ITEM-PADDING, 10px);
         }
 
         #deets::backdrop {
@@ -125,7 +125,7 @@
             position: absolute;
             top: 0;
             right: 0;
-            background-color: white;
+            background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, white);
         }
 
         #deets-close img {
@@ -135,7 +135,7 @@
 
         /* User Details Overlay */
         #form-container {
-            background-color: white;
+            background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, white);
             justify-content: center;
             align-items: stretch;
         }
@@ -192,12 +192,12 @@
             font-size: 1.5em;
         }
 
-        #tt {
+        #order-total-label {
             flex-basis: 100px;
             justify-content: flex-start;
         }
 
-        #total {
+        #order-total-amount {
             flex-grow: 1;
             justify-content: flex-end;
         }
@@ -209,9 +209,9 @@
             padding: 5px;
         }
     </style>
-    <div id="container">
+    <div id="order-form-container">
         <!-- Main section-->
-        <div id="menu-container">
+        <div id="menu-items-container">
             <div id="menu" style="display: none">
                 <slot name="menu-items"></slot>
             </div>
@@ -245,8 +245,8 @@
                 </slot>
             </div>
             <div id="cart-total">
-                <span id="tt" class="order-total">Totaal:</span>
-                <span id="total" class="order-total">0.00</span>
+                <span id="order-total-label" class="order-total">Totaal:</span>
+                <span id="order-total-amount" class="order-total">0.00</span>
                 <hr />
             </div>
             <!-- Order buttons - Only one visible at a time -->

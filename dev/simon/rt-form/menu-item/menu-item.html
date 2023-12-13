@@ -4,17 +4,17 @@
             display: flex;
         }
 
-        #container {
+        #menu-item-container {
             max-width: 300px;
             min-width: 300px;
             align-items: center;
             background: var(--MENU-ITEM-BACKGROUND, burlywood);
             color: var(--MENU-ITEM-COLOR, black);
-            padding: 10px;
-            border-radius: 10px;
+            padding: var(--MENU-ITEM-PADDING, 10px);
+            border-radius: var(--MENU-ITEM-BORDER-RADIUS, 10px);
         }
 
-        #img {
+        #menu-item-img {
             display: block;
             width: 100px;
             height: 75px;
@@ -23,15 +23,15 @@
             background-size: 100px;
         }
 
-        #text {
+        #menu-item-text {
             padding: 5px;
             flex-basis: 200px;
             flex-wrap: wrap;
         }
     </style>
-    <div id="container">
-        <div id="img"></div>
-        <div id="text">
+    <div id="menu-item-container">
+        <div id="menu-item-img"></div>
+        <div id="menu-item-text">
             <slot>Geen beschrijving</slot>
         </div>
     </div>
