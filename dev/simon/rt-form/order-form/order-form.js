@@ -30,11 +30,11 @@ customElements.define(compName,
       this.#_form = this.#_sR.querySelector('#user-form');
       // this.#_details = this.#_sR.querySelector('#details-container');
       this.#_details = this.#_sR.querySelector('#deets');
-      this.#_menu = this.#_sR.querySelector('#menu-container');
+      this.#_menu = this.#_sR.querySelector('#menu-items-container');
 
       //### Retrive form sizes and define defaults
       const attributes = this.attributes;
-      this.#_sR.querySelector('#container').style.width = attributes['form-width'] ? attributes['form-width'].value : '1000px';
+      this.#_sR.querySelector('#order-form-container').style.width = attributes['form-width'] ? attributes['form-width'].value : '1000px';
       const cartWidth = attributes['cart-width'] ? attributes['cart-width'].value : '350px';
       const _cart = this.#_sR.querySelector('#cart');
       _cart.style.flex = `0 0 ${cartWidth}`;
@@ -244,7 +244,7 @@ customElements.define(compName,
       };
 
       // Display new order total
-      this.#_sR.querySelector('#total').innerHTML = this.$euro(orderTotal / 100);
+      this.#_sR.querySelector('#order-total-amount').innerHTML = this.$euro(orderTotal / 100);
 
       // Re-determine if cart button visibilty should change
       this.displayCartButtons();

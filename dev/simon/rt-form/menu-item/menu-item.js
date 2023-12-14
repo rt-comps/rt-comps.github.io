@@ -22,7 +22,7 @@ customElements.define(
     //--- connectedCallback
     connectedCallback() {
       // Set background image - if provided
-      if (this.hasAttribute('bgimg')) this.shadowRoot.querySelector('#img').style.backgroundImage = `url("${this.$attr('bgimg')}")`;
+      if (this.hasAttribute('bgimg')) this.shadowRoot.querySelector('#menu-item-img').style.backgroundImage = `url("${this.$attr('bgimg')}")`;
     }
     //+++++ End of Lifecycle Events
   }
