@@ -52,16 +52,6 @@
             user-select: none;
         }
 
-        /* DIV placed over another, filling parent container */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            /* border: 1px solid black; */
-            visibility: hidden;
-        }
-
         /* A button */
         .button {
             min-width: 150px;
@@ -108,12 +98,13 @@
         /* Product Details Overlay */
         #deets {
             /* width: 500px; */
-            background: var(--MENU-ITEM-BACKGROUND, burlywood);
-            color: var(--MENU-ITEM-COLOR, black);
+            background: var(--ITEM-DETAILS-BACKGROUND, burlywood);
+            color: var(--ITEM-DETAILS-COLOR, black);
             border: none;
             outline: none;
-            border-radius: var(--MENU-ITEM-BORDER-RADIUS, 10px);
-            padding: var(--MENU-ITEM-PADDING, 10px);
+            border-radius: var(--ITEM-DETAILS-BORDER-RADIUS, 10px);
+            padding: var(--ITEM-DETAILS-PADDING, 10px);
+            margin: var(--ITEM-DETAILS-MARGIN, 5px);
         }
 
         #deets::backdrop {
