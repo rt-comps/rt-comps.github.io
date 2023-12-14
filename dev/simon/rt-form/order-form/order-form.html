@@ -88,7 +88,7 @@
         #menu {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-auto-rows: min-content;
+            grid-auto-rows: max-content;
             grid-gap: 20px;
             align-self: stretch;
             padding: 20px;
@@ -97,14 +97,15 @@
 
         /* Product Details Overlay */
         #deets {
-            /* width: 500px; */
             background: var(--ITEM-DETAILS-BACKGROUND, burlywood);
             color: var(--ITEM-DETAILS-COLOR, black);
-            border: none;
+            border: var(--ITEM-DETAILS-BORDER, 1px solid black);
             outline: none;
             border-radius: var(--ITEM-DETAILS-BORDER-RADIUS, 10px);
+            min-width: 500px;
+            max-width: 95%;
             padding: var(--ITEM-DETAILS-PADDING, 10px);
-            margin: var(--ITEM-DETAILS-MARGIN, 5px);
+            /* margin: var(--ITEM-DETAILS-MARGIN, 5px); */
         }
 
         #deets::backdrop {
@@ -116,7 +117,7 @@
             position: absolute;
             top: 0;
             right: 0;
-            background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, white);
+            background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, none);
         }
 
         #deets-close img {
