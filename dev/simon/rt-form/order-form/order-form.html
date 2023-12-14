@@ -1,11 +1,11 @@
 <template id="ORDER-FORM">
     <style>
         /* === Element Defaults === */
-        * {
-            --ff-fb: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
-            --fs-fb: 16px;
-            font-family: var(--ff, var(--ff-fb));
-            font-size: var(--fs, var(--fs-fb));
+        :host {
+            --FORM-FONTS-DEFAULTS: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+            --FONT-SIZE-DEFAULT: 16px;
+            font-family: var(--FORM-FONTS, var(--FORM-FONTS-DEFAULTS));
+            font-size: var(--FONT-SIZE, var(--FONT-SIZE-DEFAULT));
         }
 
         date-picker {
