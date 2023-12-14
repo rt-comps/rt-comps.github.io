@@ -15,15 +15,16 @@ customElements.define(
             const _sR = super().attachShadow({ mode: "open" });
             _sR.append(this.$getTemplate());
 
-            // Check for custom colours.  1st colour is used for foreground and 2nd (if specified) for background
-            if (this.attributes['colors']) {
+            // Check for custom colours.  1st colour is used for background and 2nd (if specified) for foreground
+            const colors = this.attributes['colors'];
+            if (colors) {
                 // Get custom colour(s)
-                const [custCol, custBgCol] = this.attributes['colors'].value.split(',');
+                const [custBgCol,custCol] = colors.value.split(',');
                 // Get handle to container (only DIV in SR)
                 const _div = _sR.querySelector('div');
-                // Update to colours specified
-                if (custCol) _div.style.color = custCol;
-                if (custBgCol) _div.style.backgroundColor = custBgCol;
+                // Apply custom colours to DIV
+                _div.style.color = custCol ? custCol : '';
+                _div.style.backgroundColor = custBgCol ? custBgCol : '';
             }
 
             // Add onClick events to plus and minus
