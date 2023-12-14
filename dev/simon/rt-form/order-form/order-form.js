@@ -424,7 +424,7 @@ customElements.define(compName,
     }
 
     //--- showOverlay
-    // Display the requested overlay and resize menu-container DIV height to fit contents
+    // Display the requested overlay and resize menu-items-container DIV height to fit contents
     resizeMenu() {
       // Reset menu height
       this.#_menu.style.height = '';

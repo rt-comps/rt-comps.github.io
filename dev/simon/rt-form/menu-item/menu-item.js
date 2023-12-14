@@ -12,7 +12,7 @@ customElements.define(
       super().attachShadow({ mode: "open" }).append(this.$getTemplate());
 
       //###### Event Listeners
-      // Click triggers an updateMenu event
+      // Tell form that menu-item has been chosen
       this.addEventListener('click', () => this.$dispatch({
         name: 'updatemenu',
         detail: { id: this.id.slice(3) }
