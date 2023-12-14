@@ -431,7 +431,7 @@ customElements.define(compName,
       // Determine if current height is sufficient
       const resize = this.#_details.getBoundingClientRect().height > this.#_menu.getBoundingClientRect().height ? true : false;
       // If necessary resize
-      if (resize) this.#_menu.style.height = `${Math.ceil(this.#_details.getBoundingClientRect().height) + 5}px`;
+      if (resize) this.#_menu.style.height = `${Math.ceil(this.#_details.getBoundingClientRect().height) + 10}px`;
     }
 
     //--- hideOverlay
