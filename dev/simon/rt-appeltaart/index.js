@@ -19,7 +19,7 @@ loadGlobalMods().then(() => {
 
   // List of dependancies
   //  components will be loaded in parallel, so load order cannot be depended on.
-  const components = ['ati-form'];
+  const components = ['ati-form','ati-form-dia'];
 
   // Load all required top-level components
   Promise.all(components.map((componentName) => import(`./${componentName}/index.js`))).then(() => {

@@ -162,10 +162,11 @@ customElements.define(compName,
         // When something selected, button reverts to style and says 'Add'
         newDisplay = '';
       } else {
-        // When no selection, button is grey and says 'cancel'
+        // When no selection, button disappears
         newDisplay = 'none';
       }
       this.shadowRoot.querySelector('#prod-add-but').style.display = newDisplay;
+      this.resizeMenu();
     }
 
     //--- displayCartButtons
