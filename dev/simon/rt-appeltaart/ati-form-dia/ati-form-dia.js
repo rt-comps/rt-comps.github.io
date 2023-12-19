@@ -26,6 +26,8 @@ customElements.define(
             // Get the menu file
             this.getMenu();
 
+            this.#_sR.querySelector('#x img').src = `${compPath}/img/close-wht.png`
+
             // Catch form output event and display final order details
             this.addEventListener('neworder', (e) => this.dispatchOrder(e));
             this.#_sR.querySelector('#x').addEventListener('click', ()=> this.#_sR.querySelector('dialog').close());
@@ -40,6 +42,7 @@ customElements.define(
         // Retrieve the menu from file specified in the datafile attribute.
         // The file (currently) needs to hosted in the <ati-form> element directory
         getMenu() {
+            let appendRoot = this.#_sR.querySelector('dialog');
             // Check that the datafile attribute has been provided
             if (this.hasAttribute('datafile') && this.getAttribute('datafile')) {
                 // Determing the path to the menu data file
@@ -56,14 +59,14 @@ customElements.define(
                         .then((htmlText) => {
                             // Create a fragment and then append to shadow DOM
                             const frag = document.createRange().createContextualFragment(htmlText);
-                            this.#_sR.appendChild(frag);
+                            appendRoot.appendChild(frag);
                         });
                 } catch (e) {
                     console.warn(e);
                 }
             } else {
                 const frag = document.createRange().createContextualFragment('<h1 style="color: red;">datafile attribute not provided</h1>');
-                this.#_sR.appendChild(frag);
+                appendRoot.appendChild(frag);
             }
         }
 
