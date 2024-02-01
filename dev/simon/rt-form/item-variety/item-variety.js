@@ -60,7 +60,7 @@ customElements.define(
             // Invert current value
             this.#_lines.hidden = !this.#_lines.hidden;
             // Select the correct caret
-            this.#_caret.innerHTML=this.#_lines.hidden?'&#9656':'&#9660';
+            this.#_caret.innerHTML=this.#_lines.hidden?'&#9656':'&#9662';
             this.$dispatch({
                 name: 'detailresize',
               });
