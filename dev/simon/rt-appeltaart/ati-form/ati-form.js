@@ -28,7 +28,6 @@ customElements.define(
 
             // Catch form output event and display final order details
             this.addEventListener('neworder', (e) => this.dispatchOrder(e));
-            this.#_sR.querySelector('#x').addEventListener('click', ()=> this.#_sR.querySelector('dialog').close());
         }
 
         //--- connectedCallback
