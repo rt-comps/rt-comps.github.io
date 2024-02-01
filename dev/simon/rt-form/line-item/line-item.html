@@ -1,8 +1,12 @@
 <template id="LINE-ITEM">
     <style>
+        hr {
+            width: 100%;
+        }
+
         div#container {
             display: grid;
-            grid-template-columns: 70px auto 70px auto;
+            grid-template-columns: 70px auto 70px 30px;
             column-gap: 10px;
         }
 
@@ -32,7 +36,7 @@
         </span>
         <span id="total"></span>
         <!-- Placeholder for delete icon -->
-        <span id="delete"><img width="25px"/></span>
+        <span id="delete"><img width="25px" /></span>
     </div>
     <hr />
 </template>
