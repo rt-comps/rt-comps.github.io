@@ -4,26 +4,30 @@
             width: 100%;
         }
 
-        div#container {
+        #container {
             display: grid;
             grid-template-columns: 70px auto 70px 30px;
-            column-gap: 10px;
+            column-gap: 0.75em;
         }
 
-        span#count {
+        #count {
             flex-basis: 100%;
             text-align: center;
         }
 
-        span#desc {
-            font-size: smaller;
+        #desc {
+            font-size: 0.83em;
         }
 
-        span#delete {
+        #total {
+            text-align: right;
+        }
+
+        /* #delete {
             text-align: center;
             padding: 3px;
             height: fit-content;
-        }
+        } */
     </style>
 
     <div id="container">

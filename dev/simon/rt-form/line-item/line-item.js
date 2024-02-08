@@ -14,6 +14,7 @@ customElements.define(
             this.#_sR = this.attachShadow({ mode: "open" });
             this.#_sR.append(this.$getTemplate());
 
+            
             //### Listeners
             // Remove this item when 'delete' button pressed
             this.#_sR.querySelector('#delete').addEventListener('click', () => {
@@ -27,9 +28,9 @@ customElements.define(
                 this.remove();
             });
             // Update total price on count change
-            this.addEventListener('updatecount', (e) => this.render(e));
+            this.#_sR.querySelector('#container').addEventListener('updatecount', (e) => this.update(e));
         }
-
+        
         //--- connectedCallback
         connectedCallback() {
             this.render();
@@ -37,13 +38,25 @@ customElements.define(
         //+++ End OF Lifecycle Events
 
         //--- render
-        // Update 
-        render(e) {
+        // Initialise
+        render() {
             const unit = parseInt(this.$attr('unit'));
-            let count = parseInt(this.#_sR.querySelector('#count').innerHTML);
+            const count = parseInt(this.$attr('count'));
+
+            this.#_sR.querySelector('#unit').innerHTML = `${(this.$euro(unit / 100))}`;
+            this.#_sR.querySelector('#count').innerHTML = `${count}`;
+            this.#_sR.querySelector('#total').innerHTML = `${(this.$euro((count * unit) / 100))}`;
+            this.#_sR.querySelector('img').src = `${compPath}/imgs/trashcan.jpeg`;
+        }
+
+        //--- update
+        // Update 
+        update(e) {            
             // When called from an event then update the count
             if (e) {
-                e.stopPropagation();
+                e.stopImmediatePropagation();
+                let count = parseInt(this.$attr('count'));
+
                 count += e.detail.change;
                 switch (true) {
                     case (count > 10):
@@ -52,26 +65,16 @@ customElements.define(
                     case (count < 0):
                         count = 0;
                 }
+
                 this.$dispatch({
                     name: 'cartmod',
                     detail: {
-                        prodID: this.getAttribute('prodid'),
-                        count: e.detail.change,
-                        action: 'update'
+                        prodID: this.$attr('prodid'),
+                        count,
+                        action: (count > 0) ? 'update' : 'remove'
                     }
                 });
-            } else {
-                // If triggered by connectedCallback then initialise the elements
-                count = parseInt(this.$attr('count'));
-                this.#_sR.querySelector('#unit').innerHTML = `${(this.$euro(unit / 100))}`;
             }
-            this.#_sR.querySelector('#count').innerHTML = `${count}`;
-            // Update <line-item> count attribute
-            if (count > 0) this.setAttribute('count', count);
-            else this.removeAttribute('count');
-            this.#_sR.querySelector('#total').innerHTML = `${(this.$euro((count * unit) / 100))}`;
-            // Publish delete icon
-            this.#_sR.querySelector('img').src = `${compPath}/imgs/trashcan.jpeg`;
         }
     }
 );
