@@ -30,20 +30,25 @@ customElements.define(compName,
         // Respond to plus or minus event update count as required
         updateCount(e) {
             const _count = this.shadowRoot.querySelector('#count');
+            let currentCount;
             if (_count) {
-                // Get the current value
-                let currentCount = parseInt(_count.innerHTML);
-                // Adjust the value
-                currentCount += e.detail.change;
-                // Check boundaries
-                if (currentCount > this.maxCount || currentCount < 0) currentCount = 0;
+                if (e.detail.replace) {
+                    currentCount = e.detail.change;
+                } else {
+                    // Get the current value
+                    currentCount = parseInt(_count.innerHTML);
+                    // Adjust the value
+                    currentCount += e.detail.change;
+                    // Check boundaries
+                    if (currentCount > this.maxCount || currentCount < 0) currentCount = 0;
+                }
                 // Write back new value
                 _count.innerHTML = `${currentCount}`;
                 // Handle zero transistions
-                if (currentCount > 0){
+                if (currentCount > 0) {
                     // Highlight line and make count available in LightDOM
                     this.shadowRoot.querySelector('#container').style.fontWeight = 'bold';
-                    this.setAttribute('count',currentCount)
+                    this.setAttribute('count', currentCount)
                 } else {
                     // Undo above
                     this.shadowRoot.querySelector('#container').style.fontWeight = '';

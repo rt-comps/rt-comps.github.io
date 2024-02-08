@@ -29,21 +29,25 @@ customElements.define(compName,
       // Store some useful nodes in private fields
       this.#_form = this.#_sR.querySelector('#user-form');
       // this.#_details = this.#_sR.querySelector('#details-container');
-      this.#_details = this.#_sR.querySelector('#deets');
+      this.#_details = this.#_sR.querySelector('#product-details');
       this.#_menu = this.#_sR.querySelector('#menu-items-container');
 
-      //### Retrive form sizes and define defaults
-      const attributes = this.attributes;
-      this.#_sR.querySelector('#order-form-container').style.width = attributes['form-width'] ? attributes['form-width'].value : '1000px';
-      const cartWidth = attributes['cart-width'] ? attributes['cart-width'].value : '350px';
+      const _orderForm = this.#_sR.querySelector('#order-form-container');
       const _cart = this.#_sR.querySelector('#cart');
-      _cart.style.flex = `0 0 ${cartWidth}`;
-      _cart.style.maxWidth = cartWidth;
+
+      //### Retrieve custom sizes and defaults
+      const attributes = this.attributes;
+      if (attributes.length > 2) {
+        if (attributes['form-width']) _orderForm.style.width = attributes['form-width'].value;
+        if (attributes['cart-width']) this.style.setProperty('--CART-MIN-SIZE', `minmax(${attributes['cart-width'].value},1fr)`)
+      }
 
       //### Event Listeners
       //___ updatemenu - Display product information when product chosen
       this.addEventListener('updatemenu', (e) => this.updateItemData(e));
-      this.addEventListener('detailresize', () => this.resizeMenu());
+      // For non-modal */
+      // this.addEventListener('detailresize', () => this.resizeMenu());
+      //window.addEventListener('resize', () => this.resizeMenu());
 
       /// Responding to +/- clicks
       //___ updatecount - Determine any detail overlay button appearance changes
@@ -54,7 +58,7 @@ customElements.define(compName,
       /// Button Actions
       ///- Product Details
       //___ close dialog
-      this.#_sR.querySelector('#deets-close').addEventListener('click', () => this.updateItemData());
+      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.updateItemData());
       //___ add-items_click - Add the currently selected items to the cart
       this.#_sR.querySelector('#prod-add-but').addEventListener('click', () => this.addToCart());
       ///- Cart
@@ -92,7 +96,7 @@ customElements.define(compName,
       const nodes = [...this.querySelectorAll('item-data')];
       // ...then create a new <menu-item> element for each, assigned to 'menu-items' slot  
       this.append(...nodes.map(element => {
-        let elementAttrs = { id: `mi-${element.id}`, slot: 'menu-items', style: 'justify-self: center' };
+        let elementAttrs = { id: `mi-${element.id}`, slot: 'menu-items' };//, style: 'justify-self: center' };
         // Attempt to retrieve image
         let imgNode = element.querySelector('img')
         // Add bgimg attribute if img element found
@@ -105,7 +109,7 @@ customElements.define(compName,
         })
       }));
       // Add image to details dialog
-      this.#_sR.querySelector('#deets-close img').src=`${compPath}/img/close-blk.png`;
+      this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
 
       this.#_menu.querySelector('#menu').style.display = '';
 
@@ -125,28 +129,53 @@ customElements.define(compName,
     // Display requested data (updatemenu event) or clear data (called manually)
     updateItemData(e) {
       // Handle event if present
-      let newData;
+      let newItem;
       if (e) {
         e.stopPropagation();
-        newData = e.detail.id;
+        newItem = e.detail.id;
       }
       // Clear any previous slot settings
       this.querySelectorAll('item-data').forEach((element) => {
         element.removeAttribute('slot');
       });
-      // Set correct data (if any) and handle display of details overlay
-      if (newData) {
+
+      // Present correct data in details dialog
+      if (newItem) {
+        // Get node for selected data
+        const newData = this.querySelector(`item-data#${newItem}`)
         // Slot in correct product data
-        this.querySelector(`item-data#${newData}`).setAttribute('slot', 'active-data');
+        newData.setAttribute('slot', 'active-data');
+
+        // Retrieve any relevent data already in cart
+        // Get cart contents
+        const lineItems = this.querySelectorAll('line-item[slot="cart"]');
+        // Get item-lines
+        const itemLines = [...newData.querySelectorAll('item-variety item-line')];
+        // Search for any cart items in item-line list and set item-line count to value in cart
+        for (const cartLine of lineItems) {
+          for (const dispLine of itemLines) {
+            if (dispLine.$attr('prodid') === cartLine.$attr('prodid')) {
+              // Match found so update line in dialog to count in cart
+              dispLine.$dispatch({ name: 'updatecount', detail: { change: cartLine.$attr('count'), replace: true } });
+              // Remove node so it is no longer tested and its value reset to zero
+              itemLines.splice(itemLines.indexOf(dispLine), 1);
+            } else {
+              // Unmatched values so update line in dialog to zero
+              if (dispLine.$attr('count') > 0)
+                dispLine.$dispatch({ name: 'updatecount', detail: { change: '0', replace: true } });
+            }
+          }
+        }
+
         // Display the dialog
-        this.#_details.show();
+        this.#_details.showModal();
         // Hide the button
         this.displayDetailButton();
       } else {
         // Close the dialog
         this.#_details.close();
-        // Resize menu to original size
-        this.resizeMenu();
+        // Resize menu to original size - non-modal
+        //this.resizeMenu();
       }
       // Ensure the correct button is visible in cart
       this.displayCartButtons();
@@ -256,30 +285,27 @@ customElements.define(compName,
     // When a change is made to the order then the currentOrder instance is updated as required 
     //  and the cart is rebuilt from the new contents of this instance
     updateCurOrderStor(itemObj) {
+      // Let's assume this is a new value
+      let notFound = true;
       // itemObj must contain an action property
       if (itemObj.action) {
         // Parse from currently stored value array from JSON or empty array if item doesn't exist
         const currentItems = JSON.parse(localStorage.getItem('currentOrder')) || [];
-        // Let's assume this is a new value
-        let notFound = true;
-
         // If currentItems is not an empty array then search for an element to change
         if (currentItems) {
-          const maxVal = currentItems.length;
-          // Search through array for element to change
-          for (let i = 0; i < maxVal; i++) {
-            // Find the correct element
-            if (itemObj.prodID === currentItems[i].prodID) {
-              // Add new value to existing menu item
-              if (itemObj.count) currentItems[i].count += itemObj.count;
+          for (const currentItem of currentItems) {
+            if (itemObj.prodID === currentItem.prodID) {
               // Remove element if deleted or new item count is zero
-              if (itemObj.action === 'remove' || currentItems[i].count === 0) currentItems.splice(i, 1);
+              if (itemObj.action === 'remove' || currentItem.count === 0) currentItems.splice(currentItems.indexOf(currentItem), 1);
+              // Add new value to existing menu item
+              if (itemObj.count) currentItem.count = itemObj.count;
               // Terminate search on first match
               notFound = false;
               break;
             }
           }
         }
+
         // If no existing entry found this must be new item to add to the array
         if (notFound) {
           // Remove the 'action'property from the object
@@ -314,12 +340,12 @@ customElements.define(compName,
       if (activeItemLines) activeItemLines.forEach(node => {
         // Update the currentorder storage item
         this.updateCurOrderStor({
-          prodID: node.getAttribute('prodid'),
-          count: parseInt(node.getAttribute('count')),
+          prodID: node.$attr('prodid'),
+          count: parseInt(node.$attr('count')),
           action: 'update'
         });
         // Reset the <item-line> count attribute to zero
-        node.updateCount({ detail: { change: (0 - parseInt(node.getAttribute('count'))) } });
+        // node.updateCount({ detail: { change: (0 - parseInt(node.getAttribute('count'))) } });
       });
 
       // Whether closing or adding, current item data is cleared
@@ -330,14 +356,14 @@ customElements.define(compName,
     // Display the form and pre-populate fields if previous data found
     continueOrder() {
       /// Prepopulate form if saved details found
-      const details = localStorage.getItem('userDeets');
+      const details = localStorage.getItem('user-details');
       if (details) {
         // Set 'savefields' boolean
         this.#_form.querySelector('#savefields').checked = true;
         // Get stored details
-        const deetsObj = JSON.parse(details);
+        const productDetailsObj = JSON.parse(details);
         // Repopulate details in to form
-        for (const [key, value] of Object.entries(deetsObj)) {
+        for (const [key, value] of Object.entries(productDetailsObj)) {
           this.#_form.querySelector(`[name=${key}]`).value = value;
         }
       }
@@ -415,9 +441,9 @@ customElements.define(compName,
       if (saveFields && saveFields.checked) {
         const fields = [...this.#_sR.querySelectorAll(`#details-form form-field,textarea`)];
         const output = fields.reduce((acc, el) => ({ ...acc, [el.name]: el.value }), {});
-        localStorage.setItem('userDeets', JSON.stringify(output));
+        localStorage.setItem('user-details', JSON.stringify(output));
         // If no then clear any existing data
-      } else localStorage.removeItem('userDeets');
+      } else localStorage.removeItem('user-details');
       // Reset the form elements
       this.#_form.reset();
       //DEBUG
