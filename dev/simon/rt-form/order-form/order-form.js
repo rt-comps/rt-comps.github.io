@@ -45,9 +45,6 @@ customElements.define(compName,
       //### Event Listeners
       //___ updatemenu - Display product information when product chosen
       this.addEventListener('updatemenu', (e) => this.updateItemData(e));
-      // For non-modal */
-      // this.addEventListener('detailresize', () => this.resizeMenu());
-      //window.addEventListener('resize', () => this.resizeMenu());
 
       /// Responding to +/- clicks
       //___ updatecount - Determine any detail overlay button appearance changes
@@ -176,8 +173,6 @@ customElements.define(compName,
       } else {
         // Close the dialog
         this.#_details.close();
-        // Resize menu to original size - non-modal
-        //this.resizeMenu();
       }
       // Ensure the correct button is visible in cart
       this.displayCartButtons();
@@ -197,7 +192,6 @@ customElements.define(compName,
         newDisplay = 'none';
       }
       this.shadowRoot.querySelector('#prod-add-but').style.display = newDisplay;
-      this.resizeMenu();
     }
 
     //--- displayCartButtons
@@ -450,17 +444,6 @@ customElements.define(compName,
       this.#_form.reset();
       //DEBUG
       console.log('Form Submitted!');
-    }
-
-    //--- showOverlay
-    // Display the requested overlay and resize menu-items-container DIV height to fit contents
-    resizeMenu() {
-      // Reset menu height
-      this.#_menu.style.height = '';
-      // Determine if current height is sufficient
-      const resize = this.#_details.getBoundingClientRect().height > this.#_menu.getBoundingClientRect().height ? true : false;
-      // If necessary resize
-      if (resize) this.#_menu.style.height = `${Math.ceil(this.#_details.getBoundingClientRect().height) + 10}px`;
     }
 
     //--- hideOverlay
