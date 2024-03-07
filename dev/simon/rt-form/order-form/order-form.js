@@ -153,23 +153,21 @@ customElements.define(compName,
           acc[1].push(cur.$attr('count'));
           return acc;
         }, [[], []]);
-
         // Get item-lines
         const itemLines = [...newData.querySelectorAll('item-variety item-line')];
 
-        // Search for any item-lins in cart and set item-line count to value in cart
+        // Search for any item-lines in cart and set item-line count to value in cart
         for (const dispLine of itemLines) {
           const prodIndex = lineItems[0].indexOf(dispLine.$attr('prodid'));
           if (prodIndex > -1) {
-            // Match found so update line in dialog to count in cart
+            // Match - Ipdate line-tem count to count in cart
             dispLine.$dispatch({ name: 'updatecount', detail: { change: lineItems[1][prodIndex], replace: true } });
           } else {
-            // Unmatched so reset line count in dialog to zero
+            // Unmatched -  Reset line count in dialog to zero if needed
             if (dispLine.$attr('count') > 0)
               dispLine.$dispatch({ name: 'updatecount', detail: { change: '0', replace: true } });
           }
         }
-        // }
 
         // Display the dialog
         this.#_details.showModal();
