@@ -147,25 +147,29 @@ customElements.define(compName,
         newData.setAttribute('slot', 'active-data');
 
         // Retrieve any relevent data already in cart
-        // Get cart contents
-        const lineItems = this.querySelectorAll('line-item[slot="cart"]');
+        // Get convert cart contents to consistent 2D array of 'prodid' and 'count'
+        const lineItems = [...this.querySelectorAll('line-item[slot="cart"]')].reduce((acc, cur) => {
+          acc[0].push(cur.$attr('prodid'));
+          acc[1].push(cur.$attr('count'));
+          return acc;
+        }, [[], []]);
+
         // Get item-lines
         const itemLines = [...newData.querySelectorAll('item-variety item-line')];
-        // Search for any cart items in item-line list and set item-line count to value in cart
-        for (const cartLine of lineItems) {
-          for (const dispLine of itemLines) {
-            if (dispLine.$attr('prodid') === cartLine.$attr('prodid')) {
-              // Match found so update line in dialog to count in cart
-              dispLine.$dispatch({ name: 'updatecount', detail: { change: cartLine.$attr('count'), replace: true } });
-              // Remove node so it is no longer tested and its value reset to zero
-              itemLines.splice(itemLines.indexOf(dispLine), 1);
-            } else {
-              // Unmatched values so update line in dialog to zero
-              if (dispLine.$attr('count') > 0)
-                dispLine.$dispatch({ name: 'updatecount', detail: { change: '0', replace: true } });
-            }
+
+        // Search for any item-lins in cart and set item-line count to value in cart
+        for (const dispLine of itemLines) {
+          const prodIndex = lineItems[0].indexOf(dispLine.$attr('prodid'));
+          if (prodIndex > -1) {
+            // Match found so update line in dialog to count in cart
+            dispLine.$dispatch({ name: 'updatecount', detail: { change: lineItems[1][prodIndex], replace: true } });
+          } else {
+            // Unmatched so reset line count in dialog to zero
+            if (dispLine.$attr('count') > 0)
+              dispLine.$dispatch({ name: 'updatecount', detail: { change: '0', replace: true } });
           }
         }
+        // }
 
         // Display the dialog
         this.#_details.showModal();
