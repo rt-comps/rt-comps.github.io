@@ -1,20 +1,25 @@
 // ----------------------------
 // ### Node script to deploy a project
 //
-// Usage: node <pathToScript>/deploy.js [componentName]
+// Usage: node <pathToScript>/deploy.js [componentName] [componentName]
 // 
-// Code is taken from the specified component (Default: 'rt-appeltaart'),
-// minified and component dir in 'doc' directory is over-written.
+// Code is taken from the specified component (Default: all components),
+// minified and component dir(s) in 'doc' directory over-written.
 //
-// Commit must be done manually
+// After running this script, a commit must be done manually
 //
 // uglify-js & html-minifier must be installed
 // > npm install --save uglify-js html-minifier
 // ----------------------------
 
-// ### Determine required paths
-// Read in project name, if provided
-const comp = process.argv[2] || 'rt-appeltaart';
+// ### Load modules 
+// Allow FileSystem access
+const fs = require('fs');
+// Minifiers
+const uglify = require('uglify-js').minify;
+const mini = require('html-minifier').minify;
+
+// ### Define contants and carry out basic checks
 // Get current working directory
 const workingDir = process.cwd();
 // Ensure script has been called from within project directory
@@ -26,15 +31,20 @@ const execPath = process.argv[1];
 // Assume component directories are at same level as 'Node' directory (where script is placed)
 const devPath = execPath.slice(0, execPath.indexOf('/Node'));
 // Determine source and staging dirs 
-const srcPath = `${devPath}/${comp}`;
 const stgPath = `${devPath}/tmp`;
+// Read in any project name(s) provided
+const compList = process.argv.slice(2);
+// If no component is specified then deploy all components in dev directory
+if (compList.length === 0) {
+    fs.readdirSync(devPath, { withFileTypes: true }).forEach(
+        (item) => {
+            if (item.isDirectory() && item.name !== 'Node') compList.push(item.name)
+        }
+    )
+}
+// Store path(s) to component(s)
+const srcPathList = compList.map(comp => `${devPath}/${comp}`);
 
-// ### Load modules 
-// Allow FileSystem access
-const fs = require('fs');
-// Minifiers
-const uglify = require('uglify-js').minify;
-const mini = require('html-minifier').minify;
 // html-minifier options
 const miniOpt = {
     collapseWhitespace: true,
@@ -42,8 +52,10 @@ const miniOpt = {
     minifyCSS: true
 }
 
+// ### Start work
 try {
     // ### Local Functions
+
     // --- walk
     // Recursively find all the files in the given path
     // This gets past the fact that 'recursive' option of readdir() does not seem to work 
@@ -84,55 +96,57 @@ try {
         return contents;
     }
 
-
     // ### Pre-flight checks
-    // Check that the component can be found  
-    if (!fs.existsSync(srcPath)) throw new Error(`Component ${comp.toUpperCase()} not found!`, { cause: 'custom' });
     // Check if a previous attempt failed
     if (fs.existsSync(stgPath)) throw new Error(`Staging DIR already exists!\nSomething must have gone wrong previously\nExiting...`, { cause: 'custom' });
+    // Check that the component(s) can be found before starting
+    srcPathList.forEach(srcPath => { if (!fs.existsSync(srcPath)) throw new Error(`Component ${comp.toUpperCase()} not found!`, { cause: 'custom' }); });
 
-    // ### Main Code
+    //    process.exit();
+    // ### Main Code - run for each component
 
-    // Create array of files to process
-    const files = walk(srcPath);
-    // Process all files in array
-    for (const file of files) {
-        // Create staging path required for this file if it has not been previously created
-        const filePath = `${stgPath}${file.slice(0, file.lastIndexOf('/'))}`;
-        if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
-        // Process file based on type
-        const fileType = file.substring(file.lastIndexOf('.') + 1);
-        switch (fileType) {
-            // Use uglify-js with default settings for JS
-            case 'js':
-                // Find any required constant substitutions when moving dev to prod
-                // Get original file contents <string>
-                let contents = fs.readFileSync(`${devPath}${file}`, 'utf8');
-                // Check if any required substitions are present
-                if (contents.indexOf('ForProd:') > -1) contents = constSub(contents);
-                // Minify and save to staging
-                fs.writeFileSync(`${stgPath}${file}`, uglify(contents).code);
-                break;
-            // Use html-minifier for HTML
-            case 'html':
-            case 'htm':
-                fs.writeFileSync(`${stgPath}${file}`, mini(fs.readFileSync(`${devPath}${file}`, 'utf8'), miniOpt));
-                break;
-            // Ignore these file types
-            case 'md':
-                break;
-            // Copy all other file types
-            default:
-                fs.copyFileSync(`${devPath}${file}`, `${stgPath}${file}`);
+    compList.forEach((comp, index) => {
+        // Create array of files to process
+        const files = walk(srcPathList[index]);
+        // Process all files in array
+        for (const file of files) {
+            // Create staging path required for this file if it has not been previously created
+            const filePath = `${stgPath}${file.slice(0, file.lastIndexOf('/'))}`;
+            if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
+            // Process file based on type
+            const fileType = file.substring(file.lastIndexOf('.') + 1);
+            switch (fileType) {
+                // Use uglify-js with default settings for JS
+                case 'js':
+                    // Find any required constant substitutions when moving dev to prod
+                    // Get original file contents <string>
+                    let contents = fs.readFileSync(`${devPath}${file}`, 'utf8');
+                    // Check if any required substitions are present
+                    if (contents.indexOf('ForProd:') > -1) contents = constSub(contents);
+                    // Minify and save to staging
+                    fs.writeFileSync(`${stgPath}${file}`, uglify(contents).code);
+                    break;
+                // Use html-minifier for HTML
+                case 'html':
+                case 'htm':
+                    fs.writeFileSync(`${stgPath}${file}`, mini(fs.readFileSync(`${devPath}${file}`, 'utf8'), miniOpt));
+                    break;
+                // Ignore these file types
+                case 'md':
+                    break;
+                // Copy all other file types
+                default:
+                    fs.copyFileSync(`${devPath}${file}`, `${stgPath}${file}`);
+            }
         }
-    }
 
-    const rmOpts = { recursive: true, force: true };
-    // Move files from stage to 'docs' folder
-    fs.rmSync(`${dstPath}/${comp}`, rmOpts);
-    fs.renameSync(`${stgPath}/${comp}`, `${dstPath}/${comp}`);
-    // // Tidy up
-    fs.rmSync(stgPath, rmOpts);
+        const rmOpts = { recursive: true, force: true };
+        // Move files from stage to 'docs' folder
+        fs.rmSync(`${dstPath}/${comp}`, rmOpts);
+        fs.renameSync(`${stgPath}/${comp}`, `${dstPath}/${comp}`);
+        // // Tidy up
+        fs.rmSync(stgPath, rmOpts);
+    })
 } catch (e) {
     if (e.cause && e.cause === 'custom') console.log(e.message);
     else console.log(e)
