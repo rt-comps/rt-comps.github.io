@@ -54,19 +54,22 @@
             user-select: none;
         }
 
-        menu-item
+        /* menu-item {
+
+        } */
 
         /* Define basic button appearance */
         .button {
-            min-width: 150px;
+            min-width: 200px;
             padding: 10px;
-            background-color: rgb(78, 78, 255);
+            /* background-color: rgb(78, 78, 255); */
+            background-color: rgb(128, 128, 128);
             color: white;
         }
 
-        .disabled {
+        /* .disabled {
             background-color: rgb(128, 128, 128);
-        }
+        } */
 
         /* Overall container */
         #order-form-container {
@@ -102,12 +105,13 @@
             border: var(--ITEM-DETAILS-BORDER, 1px solid black);
             padding: var(--ITEM-DETAILS-PADDING, 10px);
             outline: none;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             /* when non-modal */
             /* margin-top: 4px; */
             min-width: 60%;
             max-width: 60%;
-        }    
+        }
 
         /* Product details overlay close button */
         #product-details-close {
@@ -115,23 +119,23 @@
             top: 0;
             right: 0;
             background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, none);
-        }    
-        
+        }
+
         #product-details-close img {
             margin: -4px;
             width: 50px;
-        }    
-        
+        }
+
         #product-details::backdrop {
             background-color: rgba(0, 0, 0, 0.2);
-        }    
+        }
 
         /* User Details Overlay */
         #form-container {
             background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, white);
             justify-content: center;
             align-items: stretch;
-        }    
+        }
 
         #user-form {
             top: 0;
@@ -142,88 +146,111 @@
             align-items: stretch;
             justify-content: flex-start;
             padding: 10px;
-        }    
+        }
 
         #form-buttons {
             flex: 0 0 80%;
             justify-content: space-around;
             padding: 5px;
-        }    
+        }
 
         .pick-container {
             flex-flow: row;
             justify-content: flex-start;
-        }    
+        }
 
         /* Cart Section */
         #cart {
             flex-direction: column;
-            overflow: hidden;
+            overflow: auto;
             padding: 5px;
             border: 1px solid black;
-        }    
+        }
 
         #cart-title {
             font-size: 2em;
             background-color: rgb(224, 224, 224);
             padding: 0.1em;
             width: 100%;
-        }    
+        }
 
         #cart-contents {
             flex-direction: column;
             align-items: stretch;
             width: 100%;
-        }    
+        }
 
         #cart-total {
             width: 100%;
             padding: 5px;
-            display: flex;
-        }    
+            /* display: flex; */
+        }
 
         .order-total {
             font-size: 1.5em;
-        }    
+        }
 
         #order-total-label {
             flex-basis: 100px;
             justify-content: flex-start;
-        }    
+        }
 
         #order-total-amount {
             flex-grow: 1;
             justify-content: flex-end;
-        }    
+        }
 
         #order-buts {
             background-color: rgb(224, 224, 224);
             width: 100%;
             min-height: 20px;
             padding: 5px;
-        }    
+        }
 
         @media only screen and (max-width: 430px) {
             /* :host {
                 --FONT-SIZE: 12px
             } */
 
+            /* hr {
+                display: none;
+            } */
+
+            .mobile {
+                display: none;
+            }
+
             /* div,
             form {
             }     */
             #order-form-container {
+                width: 100%;
                 grid-template-columns: 1fr;
+                margin: 0;
+                padding: 0px;
             }
 
-            /* === Classes === */
-            /* Button sizing */
-            /* .button {
-            }     */
+            #menu-items-container {
+                border: 0;
+                margin: 0;
+            }
 
-            /* Product Details Overlay */
-            /* #product-details {
-            }     */
+            #cart {
+                position: fixed;
+                width: 95%;
+                left: 2.5%;
+                bottom: 0;
+                display: grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: min-content min-content auto min-content min-content min-content;
+                border-radius: 8px;
+                background-color: white;
+                transition: 0.4s ease;
+            }
 
+            #cart-contents {
+                align-self: end;
+            }
 
 
         }
@@ -240,7 +267,9 @@
                 <!-- Product details -->
                 <slot name="active-data"></slot>
                 <!-- Add chosen products to "cart" -->
-                <div id="prod-add-but" class="button">Aanpasen</div>
+                <div>
+                    <div id="prod-add-but" class="button">Aanpassen</div>
+                </div>
             </dialog>
             <div id="form-container" style="display: none">
                 <form id="user-form">
@@ -248,32 +277,33 @@
                 </form>
                 <div id="form-buttons">
                     <div id="submit-but" class="button">Bestellen</div>
-                    <div id="cancel-but" class="button enabled">Annuleren</div>
+                    <div id="cancel-but" class="button">Annuleren</div>
                 </div>
             </div>
         </div>
         <!-- "Shopping cart" section -->
         <div id="cart">
             <div id="cart-title">Winkelwagen</div>
-            <hr />
+            <hr class="mobile" />
             <!-- Items currently in the "cart" -->
-            <div id="cart-contents">
+            <div id="cart-contents" class="mobile">
                 <slot name="cart">
                     <div>Empty<br />&nbsp;</div>
                     <hr />
                 </slot>
             </div>
-            <div id="cart-total">
+            <div id="cart-total" class="mobile">
                 <span id="order-total-label" class="order-total">Totaal:</span>
                 <span id="order-total-amount" class="order-total">0.00</span>
                 <hr />
             </div>
+            <hr class="mobile" />
             <!-- Order buttons - Only one visible at a time -->
-            <div id="order-buts">
+            <div id="order-buts" class="mobile">
                 <!-- Recover previous order-->
-                <div id="recover-but" class="button enabled">Laad De Laatste Bestelling</div>
+                <div id="recover-but" class="button">Laad De Laatste Bestelling</div>
                 <!-- Present details form -->
-                <div id="further-but" class="button enabled">Ga Verder</div>
+                <div id="further-but" class="button">Ga Verder</div>
                 <!-- Submit the order-->
             </div>
         </div>
