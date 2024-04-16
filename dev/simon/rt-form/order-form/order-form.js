@@ -12,6 +12,9 @@ customElements.define(compName,
     #_menu;
     #_details
     #_form;
+    #_cart;
+    #_cartTitleHeight;
+    #_cartOpenFlag;
 
     //+++ Lifecycle Events
     //--- constructor
@@ -31,6 +34,7 @@ customElements.define(compName,
       // this.#_details = this.#_sR.querySelector('#details-container');
       this.#_details = this.#_sR.querySelector('#product-details');
       this.#_menu = this.#_sR.querySelector('#menu-items-container');
+      this.#_cart = this.#_sR.querySelector('#cart');
 
       const _orderForm = this.#_sR.querySelector('#order-form-container');
       const _cart = this.#_sR.querySelector('#cart');
@@ -63,6 +67,8 @@ customElements.define(compName,
       this.#_sR.querySelector('#further-but').addEventListener('click', () => this.continueOrder());
       //___ recover-order_click - Fill cart with the items from the last order
       this.#_sR.querySelector('#recover-but').addEventListener('click', () => this.recoverOrder());
+      //___ title_click
+      this.#_sR.querySelector('#cart-title').addEventListener('click', () => this.toggleCart());
       ///- Form
       //___ Submit the order
       this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.dispatchOrder());
@@ -105,6 +111,13 @@ customElements.define(compName,
           attrs: elementAttrs
         })
       }));
+
+      setTimeout(() => {
+        this.#_cartOpenFlag = true;
+        this.getCartTitleHeight();
+        this.toggleCart()
+      }, 0);
+
       // Add image to details dialog
       this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
 
@@ -365,6 +378,7 @@ customElements.define(compName,
       }
       // Display user details form
       // this.showOverlay(this.#_form.parentElement);
+      this.toggleCart();
       this.showForm(true);
     }
 
@@ -468,5 +482,38 @@ customElements.define(compName,
       this.displayCartButtons();
     }
 
+    //--- getCartTitleHeight
+    //
+    getCartTitleHeight() {
+      // Get the current computed styles for #cart
+      const cartStyles = window.getComputedStyle(this.#_cart);
+      // Determine border and padding values
+      const correct = parseInt(cartStyles.paddingTop) + parseInt(cartStyles.paddingBottom) + (parseInt(cartStyles.borderWidth) * 2)
+      this.#_cartTitleHeight = `${this.#_sR.querySelector('#cart-title').getBoundingClientRect().height + correct}px`;
+    }
+
+    //--- toggleCart
+    // Handle Cart visibilty in mobile version
+    toggleCart() {
+      if (window.matchMedia("(max-width: 430px)").matches && this.querySelectorAll('line-item[slot="cart"][count]').length !== 0) {
+        let newDisplay;
+        // Change cart height value to trigger transition
+        if (this.#_cartOpenFlag) {
+          this.#_cart.style.height = this.#_cartTitleHeight;
+          this.#_cart.style.bottom = '';
+          newDisplay = '';
+        }
+        else {
+          this.#_cart.style.height = '95%';
+          this.#_cart.style.bottom = '2.5%';
+          newDisplay = 'flex';
+        }
+        // Show/hide elements
+        const elements = this.#_sR.querySelectorAll("#cart .mobile");
+        if (elements) elements.forEach((el) => el.style.display = newDisplay)
+        this.#_cartOpenFlag = !this.#_cartOpenFlag;
+      }
+    }
   }
 );
+
