@@ -162,7 +162,7 @@
         /* Cart Section */
         #cart {
             flex-direction: column;
-            overflow: auto;
+            overflow: hidden;
             padding: 5px;
             border: 1px solid black;
         }
@@ -178,6 +178,12 @@
             flex-direction: column;
             align-items: stretch;
             width: 100%;
+            overflow: hidden;
+        }
+
+        #cart-contents-inner {
+            flex-direction: column;
+            align-items: stretch;
         }
 
         #cart-total {
@@ -246,10 +252,19 @@
                 border-radius: 8px;
                 background-color: white;
                 transition: 0.4s ease;
+                overflow-y: auto;
             }
 
             #cart-contents {
+                height: 0px;
                 align-self: end;
+                justify-content: end;
+            }
+
+            #cart-contents-inner {
+                overflow-y: auto;
+                overflow-x: hidden;
+                width: 100%;
             }
 
 
@@ -287,15 +302,17 @@
             <hr class="mobile" />
             <!-- Items currently in the "cart" -->
             <div id="cart-contents" class="mobile">
-                <slot name="cart">
-                    <div>Empty<br />&nbsp;</div>
-                    <hr />
-                </slot>
+                <div id="cart-contents-inner">
+                    <slot name="cart">
+                        <div>Empty<br />&nbsp;</div>
+                        <hr />
+                    </slot>
+                </div>
             </div>
             <div id="cart-total" class="mobile">
                 <span id="order-total-label" class="order-total">Totaal:</span>
                 <span id="order-total-amount" class="order-total">0.00</span>
-                <hr />
+                <!-- <hr /> -->
             </div>
             <hr class="mobile" />
             <!-- Order buttons - Only one visible at a time -->
