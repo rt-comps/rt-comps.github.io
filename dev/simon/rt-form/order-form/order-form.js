@@ -112,11 +112,24 @@ customElements.define(compName,
         })
       }));
 
-      setTimeout(() => {
-        this.#_cartOpenFlag = true;
-        this.getCartTitleHeight();
-        this.toggleCart()
-      }, 0);
+      console.log(window.matchMedia("screen and (max-width: 430px)").matches);
+      // Additional initialisation for mobile client
+      if (window.matchMedia("(max-width: 430px)").matches) {
+        setTimeout(() => {
+          // Cart is initially closed
+          this.#_cartOpenFlag = false;
+          // Hide cart while dtermining 
+          this.#_cart.style.visibility = 'hidden'
+          this.getCartTitleHeight();
+          this.toggleCart();
+          const gridRows = getComputedStyle(this.#_cart).gridTemplateRows;
+          this.toggleCart();
+          this.#_cart.style.visibility = ''
+
+          const test = gridRows.split(' ')[2];
+          this.#_sR.querySelector('#cart-contents').style.height = gridRows.split(' ')[2];
+        }, 0);
+      }
 
       // Add image to details dialog
       this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
@@ -495,7 +508,8 @@ customElements.define(compName,
     //--- toggleCart
     // Handle Cart visibilty in mobile version
     toggleCart() {
-      if (window.matchMedia("(max-width: 430px)").matches && this.querySelectorAll('line-item[slot="cart"][count]').length !== 0) {
+      console.log('Pressed');
+      if (window.matchMedia("screen and (max-width: 430px)").matches) { // && this.querySelectorAll('line-item[slot="cart"][count]').length !== 0) {
         let newDisplay;
         // Change cart height value to trigger transition
         if (this.#_cartOpenFlag) {
