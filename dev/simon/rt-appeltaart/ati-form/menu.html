@@ -7,27 +7,13 @@
     Optional parameters
     form-width : Set form width
     cart-width : Set minimum width of shopping cart
- -->    
+ -->
 <order-form style="display: none;" cart-width="350px">
     <!-- Configuration parameters go in this section -->
     <form-config style="display: none">
         <span id="imgpath">https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/</span>
     </form-config>
     <!-- Menu data starts here -->
-    <item-data id="veganistisch">
-        <item-title>Veganistische appeltaart</item-title>
-        <item-desc>Veganistische appeltaart, net zo lekker als onze traditionele appeltaart, maar dan geheel
-            plantaardig!</item-desc>
-        <img class="icon" file="HLM003-052-277d8d69.jpg">
-        <item-variety value="groot" desc="(12 personen)" default>
-            <item-line prodid="01011" prijs="2300">Normaal</item-line>
-            <item-line prodid="01012" prijs="2150">ONGEBAKKEN</item-line>
-        </item-variety>
-        <item-variety value="klein" desc="(4-6 personen)">
-            <item-line prodid="01021" prijs="1250">Normaal</item-line>
-            <item-line prodid="01022" prijs="1150">ONGEBAKKEN</item-line>
-        </item-variety>
-    </item-data>
     <item-data id="roomboter">
         <item-title>Roomboter appeltaart</item-title>
         <item-desc>Ouderwets lekker met rum-rozijnen zoals we ze al jarenlang bakken! Met of zonder krokante
@@ -44,6 +30,20 @@
             <item-line prodid="02022" prijs="1200">Kruimel</item-line>
             <item-line prodid="02023" prijs="1050">ONGEBAKKEN</item-line>
             <item-line prodid="02024" prijs="1100">Kruimel ONGEBAKKEN</item-line>
+        </item-variety>
+    </item-data>
+    <item-data id="veganistisch">
+        <item-title>Veganistische appeltaart</item-title>
+        <item-desc>Veganistische appeltaart, net zo lekker als onze traditionele appeltaart, maar dan geheel
+            plantaardig!</item-desc>
+        <img class="icon" file="HLM003-052-277d8d69.jpg">
+        <item-variety value="groot" desc="(12 personen)" default>
+            <item-line prodid="01011" prijs="2300">Normaal</item-line>
+            <item-line prodid="01012" prijs="2150">ONGEBAKKEN</item-line>
+        </item-variety>
+        <item-variety value="klein" desc="(4-6 personen)">
+            <item-line prodid="01021" prijs="1250">Normaal</item-line>
+            <item-line prodid="01022" prijs="1150">ONGEBAKKEN</item-line>
         </item-variety>
     </item-data>
     <item-data id="roomboter-spijs">
@@ -108,7 +108,7 @@
             <pickup-locations name="pu-loc">
                 <pu-loc id="Haarlem">
                     <time-slot>12:00 - 14:00</time-slot>
-                    <time-slot>14:00 - 17:00</time-slot>
+                    <time-slot>14:00 - 16:30</time-slot>
                 </pu-loc>
                 <pu-loc id="Hoofddorp">
                     <time-slot>12:00 - 14:00</time-slot>
