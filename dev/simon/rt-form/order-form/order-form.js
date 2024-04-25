@@ -121,7 +121,7 @@ customElements.define(compName,
           const cartStyle = getComputedStyle(this.#_cart);
           console.log(cartStyle);
           console.log(parseInt(cartStyle.paddingTop));
-          const cartMod = (parseInt(cartStyle.paddingTop) * 2) + (parseInt(cartStyle.paddingLeft)*2);
+          const cartMod = (parseInt(cartStyle.paddingTop) * 2) + (parseInt(cartStyle.borderLeftWidth) * 2);
           console.log(this.#_cart.getComputedStyle)
           const cartTitleSize = `${(parseFloat(cartTitle.getBoundingClientRect().height) + cartMod).toFixed(0)}px`;
           console.log(this.#_cart);
