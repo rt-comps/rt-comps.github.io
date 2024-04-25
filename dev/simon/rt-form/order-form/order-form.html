@@ -214,21 +214,10 @@
         }
 
         @media only screen and (max-width: 430px) {
-            /* :host {
-                --FONT-SIZE: 12px
-            } */
-
-            /* hr {
-                display: none;
-            } */
-
             .mobile {
                 display: none;
             }
 
-            /* div,
-            form {
-            }     */
             #order-form-container {
                 width: 100%;
                 grid-template-columns: 1fr;
@@ -242,31 +231,30 @@
             }
 
             #cart {
-                position: fixed;
-                width: 95%;
-                left: 2.5%;
-                bottom: 0;
                 display: grid;
                 grid-template-columns: 1fr;
                 grid-template-rows: min-content min-content auto min-content min-content min-content;
-                border-radius: 8px;
+                position: fixed;
+                height: 95vh;
+                bottom: 2.5vh;
+                width: 95vw;
+                left: 2.5vw;
                 background-color: white;
-                transition: 0.4s ease;
-                overflow-y: auto;
+                transition: height 0.4s ease;
+            }
+
+            #cart.mini {
+                height: var(--MINIMIZED-CART, 20px);
+                bottom: 0px;
             }
 
             #cart-contents {
-                height: 0px;
+                flex-direction: row;
                 align-self: end;
-                justify-content: end;
-            }
-
-            #cart-contents-inner {
+                height: 100%;
                 overflow-y: auto;
                 overflow-x: hidden;
-                width: 100%;
             }
-
 
         }
     </style>
@@ -299,24 +287,22 @@
         <!-- "Shopping cart" section -->
         <div id="cart">
             <div id="cart-title">Winkelwagen</div>
-            <hr class="mobile" />
+            <hr />
             <!-- Items currently in the "cart" -->
-            <div id="cart-contents" class="mobile">
-                <div id="cart-contents-inner">
-                    <slot name="cart">
-                        <div>Empty<br />&nbsp;</div>
-                        <hr />
-                    </slot>
-                </div>
+            <div id="cart-contents">
+                <slot name="cart">
+                    <div>Empty<br />&nbsp;</div>
+                    <hr />
+                </slot>
             </div>
-            <div id="cart-total" class="mobile">
+            <div id="cart-total">
                 <span id="order-total-label" class="order-total">Totaal:</span>
                 <span id="order-total-amount" class="order-total">0.00</span>
                 <!-- <hr /> -->
             </div>
-            <hr class="mobile" />
+            <hr />
             <!-- Order buttons - Only one visible at a time -->
-            <div id="order-buts" class="mobile">
+            <div id="order-buts">
                 <!-- Recover previous order-->
                 <div id="recover-but" class="button">Laad De Laatste Bestelling</div>
                 <!-- Present details form -->
