@@ -56,7 +56,7 @@ customElements.define(compName,
       //___ cartmod - Respond to +/- presses in a <line-item> and re-render cart
       _cart.addEventListener('cartmod', (e) => this.modifyCurrentOrder(e));
 
-      /// Button Actions
+      /// ### Button Actions
       ///- Product Details
       //___ close dialog
       this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.updateItemData());
@@ -67,8 +67,7 @@ customElements.define(compName,
       this.#_sR.querySelector('#further-but').addEventListener('click', () => this.continueOrder());
       //___ recover-order_click - Fill cart with the items from the last order
       this.#_sR.querySelector('#recover-but').addEventListener('click', () => this.recoverOrder());
-      //___ title_click
-      this.#_sR.querySelector('#cart-title').addEventListener('click', () => this.toggleCart());
+
       ///- Form
       //___ Submit the order
       this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.dispatchOrder());
@@ -112,22 +111,33 @@ customElements.define(compName,
         })
       }));
 
-      console.log(window.matchMedia("screen and (max-width: 430px)").matches);
+      /// Only do this for smaller screens
       // Additional initialisation for mobile client
       if (window.matchMedia("(max-width: 430px)").matches) {
+        const cartTitle = this.#_cart.querySelector('#cart-title');
+        // Add cart toggle when cart-title clicked
+        cartTitle.addEventListener('click', () => this.toggleCart());
         setTimeout(() => {
+          const cartStyle = getComputedStyle(this.#_cart);
+          console.log(cartStyle);
+          console.log(parseInt(cartStyle.paddingTop));
+          const cartMod = (parseInt(cartStyle.paddingTop) * 2) + (parseInt(cartStyle.paddingLeft)*2);
+          console.log(this.#_cart.getComputedStyle)
+          const cartTitleSize = `${(parseFloat(cartTitle.getBoundingClientRect().height) + cartMod).toFixed(0)}px`;
+          console.log(this.#_cart);
+          this.#_cart.style.setProperty('--MINIMIZED-CART', cartTitleSize);
           // Cart is initially closed
-          this.#_cartOpenFlag = false;
-          // Hide cart while dtermining 
-          this.#_cart.style.visibility = 'hidden'
-          this.getCartTitleHeight();
-          this.toggleCart();
-          const gridRows = getComputedStyle(this.#_cart).gridTemplateRows;
-          this.toggleCart();
-          this.#_cart.style.visibility = ''
+          // this.#_cartOpenFlag = false;
+          // Hide cart while determining 
+          // this.#_cart.style.visibility = 'hidden'
+          // this.getCartTitleHeight();
+          // this.toggleCart();
+          // const gridRows = getComputedStyle(this.#_cart).gridTemplateRows;
+          // this.toggleCart();
+          // this.#_cart.style.visibility = ''
 
-          const test = gridRows.split(' ')[2];
-          this.#_sR.querySelector('#cart-contents').style.height = gridRows.split(' ')[2];
+          // const test = gridRows.split(' ')[2];
+          // this.#_sR.querySelector('#cart-contents').style.height = gridRows.split(' ')[2];
         }, 0);
       }
 
@@ -391,7 +401,7 @@ customElements.define(compName,
       }
       // Display user details form
       // this.showOverlay(this.#_form.parentElement);
-      this.toggleCart();
+      // this.toggleCart();
       this.showForm(true);
     }
 
@@ -509,24 +519,29 @@ customElements.define(compName,
     // Handle Cart visibilty in mobile version
     toggleCart() {
       console.log('Pressed');
-      if (window.matchMedia("screen and (max-width: 430px)").matches) { // && this.querySelectorAll('line-item[slot="cart"][count]').length !== 0) {
-        let newDisplay;
-        // Change cart height value to trigger transition
-        if (this.#_cartOpenFlag) {
-          this.#_cart.style.height = this.#_cartTitleHeight;
-          this.#_cart.style.bottom = '';
-          newDisplay = '';
-        }
-        else {
-          this.#_cart.style.height = '95%';
-          this.#_cart.style.bottom = '2.5%';
-          newDisplay = 'flex';
-        }
-        // Show/hide elements
-        const elements = this.#_sR.querySelectorAll("#cart .mobile");
-        if (elements) elements.forEach((el) => el.style.display = newDisplay)
-        this.#_cartOpenFlag = !this.#_cartOpenFlag;
-      }
+      const classes = this.#_cart.classList;
+      console.log(classes);
+      if (classes.contains('mini')) classes.remove('mini');
+      else classes.add('mini');
+
+      // if (window.matchMedia("screen and (max-width: 430px)").matches) { // && this.querySelectorAll('line-item[slot="cart"][count]').length !== 0) {
+      //   let newDisplay;
+      //   // Change cart height value to trigger transition
+      //   if (this.#_cartOpenFlag) {
+      //     this.#_cart.style.height = this.#_cartTitleHeight;
+      //     this.#_cart.style.bottom = '';
+      //     newDisplay = '';
+      //   }
+      //   else {
+      //     this.#_cart.style.height = '95%';
+      //     this.#_cart.style.bottom = '2.5%';
+      //     newDisplay = 'flex';
+      //   }
+      //   // Show/hide elements
+      //   const elements = this.#_sR.querySelectorAll("#cart .mobile");
+      //   if (elements) elements.forEach((el) => el.style.display = newDisplay)
+      //   this.#_cartOpenFlag = !this.#_cartOpenFlag;
+      // }
     }
   }
 );
