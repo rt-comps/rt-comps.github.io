@@ -182,6 +182,7 @@
         }
 
         #cart-contents-inner {
+            width: 100%;
             flex-direction: column;
             align-items: stretch;
         }
@@ -248,12 +249,20 @@
                 bottom: 0px;
             }
 
+            #cart.init {
+                visibility: hidden;
+            }
+
             #cart-contents {
                 flex-direction: row;
                 align-self: end;
                 height: 100%;
                 overflow-y: auto;
                 overflow-x: hidden;
+            }
+
+            #cart-contents-inner {
+                justify-content: flex-end;
             }
 
         }
@@ -285,15 +294,17 @@
             </div>
         </div>
         <!-- "Shopping cart" section -->
-        <div id="cart">
+        <div id="cart" class="init">
             <div id="cart-title">Winkelwagen</div>
             <hr />
             <!-- Items currently in the "cart" -->
             <div id="cart-contents">
-                <slot name="cart">
-                    <div>Empty<br />&nbsp;</div>
-                    <hr />
-                </slot>
+                <div id="cart-contents-inner">
+                    <slot name="cart">
+                        <div>Empty<br />&nbsp;</div>
+                        <hr />
+                    </slot>
+                </div>
             </div>
             <div id="cart-total">
                 <span id="order-total-label" class="order-total">Totaal:</span>
