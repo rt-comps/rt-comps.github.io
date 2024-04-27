@@ -46,7 +46,7 @@ customElements.define(compName,
 
       //-- Event Listeners
       //___ updatemenu - Display product information when product chosen
-      this.addEventListener('updatemenu', (e) => this.#updateItemData(e));
+      this.addEventListener('updatemenu', (e) => this.#updateItemDataDialog(e));
 
       /// Responding to +/- clicks
       //___ updatecount - Determine any detail overlay button appearance changes
@@ -57,7 +57,7 @@ customElements.define(compName,
       /// Button Actions
       ///- Product Details
       //___ close dialog
-      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#updateItemData());
+      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#updateItemDataDialog());
       //___ add-items_click - Add the currently selected items to the cart
       this.#_sR.querySelector('#prod-add-but').addEventListener('click', () => this.#addToCart());
       ///- Cart
@@ -304,9 +304,9 @@ customElements.define(compName,
       }
     }
 
-    //--- #updateItemData
+    //--- #updateItemDataDialog
     // Display requested data (updatemenu event) or clear data (called manually)
-    #updateItemData(e) {
+    #updateItemDataDialog(e) {
       // Handle event if present
       let newItem;
       if (e) {
@@ -400,12 +400,12 @@ customElements.define(compName,
           count: parseInt(node.$attr('count')),
           action: 'update'
         });
-        // Reset the <item-line> count attribute to zero
-        // node.updateCount({ detail: { change: (0 - parseInt(node.getAttribute('count'))) } });
+        // A zero 'count' is needed to remove the item from cart but should not be processed on next invocation
+        if (node.$attr('count') === "0") node.removeAttribute('count');
       });
 
       // Whether closing or adding, current item data is cleared
-      this.#updateItemData();
+      this.#updateItemDataDialog();
     }
 
     //--- #continueOrder
