@@ -17,7 +17,7 @@ customElements.define(compName,
 
             //### Event Listeners
             //___ updateCount
-            this.addEventListener('updatecount', (e) => this.updateCount(e));
+            this.addEventListener('updatecount', (e) => this.#updateCount(e));
         }
 
         //--- connectedCallback
@@ -28,7 +28,7 @@ customElements.define(compName,
 
         //--- updateCount
         // Respond to plus or minus event update count as required
-        updateCount(e) {
+        #updateCount(e) {
             const _count = this.shadowRoot.querySelector('#count');
             let currentCount;
             if (_count) {

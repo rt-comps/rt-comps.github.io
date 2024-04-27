@@ -29,7 +29,7 @@ customElements.define(
             this.#_sR.querySelector('#text').innerHTML = `${this.$attr('value')}${this.hasAttribute('desc') ? ' ' + this.$attr('desc') : ''}`;
 
             // Respond to user click to toggle variety items display
-            this.#_sR.querySelector('#title').addEventListener('click', () => this.toggleItems());
+            this.#_sR.querySelector('#title').addEventListener('click', () => this.#toggleItems());
         }
 
         //--- connectedCallback
@@ -37,26 +37,26 @@ customElements.define(
             // Delay listener attachment to ensure '#eventBus' is present
             setTimeout(() => {
                 const eventBus = this.closest('#eventBus');
-                if (eventBus) eventBus.addEventListener('updatemenu', (e) => this.initialiseDisplay(e));
+                if (eventBus) eventBus.addEventListener('updatemenu', (e) => this.#initialiseDisplay(e));
                 else console.error(`${this.tagName}: Element with id of "eventBus" not found`);
             });
         }
         //+++ End Of Lifecycle events
 
-        //--- initialiseDisplay
+        //--- #initialiseDisplay
         // Ensure 'default' variety attribute is respected every time this menu item is chosen
-        initialiseDisplay(e) {
+        #initialiseDisplay(e) {
             if (e.detail.id === this.parentNode.id) {
                 // Set 'hidden' to inverse of what is wanted
                 this.#_lines.hidden = this.hasAttribute('default') ? true : false;
                 // Set 'hidden' to correct value and set correct caret
-                this.toggleItems();
+                this.#toggleItems();
             }
         }
 
-        //--- toggleItems
+        //--- #toggleItems
         // Invert value of 'hidden' for <line-item>s and display the correct caret
-        toggleItems(){
+        #toggleItems(){
             // Invert current value
             this.#_lines.hidden = !this.#_lines.hidden;
             // Select the correct caret
