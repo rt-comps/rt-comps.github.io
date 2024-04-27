@@ -8,11 +8,12 @@ const [compName, compPath] = rtlib.parseURL(import.meta.url);
 customElements.define(compName,
   class extends rtBC.RTBaseClass {
     /// ### PRIVATE CLASS FIELDS
-    #_sR;     // Shadow Root node
-    #_menu;   // Menu node
-    #_details // Product Details node
-    #_form;   // Form node
-    #_cart;   // Cart node
+    #_sR;           // Shadow Root node
+    #_menu;         // Menu node
+    #_details       // Product Details node
+    #_form;         // Form node
+    #_cart;         // Cart node
+    #_cartContents  // The current contents of the cart
 
     // +++ Lifecycle Events
     //--- constructor
@@ -29,20 +30,19 @@ customElements.define(compName,
 
       // Store some useful nodes in private fields
       this.#_form = this.#_sR.querySelector('#user-form');
-      // this.#_details = this.#_sR.querySelector('#details-container');
       this.#_details = this.#_sR.querySelector('#product-details');
       this.#_menu = this.#_sR.querySelector('#menu-items-container');
       this.#_cart = this.#_sR.querySelector('#cart');
 
-      const _orderForm = this.#_sR.querySelector('#order-form-container');
-      const _cart = this.#_sR.querySelector('#cart');
-
       //-- Retrieve custom sizes and defaults
       const attributes = this.attributes;
       if (attributes.length > 2) {
-        if (attributes['form-width']) _orderForm.style.width = attributes['form-width'].value;
+        if (attributes['form-width']) this.#_sR.querySelector('#order-form-container').style.width = attributes['form-width'].value;
         if (attributes['cart-width']) this.style.setProperty('--CART-MIN-SIZE', `minmax(${attributes['cart-width'].value},1fr)`)
       }
+
+      // If it exists, load any locally stored cart contents into memory 
+      this.#_cartContents = JSON.parse(localStorage.getItem('currentOrder')) || [];
 
       //-- Event Listeners
       //___ updatemenu - Display product information when product chosen
@@ -52,7 +52,7 @@ customElements.define(compName,
       //___ updatecount - Determine any detail overlay button appearance changes
       this.#_menu.addEventListener('updatecount', (e) => this.#displayDetailButton(e));
       //___ cartmod - Respond to +/- presses in a <line-item> and re-render cart
-      _cart.addEventListener('cartmod', (e) => this.#modifyCurrentOrder(e));
+      this.#_cart.addEventListener('cartmod', (e) => this.#modifyCurrentOrder(e));
 
       /// Button Actions
       ///- Product Details
@@ -122,7 +122,7 @@ customElements.define(compName,
     #displayDetailButton(e) {
       if (e) e.stopPropagation();
       let newDisplay;
-      // Has anything been selected?
+      // Does anything in dialog have a value?
       if (this.querySelectorAll('item-data[slot] item-line[count]').length > 0) {
         // When something selected, button reverts to style and says 'Add'
         newDisplay = '';
@@ -219,13 +219,11 @@ customElements.define(compName,
       const currentCartContents = [...this.querySelectorAll('line-item')];
       currentCartContents.forEach((node) => node.remove());
 
-      // Recover current order details from local stortage
-      const localData = JSON.parse(localStorage.getItem('currentOrder'));
       // Initialise order total
       let orderTotal = 0;
-      if (localData) {
+      if (this.#_cartContents.length) {
         // Append a new node for each element of the stored array
-        this.append(...localData.map((lineData) => {
+        this.append(...this.#_cartContents.map((lineData) => {
           // Build node's innerHTML
           //  Get item-line node corresponding to ProdID
           const itemLine = this.querySelector(`item-line[prodid="${lineData.prodID}"]`);
@@ -272,14 +270,12 @@ customElements.define(compName,
       let notFound = true;
       // itemObj must contain an action property
       if (itemObj.action) {
-        // Parse from currently stored value array from JSON or empty array if item doesn't exist
-        const currentItems = JSON.parse(localStorage.getItem('currentOrder')) || [];
-        // If currentItems is not an empty array then search for an element to change
-        if (currentItems) {
-          for (const currentItem of currentItems) {
+        // If this.#_cartContents is not an empty array then search for an element to change
+        if (this.#_cartContents.length > 0) {
+          for (const currentItem of this.#_cartContents) {
             if (itemObj.prodID === currentItem.prodID) {
               // Remove element if deleted or new item count is zero
-              if (itemObj.action === 'remove' || currentItem.count === 0) currentItems.splice(currentItems.indexOf(currentItem), 1);
+              if (itemObj.action === 'remove' || itemObj.count === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
               // Add new value to existing menu item
               if (itemObj.count) currentItem.count = itemObj.count;
               // Terminate search on first match
@@ -294,15 +290,16 @@ customElements.define(compName,
           // Remove the 'action'property from the object
           delete itemObj.action;
           // Add the object to the array
-          currentItems.push(itemObj);
+          this.#_cartContents.push(itemObj);
         }
 
         // Update local storage
         //  Save the current order to local storage
-        if (currentItems.length > 0) localStorage.setItem('currentOrder', JSON.stringify(currentItems));
+        if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
         //  Or delete storage item
         else localStorage.removeItem('currentOrder');
 
+        // Rebuild cart using latest data
         this.#updateCart();
       }
     }
@@ -321,7 +318,7 @@ customElements.define(compName,
         element.removeAttribute('slot');
       });
 
-      // Present correct data in details dialog
+      // Present correct data in details dialog if called by listener
       if (newItem) {
         // Get node for selected data
         const newData = this.querySelector(`item-data#${newItem}`)
@@ -329,7 +326,7 @@ customElements.define(compName,
         newData.setAttribute('slot', 'active-data');
 
         // Retrieve any relevent data already in cart
-        // Get convert cart contents to consistent 2D array of 'prodid' and 'count'
+        // Convert cart content nodes to consistent 2D array of 'prodid' and 'count'
         const lineItems = [...this.querySelectorAll('line-item[slot="cart"]')].reduce((acc, cur) => {
           acc[0].push(cur.$attr('prodid'));
           acc[1].push(cur.$attr('count'));
@@ -342,7 +339,7 @@ customElements.define(compName,
         for (const dispLine of itemLines) {
           const prodIndex = lineItems[0].indexOf(dispLine.$attr('prodid'));
           if (prodIndex > -1) {
-            // Match - Ipdate line-tem count to count in cart
+            // Match - Update line-item count to count in cart
             dispLine.$dispatch({ name: 'updatecount', detail: { change: lineItems[1][prodIndex], replace: true } });
           } else {
             // Unmatched -  Reset line count in dialog to zero if needed
@@ -442,7 +439,7 @@ customElements.define(compName,
           name: 'neworder',
           detail: {
             person: Object.fromEntries(formValues.entries()),
-            order: JSON.parse(localStorage.getItem('currentOrder'))
+            order: this.#_cartContents
           }
         });
       } else console.warn('Form submission not valid');
