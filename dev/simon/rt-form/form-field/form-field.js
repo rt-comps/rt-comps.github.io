@@ -11,12 +11,13 @@ customElements.define(compName,
         static formAssociated = true;
 
         // Declare private class fields
-        #_internals = null;
+        #_internals;
         #_input;
 
         //+++ Lifecycle Events
         //--- constructor
         constructor() {
+            // Define 'this'
             super();
             // Create and build Shadow DOM
             const _sR = this.attachShadow({ mode: "open", delegateFocus: true });
@@ -34,34 +35,30 @@ customElements.define(compName,
                 _sR.querySelector('span').innerHTML = '&nbsp*';
             }
 
-            // Handle input type and/or contraints
-            if (this.hasAttribute('type')) {
-                const inputType = this.getAttribute('type');
-                // Set contraints if type specified
-                switch (inputType) {
-                    case 'tel':
-                        // constrain phone number to exactly 10 digits starting with zero(0)
-                        this.#_input.pattern = "0[0-9]{9}";
-                    case 'email':
-                        this.#_input.type = inputType;
-                        break;
-                    case 'post':
-                        // constrain postcode to 4 digits and 2 alpha - with or without a space
-                        this.#_input.pattern = "[0-9]{4} {0,1}[A-Za-z]{2}";
-                        break;
-                }
+            // Set input contraints if one of these type specified
+            switch (this.getAttribute('type')) {
+                case 'tel':
+                    // constrain phone number to exactly 10 digits starting with zero(0)
+                    this.#_input.pattern = "0[0-9]{9}";
+                case 'email':
+                    this.#_input.type = inputType;
+                    break;
+                case 'post':
+                    // constrain postcode to 4 digits and 2 alpha - with or without a space
+                    this.#_input.pattern = "[0-9]{4} {0,1}[A-Za-z]{2}";
+                    break;
             }
 
             // Use 'label' attribute for field label
             _sR.querySelector('label').insertAdjacentHTML('afterbegin', `${this.getAttribute('label') || 'Name Missing'}&nbsp;`);
             // Needed for Safari
-            this.addEventListener('focus',()=>this.focus());
+            this.addEventListener('focus', () => this.focus());
         }
 
         //--- formAssociatedCallback
         // triggered when component is associated with (or dissociated from) a form
         formAssociatedCallback() {
-            // If this is an association then add listener for formData request
+            // If this is an association then add listener for formData event
             if (this.#_internals.form) {
                 // Set form values when the FormData() contructor is invoked (via submit or new)
                 this.#_internals.form.addEventListener('formdata', (e) => e.formData.set(this.name, this.value));
