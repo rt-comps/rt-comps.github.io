@@ -27,11 +27,11 @@ customElements.define(
       this.#_times = this.#_sR.querySelector('#pu-times');
 
       // Render Shadow DOM elements based on provided HTML
-      this.render();
+      this.#render();
 
       //###### Event Listeners
       // Update times when location selected
-      this.#_sR.querySelector('#pickup').addEventListener('change', (e) => this.updateLoc(e));
+      this.#_sR.querySelector('#pickup').addEventListener('change', (e) => this.#updateLoc(e));
     }
 
     //--- formAssociatedCallback
@@ -58,9 +58,9 @@ customElements.define(
     }
     //+++++ End of Lifecycle Events
 
-    //--- render
+    //--- #render
     // Populate the shadow DOM
-    render() {
+    #render() {
       // Find all location entries
       const nodes = [...this.querySelectorAll('pu-loc')];
       // Check there is something to do
@@ -109,9 +109,9 @@ customElements.define(
       }
     }
 
-    //--- updateLoc
+    //--- #updateLoc
     // Update pickup times when user selects location
-    updateLoc(e) {
+    #updateLoc(e) {
       // Unhide 'times' on the first time a location is chosen
       if (this.#_times.style.display === 'none') this.#_times.style.display = '';
       // Cycle through possible child nodes, unhide the correct one and hide all the others

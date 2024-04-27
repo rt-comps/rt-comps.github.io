@@ -28,14 +28,14 @@ customElements.define(
             }
 
             // Add onClick events to plus and minus
-            _sR.querySelector('#plus').addEventListener('click', () => this.buttonPressed(1));
-            _sR.querySelector('#minus').addEventListener('click', () => this.buttonPressed(-1));
+            _sR.querySelector('#plus').addEventListener('click', () => this.#buttonPressed(1));
+            _sR.querySelector('#minus').addEventListener('click', () => this.#buttonPressed(-1));
         }
         //+++ End Of Lifecycle Events
 
-        //--- buttonPressed
+        //--- #buttonPressed
         // Respond to plus or minus being pressed to create an event to bubble up to parent
-        buttonPressed(value) {
+        #buttonPressed(value) {
             this.$dispatch({ name: 'updatecount', detail: { change: value } });
         }
     }

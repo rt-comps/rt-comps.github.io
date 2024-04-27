@@ -27,19 +27,19 @@ customElements.define(
                 });
                 this.remove();
             });
-            // Update total price on count change
-            this.#_sR.querySelector('#container').addEventListener('updatecount', (e) => this.update(e));
+            // update total price on count change
+            this.#_sR.querySelector('#container').addEventListener('updatecount', (e) => this.#update(e));
         }
         
         //--- connectedCallback
         connectedCallback() {
-            this.render();
+            this.#render();
         }
         //+++ End OF Lifecycle Events
 
-        //--- render
+        //--- #render
         // Initialise
-        render() {
+        #render() {
             const unit = parseInt(this.$attr('unit'));
             const count = parseInt(this.$attr('count'));
 
@@ -49,9 +49,8 @@ customElements.define(
             this.#_sR.querySelector('img').src = `${compPath}/imgs/trashcan.jpeg`;
         }
 
-        //--- update
-        // Update 
-        update(e) {            
+        //--- #update
+        #update(e) {            
             // When called from an event then update the count
             if (e) {
                 e.stopImmediatePropagation();
