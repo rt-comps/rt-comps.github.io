@@ -44,15 +44,14 @@ customElements.define(compName,
                 }
                 // Write back new value
                 _count.innerHTML = `${currentCount}`;
-                // Handle zero transistions
+                this.setAttribute('count', currentCount)
+                // Handle style change for zero/non-zero
                 if (currentCount > 0) {
                     // Highlight line and make count available in LightDOM
                     this.shadowRoot.querySelector('#container').style.fontWeight = 'bold';
-                    this.setAttribute('count', currentCount)
                 } else {
                     // Undo above
                     this.shadowRoot.querySelector('#container').style.fontWeight = '';
-                    this.removeAttribute('count');
                 }
             };
         }
