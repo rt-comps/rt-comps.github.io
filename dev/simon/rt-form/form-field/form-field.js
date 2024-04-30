@@ -36,7 +36,8 @@ customElements.define(compName,
             }
 
             // Set input contraints if one of these type specified
-            switch (this.getAttribute('type')) {
+            const inputType = this.getAttribute('type'); 
+            switch (inputType) {
                 case 'tel':
                     // constrain phone number to exactly 10 digits starting with zero(0)
                     this.#_input.pattern = "0[0-9]{9}";
