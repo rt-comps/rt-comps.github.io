@@ -214,6 +214,7 @@
             padding: 5px;
         }
 
+        /* Adjustments for mobile screen */
         @media only screen and (max-width: 430px) {
             .mobile {
                 display: none;
@@ -242,6 +243,17 @@
                 left: 2.5vw;
                 background-color: white;
                 transition: height 0.4s ease;
+            }
+
+            /* Allow for dynamic view-port browsers */
+            @supports (height: 95dvh) {
+                #cart {
+                    height: 95dvh;
+                    bottom: 2.5dvh;
+                    width: 95dvw;
+                    left: 2.5dvw;
+                }
+
             }
 
             #cart.mini {
