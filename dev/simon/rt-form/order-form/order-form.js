@@ -100,9 +100,8 @@ customElements.define(compName,
       let newBut;
       // Is the cart empty?
       const cartEmpty = this.querySelectorAll('line-item[slot="cart"][count]').length === 0;
-      // Is an overlay active?
-      // const noOverlay = this.#_form.parentElement.style.visibility !== 'visible' && this.#_details.style.visibility !== 'visible';
-      const noOverlay = this.#_form.parentElement.style.display === 'none' && !this.#_details.hasAttribute('open');
+      // Is form overlay active?
+      const noOverlay = this.#_form.parentElement.style.display === 'none';
       switch (true) {
         case ((cartEmpty || fiddle) && localStorage.getItem('lastOrder') !== null):
           newBut = 'last';
@@ -385,7 +384,7 @@ customElements.define(compName,
     }
 
 
-    /// Event ONLY
+    /// Event ONLY methods
 
     //--- #addToCart
     // Add a new element to currentOrder for any item-line with count > 0 and rebuild cart
