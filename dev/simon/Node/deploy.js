@@ -42,6 +42,7 @@ if (compList.length === 0) {
         }
     )
 }
+console.log(compList);
 // Store path(s) to component(s)
 const srcPathList = compList.map(comp => `${devPath}/${comp}`);
 
