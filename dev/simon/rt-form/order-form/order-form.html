@@ -1,14 +1,28 @@
 <template id="ORDER-FORM">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         /* === Element Defaults === */
 
         :host {
-            --CART-MIN-SIZE: 1fr;
-            --FORM-FONTS-DEFAULTS: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+            /* Set some style variable defaults for order form */
+            --FONTS-DEFAULT: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
             --FONT-SIZE-DEFAULT: 16px;
-            font-family: var(--FORM-FONTS, var(--FORM-FONTS-DEFAULTS));
-            font-size: var(--FONT-SIZE, var(--FONT-SIZE-DEFAULT));
-            line-height: 1.5;
+            --LINE-HEIGHT-DEFAULT: 1.5;
+            --WIDTH-DEFAULT: 100%; /* % responds to scrollbars ...unlike vw */
+            --COLOR-DEFAULT: black;
+            --BACKGROUND-DEFAULT: burlywood;
+            --BORDER-DEFAULT: 1px solid black;
+            --BORDER-RADIUS-DEFAULT: 10px;
+            --PADDING-DEFAULT: 10px;
+            --CART-MIN-SIZE-DEFAULT: 1fr;
+
+            /* Apply user specified values or defaults */
+            font-family: var(--ORDER-FORM-FONTS, var(--FONTS-DEFAULT));
+            font-size: var(--ORDER-FORM-FONT-SIZE, var(--FONT-SIZE-DEFAULT));
+            line-height: var(--ORDER-FORM-LINE-HEIGHT, var(--LINE-HEIGHT-DEFAULT));
+
+            --CART-MIN-SIZE: minmax(var(--ORDER-FORM-CART-WIDTH, 0px), var(--CART-MIN-SIZE-DEFAULT));
+
             /* Turn off selection/highlighting of text */
             /* iOS Safari */
             -webkit-touch-callout: none;
@@ -24,6 +38,14 @@
             user-select: none;
         }
 
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+
         date-picker {
             flex: 0 0 500px;
             /* flex-flow: column;
@@ -37,7 +59,7 @@
             align-items: center;
             flex-flow: row wrap;
             box-sizing: border-box;
-            border-radius: var(--ITEM-DETAILS-BORDER-RADIUS, 10px);
+            border-radius: var(--ORDER-FORM-BORDER-RADIUS, var(--BORDER-RADIUS-DEFAULT));
         }
 
         h2,
@@ -54,10 +76,6 @@
             user-select: none;
         }
 
-        /* menu-item {
-
-        } */
-
         /* Define basic button appearance */
         .button {
             min-width: 200px;
@@ -67,20 +85,17 @@
             color: white;
         }
 
-        /* .disabled {
-            background-color: rgb(128, 128, 128);
-        } */
-
-        /* Overall container */
+        /* Overal container */
         #order-form-container {
             display: grid;
             grid-template-columns: 2fr var(--CART-MIN-SIZE);
             align-items: flex-start;
             min-height: fit-content;
-            margin: 5px;
+            width: var(--ORDER-FORM-WIDTH, var(--WIDTH-DEFAULT));
+            padding: 5px;
         }
 
-        /* Container for Menu and Overlay */
+        /* Container for Menu and Form Overlay */
         #menu-items-container {
             position: relative;
             justify-content: space-around;
@@ -100,10 +115,11 @@
 
         /* Product Details Overlay */
         #product-details {
-            background: var(--ITEM-DETAILS-BACKGROUND, burlywood);
-            color: var(--ITEM-DETAILS-COLOR, black);
-            border: var(--ITEM-DETAILS-BORDER, 1px solid black);
-            padding: var(--ITEM-DETAILS-PADDING, 10px);
+            background: var(--ORDER-FORM-DETAILS-BACKGROUND, var(--BACKGROUND-DEFAULT));
+            color: var(--ORDER-FORM-DETAILS-COLOR, var(--COLOR-DEFAULT));
+            border: var(--ORDER-FORM-DETAILS-BORDER, var(--BORDER-DEFAULT));
+            border-radius: var(--ORDER-FORM-DETAILS-RADIUS, var(--BORDER-RADIUS-DEFAULT));
+            padding: var(--ORDER_FORM-DETAILS-PADDING, var(--PADDING-DEFAULT));
             outline: none;
             overflow-x: hidden;
             overflow-y: auto;
@@ -116,9 +132,9 @@
         /* Product details overlay close button */
         #product-details-close {
             position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, none);
+            top: -3px;
+            right: -3px;
+            background: var(--ORDER-CLOSE-BUTTON-BACKGROUND, white);
         }
 
         #product-details-close img {
@@ -232,21 +248,29 @@
                 margin: 0;
             }
 
+            #product-details {
+                max-width: 90%;
+            }
+
             #cart {
                 display: grid;
                 grid-template-columns: 1fr;
                 grid-template-rows: min-content min-content auto min-content min-content min-content;
                 position: fixed;
-                height: 95vh;
+                height: 95%;
+                bottom: 2.5%;
+                width: 95%;
+                left: 2.5%;
+                /* height: 95vh;
                 bottom: 2.5vh;
                 width: 95vw;
-                left: 2.5vw;
+                left: 2.5vw; */
                 background-color: white;
                 transition: height 0.4s ease;
             }
 
             /* Allow for dynamic view-port browsers */
-            @supports (height: 95dvh) {
+            /* @supports (height: 95dvh) {
                 #cart {
                     height: 95dvh;
                     bottom: 2.5dvh;
@@ -254,7 +278,7 @@
                     left: 2.5dvw;
                 }
 
-            }
+            } */
 
             #cart.mini {
                 height: var(--MINIMIZED-CART, 20px);
@@ -334,4 +358,5 @@
             </div>
         </div>
     </div>
+    <span class="material-symbols-outlined">home</span>
 </template>

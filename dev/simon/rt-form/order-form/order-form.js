@@ -34,13 +34,6 @@ customElements.define(compName,
       this.#_menu = this.#_sR.querySelector('#menu-items-container');
       this.#_cart = this.#_sR.querySelector('#cart');
 
-      //-- Retrieve custom sizes and defaults
-      const attributes = this.attributes;
-      if (attributes.length > 2) {
-        if (attributes['form-width']) this.#_sR.querySelector('#order-form-container').style.width = attributes['form-width'].value;
-        if (attributes['cart-width']) this.style.setProperty('--CART-MIN-SIZE', `minmax(${attributes['cart-width'].value},1fr)`)
-      }
-
       // If it exists, load any locally stored cart contents into memory 
       this.#_cartContents = JSON.parse(localStorage.getItem('currentOrder')) || [];
 
@@ -158,7 +151,6 @@ customElements.define(compName,
           attrs: elementAttrs
         })
       }));
-
       /// Only do this for smaller screens
       // Additional initialisation for mobile client
       if (window.matchMedia("(max-width: 430px)").matches) {
@@ -465,7 +457,7 @@ customElements.define(compName,
 
     //--- accepted
     // Reset the component once order has been accepted
-    // It is expected that this is called from the wrapping code
+    // This is only called from the wrapping code
     accepted() {
       // Set last order on the user's local storage to current order
       localStorage.setItem('lastOrder', localStorage.getItem('currentOrder'));
