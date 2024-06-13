@@ -28,8 +28,10 @@ customElements.define(
             // Set displayed title to combination of 'value' and 'desc' (if provided)
             this.#_sR.querySelector('#text').innerHTML = `${this.$attr('value')}${this.hasAttribute('desc') ? ' ' + this.$attr('desc') : ''}`;
 
-            // Respond to user click to toggle variety items display
-            this.#_sR.querySelector('#title').addEventListener('click', () => this.#toggleItems());
+            // Respond to user click to toggle variety items display - does not leave parent's Shadow DOM
+            this.#_sR.querySelector('#title').addEventListener('click', () => this.$dispatch({ name: 'variety-toggle', detail: { value: this.getAttribute('value') }, composed: false }));
+            // Listen to above dispatched event
+            this.parentNode.addEventListener('variety-toggle', (e) => this.#toggleItems(e.detail.value));
         }
 
         //--- connectedCallback
@@ -46,24 +48,23 @@ customElements.define(
         //--- #initialiseDisplay
         // Ensure 'default' variety attribute is respected every time this menu item is chosen
         #initialiseDisplay(e) {
+            // Only bother initialising display if this <item-data> chosen
             if (e.detail.id === this.parentNode.id) {
-                // Set 'hidden' to inverse of what is wanted
-                this.#_lines.hidden = this.hasAttribute('default') ? true : false;
                 // Set 'hidden' to correct value and set correct caret
-                this.#toggleItems();
+                this.#toggleItems(this.hasAttribute('default') ? this.getAttribute('value') : '');
             }
         }
 
         //--- #toggleItems
-        // Invert value of 'hidden' for <line-item>s and display the correct caret
-        #toggleItems(){
-            // Invert current value
-            this.#_lines.hidden = !this.#_lines.hidden;
-            // Select the correct caret
-            this.#_caret.innerHTML=this.#_lines.hidden?'&#9656':'&#9662';
-            this.$dispatch({
-                name: 'detailresize',
-              });
+        // Determine if this variety should be displayed
+        #toggleItems(newValue) {
+            // Set 'hidden' to false if this is the chosen variety
+            this.#_lines.hidden = (newValue !== this.getAttribute('value'))
+            // Select the correct caret based in the vlaue of 'hidden' 
+            this.#_caret.innerHTML = this.#_lines.hidden ? '&#9656' : '&#9662';
+            // this.$dispatch({
+            //     name: 'detailresize',
+            // });
         }
     }
 );
