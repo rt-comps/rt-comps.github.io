@@ -8,28 +8,45 @@ const [compName] = rtlib.parseURL(import.meta.url);
 customElements.define(
     compName,
     class extends rtBC.RTBaseClass {
+        /// ### PRIVATE CLASS FIELDS
+        #_sR;   // Shadow Root node
+
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {
-            // Attach contents of template placed in document.head
-            const _sR = super().attachShadow({ mode: "open" });
-            _sR.append(this.$getTemplate());
+            // Initialise 'this'
+            super();
+            // Attach shadowDOM and store reference in private field
+            this.#_sR = this.attachShadow({ mode: "open" });
+            // Attach contents of template - placed in document.head by LoadComponent()
+            this.#_sR.append(this.$getTemplate());
 
             // Check for custom colours.  1st colour is used for background and 2nd (if specified) for foreground
             const colors = this.attributes['colors'];
             if (colors) {
                 // Get custom colour(s)
-                const [custBgCol,custCol] = colors.value.split(',');
+                const [custBgCol, custCol] = colors.value.split(',');
                 // Get handle to container (only DIV in SR)
-                const _div = _sR.querySelector('div');
+                const _div = this.#_sR.querySelector('div');
                 // Apply custom colours to DIV
-                _div.style.color = custCol ? custCol : '';
-                _div.style.backgroundColor = custBgCol ? custBgCol : '';
+                _div.style.color = custCol || '';
+                _div.style.backgroundColor = custBgCol || '';
             }
 
             // Add onClick events to plus and minus
-            _sR.querySelector('#plus').addEventListener('click', () => this.#buttonPressed(1));
-            _sR.querySelector('#minus').addEventListener('click', () => this.#buttonPressed(-1));
+            this.#_sR.querySelector('#plus').addEventListener('click', () => this.#buttonPressed(1));
+            this.#_sR.querySelector('#minus').addEventListener('click', () => this.#buttonPressed(-1));
+        }
+
+        connectedCallback() {
+            setTimeout(() => {
+                // Change quantity number position if specified
+                const pos = getComputedStyle(this).getPropertyValue('--OF-PM-POS');
+                if (pos.toLowerCase()==='left') 
+                    this.#_sR.querySelector('div').insertAdjacentElement('afterbegin', this.#_sR.querySelector('slot'));
+                if (pos.toLowerCase()==='right')
+                    this.#_sR.querySelector('div').insertAdjacentElement('beforeend', this.#_sR.querySelector('slot'));
+            });
         }
         //+++ End Of Lifecycle Events
 
