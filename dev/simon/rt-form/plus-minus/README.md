@@ -6,16 +6,21 @@ Attributes:
 - Required: None
 - Optional: None
 
+Style Modifiers:
+- --OF-PM-POS
+\- Change the position of the quantity relative to + & - buttons.
+Default: Between 
+
 Events:
 - Dispatched: 
     - "updatecount"
-    Send a value to adjust a listening component's count
+    \-Send a value to adjust a listening component's count
 
 - Listened:
     - "plus_click"
-        - Dispatch "updatecount" with a value of 1
+       \- Dispatch "updatecount" with a value of 1
     - "minus_click"
-        - Dispatch "updatecount" with a value of -1
+        \- Dispatch "updatecount" with a value of -1
 
 Component Dependancies: None
 
