@@ -31,18 +31,20 @@ customElements.define(
         }
 
         //--- connectedCallback
-        connectedCallback() {
-        }
+        //        connectedCallback() {
+        //        }
         //+++ End OF Lifecycle Events
 
         //--- getMenu
         // Retrieve the menu from file specified in the datafile attribute.
-        // The file (currently) needs to hosted in the <ati-form> element directory
+        // If a relative path is provided then it should be relative to the <ati-form> element directory
         getMenu() {
             // Check that the datafile attribute has been provided
             if (this.hasAttribute('datafile') && this.getAttribute('datafile')) {
                 // Determing the path to the menu data file
-                const url = `${compPath}/${this.getAttribute('datafile')}`;
+                const dataFile=this.getAttribute('datafile');
+                const regex = /^http[s]?:\/\//;
+                const url = dataFile.match(regex)?`${dataFile}`:`${compPath}/${dataFile}`;
                 try {
                     fetch(url)
                         // Wait for the response
@@ -103,7 +105,7 @@ customElements.define(
 
         }
 
-        show(){
+        show() {
             this.#_sR.querySelector('dialog').showModal();
         }
 
