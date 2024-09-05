@@ -5,7 +5,7 @@ Attributes:
     - unit
         - The unit price of the type in cents
     - count
-        - The initial number of items chosen. This is reflected to the ShadowDOM, where any can changes occur
+        - The initial number of items chosen. This is reflected to the ShadowDOM, where any can **changes occur**
 - Optional: None
 
 Events:
