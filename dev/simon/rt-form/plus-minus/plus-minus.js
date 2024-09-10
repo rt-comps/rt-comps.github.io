@@ -33,6 +33,9 @@ customElements.define(
                 _div.style.backgroundColor = custBgCol || '';
             }
 
+            const externalStyle = rtForm ? rtForm.getStyle(this, compName) : null;
+            if (externalStyle) this.#_sR.querySelector('#container').insertAdjacentElement('beforebegin', externalStyle.cloneNode(true));
+
             // Add onClick events to plus and minus
             this.#_sR.querySelector('#plus').addEventListener('click', () => this.#buttonPressed(1));
             this.#_sR.querySelector('#minus').addEventListener('click', () => this.#buttonPressed(-1));
@@ -42,9 +45,10 @@ customElements.define(
             setTimeout(() => {
                 // Change quantity number position if specified
                 const pos = getComputedStyle(this).getPropertyValue('--OF-PM-POS');
-                if (pos.toLowerCase()==='left') 
+                console.log(pos)
+                if (pos.toLowerCase() === 'left')
                     this.#_sR.querySelector('div').insertAdjacentElement('afterbegin', this.#_sR.querySelector('slot'));
-                if (pos.toLowerCase()==='right')
+                if (pos.toLowerCase() === 'right')
                     this.#_sR.querySelector('div').insertAdjacentElement('beforeend', this.#_sR.querySelector('slot'));
             });
         }

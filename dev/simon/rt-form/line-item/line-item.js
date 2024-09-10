@@ -14,6 +14,9 @@ customElements.define(
             this.#_sR = this.attachShadow({ mode: "open" });
             this.#_sR.append(this.$getTemplate());
 
+            // Pull in external style definition
+            const externalStyle = rtForm ? rtForm.getStyle(this, compName) : null;
+            if (externalStyle) this.#_sR.querySelector('#container').insertAdjacentElement('beforebegin', externalStyle.cloneNode(true));
             
             //### Listeners
             // Remove this item when 'delete' button pressed
