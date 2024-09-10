@@ -32,17 +32,27 @@
      not specified: value positioned between + & -
      (or any other value)
     */
-    line-item::part(pm) {
+    /* line-item::part(pm) {
         --OF-PM-POS: left;
     }
 
     item-line::part(pm) {
         --OF-PM-POS: right;
-    }
+    } */
 </style>
 <order-form style="display: none;">
     <form-config style="display: none">
         <span id="imgpath">https://appeltaartimperium.nl/wp-content/themes/yootheme/cache/</span>
+        <style id="line-item">
+            plus-minus {
+                --OF-PM-POS: left;
+            }
+        </style>
+        <style id="item-line">
+            plus-minus {
+                --OF-PM-POS: right;
+            }
+        </style>
     </form-config>
     <!-- Menu data starts here -->
     <item-data id="roomboter">

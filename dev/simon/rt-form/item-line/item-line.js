@@ -7,11 +7,23 @@ const [compName] = rtlib.parseURL(import.meta.url);
 // Define the element usin the template in the associated .html file
 customElements.define(compName,
     class extends rtBC.RTBaseClass {
+        /// ### PRIVATE CLASS FIELDS
+        #_sR;   // Shadow Root node
+
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {
-            // Attach contents of template placed in document.head
-            super().attachShadow({ mode: "open" }).append(this.$getTemplate());
+            // Initialise 'this'
+            super();
+            // Attach shadowDOM and store reference in private field
+            this.#_sR = this.attachShadow({ mode: "open" });
+            // Attach contents of template - placed in document.head by LoadComponent()
+            this.#_sR.append(this.$getTemplate());
+
+            // Pull in external style definition
+            const externalStyle = rtForm ? rtForm.getStyle(this, compName) : null;
+            if (externalStyle) this.#_sR.querySelector('#container').insertAdjacentElement('beforebegin', externalStyle.cloneNode(true));
+
             // Set maximum value
             this.maxCount = 10;
 
@@ -22,14 +34,14 @@ customElements.define(compName,
 
         //--- connectedCallback
         connectedCallback() {
-            this.shadowRoot.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
+            this.#_sR.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
         }
         //+++ End of Lifecycle Events
 
         //--- updateCount
         // Respond to plus or minus event update count as required
         #updateCount(e) {
-            const _count = this.shadowRoot.querySelector('#count');
+            const _count = this.#_sR.querySelector('#count');
             let currentCount;
             if (_count) {
                 if (e.detail.replace) {
@@ -48,10 +60,10 @@ customElements.define(compName,
                 // Handle style change for zero/non-zero
                 if (currentCount > 0) {
                     // Highlight line and make count available in LightDOM
-                    this.shadowRoot.querySelector('#container').style.fontWeight = 'bold';
+                    this.#_sR.querySelector('#container').style.fontWeight = 'bold';
                 } else {
                     // Undo above
-                    this.shadowRoot.querySelector('#container').style.fontWeight = '';
+                    this.#_sR.querySelector('#container').style.fontWeight = '';
                 }
             };
         }
