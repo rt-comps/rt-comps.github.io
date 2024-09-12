@@ -33,8 +33,8 @@ customElements.define(
                 _div.style.backgroundColor = custBgCol || '';
             }
 
-            const externalStyle = rtForm ? rtForm.getStyle(this, compName) : null;
-            if (externalStyle) this.#_sR.querySelector('#container').insertAdjacentElement('beforebegin', externalStyle.cloneNode(true));
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
 
             // Add onClick events to plus and minus
             this.#_sR.querySelector('#plus').addEventListener('click', () => this.#buttonPressed(1));

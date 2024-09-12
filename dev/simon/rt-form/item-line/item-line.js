@@ -20,9 +20,8 @@ customElements.define(compName,
             // Attach contents of template - placed in document.head by LoadComponent()
             this.#_sR.append(this.$getTemplate());
 
-            // Pull in external style definition
-            const externalStyle = rtForm ? rtForm.getStyle(this, compName) : null;
-            if (externalStyle) this.#_sR.querySelector('#container').insertAdjacentElement('beforebegin', externalStyle.cloneNode(true));
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
 
             // Set maximum value
             this.maxCount = 10;

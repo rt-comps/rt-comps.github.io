@@ -10,6 +10,9 @@ customElements.define(
         constructor() {
             // Create shadowDOM
             super().attachShadow({ mode: "open" }).append(this.$getTemplate());
+
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
         }
 
         //--- connectedCallback

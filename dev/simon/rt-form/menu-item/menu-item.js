@@ -11,6 +11,9 @@ customElements.define(
       // Attach contents of template - placed in document.head byrtlib.loadComponent()
       super().attachShadow({ mode: "open" }).append(this.$getTemplate());
 
+      // Look for and pull in external style definition
+      if (rtForm) rtForm.getStyle(this, compName);
+
       //###### Event Listeners
       // Tell form that menu-item has been chosen
       this.addEventListener('click', () => this.$dispatch({

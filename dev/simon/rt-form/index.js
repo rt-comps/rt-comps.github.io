@@ -10,7 +10,7 @@ async function loadGlobalMods() {
   // RT BaseClass
   if (typeof rtBC === 'undefined') window.rtBC = await import(`${basePath}/rt_baseclass.js`);
   // Form functions
-  if (typeof rtForm === 'undefined') window.rtForm = await import(`${basePath}/rt-form/rt_form.js`);
+  if (typeof rtForm === 'undefined') window.rtForm = await import(`${basePath}/rt_form.js`);
 }
 
 // First load shared modules in to global scope then load components
