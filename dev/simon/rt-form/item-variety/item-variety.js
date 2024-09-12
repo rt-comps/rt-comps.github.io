@@ -36,6 +36,9 @@ customElements.define(
 
         //--- connectedCallback
         connectedCallback() {
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
+
             // Delay listener attachment to ensure '#eventBus' is present
             setTimeout(() => {
                 const eventBus = this.closest('#eventBus');

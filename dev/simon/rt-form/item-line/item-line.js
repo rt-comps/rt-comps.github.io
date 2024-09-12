@@ -20,19 +20,19 @@ customElements.define(compName,
             // Attach contents of template - placed in document.head by LoadComponent()
             this.#_sR.append(this.$getTemplate());
 
-            // Look for and pull in external style definition
-            if (rtForm) rtForm.getStyle(this, compName);
-
             // Set maximum value
             this.maxCount = 10;
-
+            
             //### Event Listeners
             //___ updateCount
             this.addEventListener('updatecount', (e) => this.#updateCount(e));
         }
-
+        
         //--- connectedCallback
         connectedCallback() {
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
+    
             this.#_sR.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
         }
         //+++ End of Lifecycle Events
