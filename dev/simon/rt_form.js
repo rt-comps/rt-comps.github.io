@@ -6,11 +6,12 @@
 export function getStyle(node, name) {
     // Is <order-form> in the current Light DOM
     const formNode = node.closest('order-form');
+
     if (formNode !== null) {
-        // Terminate any iteration once the <order-form> node has been found
-        // Does a <style> element exist for this component
+        // Terminate any iteration once the <order-form> node has been found in Light DOM
+        // Has a <style> element been defined in the datafile for this component
         const styleNode = formNode.querySelector(`form-config > style#${name.toLowerCase()}`);
-        // If found then recover style element (if it exists) else do nothing
+        // If found then recover style element else do nothing
         if (styleNode) {
             // Check if component has an existing style declaration
             const existingStyleNode = node.shadowRoot.querySelector('style');
@@ -20,7 +21,7 @@ export function getStyle(node, name) {
             else node.shadowRoot.childNodes[0].insertAdjacentElement('beforebegin', styleNode.cloneNode(true));
         }
     } else if (node.getRootNode() instanceof ShadowRoot) {
-        // If not found and root node is shadowRoot then iterateb to enclosing element
+        // If not found and root node is shadowRoot then iterate to enclosing element
          return getStyle(node.getRootNode().host, name);
-    } else console.log('getStlye() - Something unexpected happened');
+    } else console.log('getStyle() - Something unexpected happened');
 }
