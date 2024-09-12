@@ -1,7 +1,7 @@
 // ===== Import all required modules and components
 
 // --- loadGlobalMods()
-// Load base modules into global scope if not already loaded
+// Load base modules/classes into global scope if not already loaded
 async function loadGlobalMods() {
   // Assumes that modules are accesible at the same location.
   const basePath = import.meta.url.split('/').slice(0, -2).join('/');
