@@ -26,6 +26,9 @@ customElements.define(
       // Useful node
       this.#_times = this.#_sR.querySelector('#pu-times');
 
+      // Look for and pull in external style definition
+      if (rtForm) rtForm.getStyle(this, compName);
+
       // Render Shadow DOM elements based on provided HTML
       this.#render();
 
@@ -136,9 +139,11 @@ customElements.define(
     focus() {
       const times = this.#_sR.querySelector('#pu-times');
       if (times.style.display) {
-        this.#_sR.querySelector('#fs-pickup').focus();}
+        this.#_sR.querySelector('#fs-pickup').focus();
+      }
       else {
-        this.#_sR.querySelector('#fs-time').focus();}
+        this.#_sR.querySelector('#fs-time').focus();
+      }
     }
   }
 );

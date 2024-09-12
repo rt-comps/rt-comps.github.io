@@ -29,6 +29,9 @@ customElements.define(compName,
             // Useful Nodes
             this.#_input = _sR.querySelector('input');
 
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
+
             // Handle 'required' fields
             if (this.hasAttribute('required')) {
                 this.#_input.setAttribute('required', '');
