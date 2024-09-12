@@ -33,19 +33,18 @@ customElements.define(
                 _div.style.backgroundColor = custBgCol || '';
             }
 
-            // Look for and pull in external style definition
-            if (rtForm) rtForm.getStyle(this, compName);
-
             // Add onClick events to plus and minus
             this.#_sR.querySelector('#plus').addEventListener('click', () => this.#buttonPressed(1));
             this.#_sR.querySelector('#minus').addEventListener('click', () => this.#buttonPressed(-1));
         }
 
         connectedCallback() {
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
+
             setTimeout(() => {
                 // Change quantity number position if specified
                 const pos = getComputedStyle(this).getPropertyValue('--OF-PM-POS');
-                console.log(pos)
                 if (pos.toLowerCase() === 'left')
                     this.#_sR.querySelector('div').insertAdjacentElement('afterbegin', this.#_sR.querySelector('slot'));
                 if (pos.toLowerCase() === 'right')

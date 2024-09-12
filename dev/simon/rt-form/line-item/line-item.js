@@ -14,9 +14,6 @@ customElements.define(
             this.#_sR = this.attachShadow({ mode: "open" });
             this.#_sR.append(this.$getTemplate());
 
-            // Look for and pull in external style definition
-            if (rtForm) rtForm.getStyle(this, compName);
-
             //### Listeners
             // Remove this item when 'delete' button pressed
             this.#_sR.querySelector('#delete').addEventListener('click', () => {
@@ -29,12 +26,15 @@ customElements.define(
                 });
                 this.remove();
             });
-            // update total price on count change
             this.#_sR.querySelector('#container').addEventListener('updatecount', (e) => this.#update(e));
         }
         
         //--- connectedCallback
         connectedCallback() {
+            // Look for and pull in external style definition
+            if (rtForm) rtForm.getStyle(this, compName);
+    
+            // update total price on count change
             this.#render();
         }
         //+++ End OF Lifecycle Events
