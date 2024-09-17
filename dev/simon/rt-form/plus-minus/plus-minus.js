@@ -9,7 +9,7 @@ customElements.define(
     compName,
     class extends rtBC.RTBaseClass {
         /// ### PRIVATE CLASS FIELDS
-        #_sR;   // Shadow Root node
+        #_sR;   // shadowRoot node
 
         //+++ Lifecycle Events
         //--- Contructor
@@ -40,7 +40,7 @@ customElements.define(
 
         connectedCallback() {
             // Look for and pull in external style definition
-            if (rtForm) rtForm.getStyle(this, compName);
+            if (typeof rtForm !== 'undefined') rtForm.getStyle(this, compName);
 
             setTimeout(() => {
                 // Change quantity number position if specified

@@ -8,7 +8,7 @@ const [compName, compPath] = rtlib.parseURL(import.meta.url);
 customElements.define(compName,
   class extends rtBC.RTBaseClass {
     /// ### PRIVATE CLASS FIELDS
-    #_sR;           // Shadow Root node
+    #_sR;           // shadowRoot node
     #_menu;         // Menu node
     #_details;      // Product Details node
     #_form;         // Form node
