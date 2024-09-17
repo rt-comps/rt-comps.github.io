@@ -63,7 +63,10 @@ customElements.define(compName,
       //___ Submit the order
       this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.#dispatchOrder());
       //___ Hide the form
-      this.#_sR.querySelector('#cancel-but').addEventListener('click', () => this.#showForm(false));
+      this.#_sR.querySelector('#cancel-but').addEventListener('click', () => {
+        this.#showForm(false);
+        this.#_sR.querySelector('div#cart').style.display = '';
+      });
     }
 
     //--- connectedCallback
@@ -157,6 +160,7 @@ customElements.define(compName,
         const cartTitle = this.#_cart.querySelector('#cart-title');
         // Add cart toggle when cart-title clicked
         cartTitle.addEventListener('click', () => this.#toggleCart());
+        // 200ms delay to ensure cart title has rendered (yuck!)
         setTimeout(() => {
           // Determine padding and border sizes
           const cartStyle = getComputedStyle(this.#_cart);
@@ -166,7 +170,7 @@ customElements.define(compName,
           // Set CSS variable for minimized size
           this.#_cart.style.setProperty('--MINIMIZED-CART', cartTitleSize);
           this.#toggleCart();
-        }, 0);
+        }, 200);
       }
 
       // Add image to details dialog
@@ -414,7 +418,10 @@ customElements.define(compName,
           this.#_form.querySelector(`[name=${key}]`).value = value;
         }
       }
+      // Bring form to front
       this.#showForm(true);
+      // Hide the cart
+      this.#_sR.querySelector('div#cart').style.display = 'none';
     }
 
     //--- #dispatchOrder
