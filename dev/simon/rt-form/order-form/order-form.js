@@ -10,10 +10,10 @@ customElements.define(compName,
     /// ### PRIVATE CLASS FIELDS
     #_sR;           // Shadow Root node
     #_menu;         // Menu node
-    #_details       // Product Details node
+    #_details;      // Product Details node
     #_form;         // Form node
     #_cart;         // Cart node
-    #_cartContents  // The current contents of the cart
+    #_cartContents; // The current contents of the cart
 
     // +++ Lifecycle Events
     //--- constructor
