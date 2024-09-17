@@ -1,8 +1,9 @@
 // ================================================================
-// Functions used used by Form components
+// Functions used used by <order-form> components
 
 //--- getStyle
-// Search if style has been defined in the datafile
+// Search if <style id="<component-name>"> has been defined in the upstream DOM (light or shadow).
+// If found then the node is cloned into the components shadow DOM to supercede the default styles.
 export function getStyle(node, name) {
     // Is <order-form> in the current Light DOM
     const formNode = node.closest('order-form');
@@ -10,7 +11,7 @@ export function getStyle(node, name) {
     if (formNode !== null) {
         // Terminate any iteration once the <order-form> node has been found in Light DOM
         // Has a <style> element been defined in the datafile for this component
-        const styleNode = formNode.querySelector(`form-config > style#${name.toLowerCase()}`);
+        const styleNode = formNode.querySelector(`style#${name.toLowerCase()}`);
         // If found then recover style element else do nothing
         if (styleNode) {
             // Check if component has an existing style declaration
@@ -21,7 +22,7 @@ export function getStyle(node, name) {
             else node.shadowRoot.childNodes[0].insertAdjacentElement('beforebegin', styleNode.cloneNode(true));
         }
     } else if (node.getRootNode() instanceof ShadowRoot) {
-        // If not found and root node is shadowRoot then iterate to enclosing element
+        // If not found and root node is shadowRoot then continue search from shadowRoot's host element
          return getStyle(node.getRootNode().host, name);
     } else console.log('getStyle() - Something unexpected happened');
 }
