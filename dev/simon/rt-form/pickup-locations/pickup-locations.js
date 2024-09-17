@@ -27,7 +27,7 @@ customElements.define(
       this.#_times = this.#_sR.querySelector('#pu-times');
 
       // Look for and pull in external style definition
-      if (rtForm) rtForm.getStyle(this, compName);
+      if (rtForm) rtForm.getStyle(this);
 
       // Render Shadow DOM elements based on provided HTML
       this.#render();

@@ -15,7 +15,7 @@ customElements.define(
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
-            if (rtForm) rtForm.getStyle(this, compName);
+            if (rtForm) rtForm.getStyle(this);
             // Slot basic data
             setTimeout(() => {
                 this.querySelector('item-title').setAttribute('slot', 'title');

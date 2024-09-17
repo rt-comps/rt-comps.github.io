@@ -40,7 +40,7 @@ customElements.define(
 
         connectedCallback() {
             // Look for and pull in external style definition
-            if (typeof rtForm !== 'undefined') rtForm.getStyle(this, compName);
+            if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
 
             setTimeout(() => {
                 // Change quantity number position if specified

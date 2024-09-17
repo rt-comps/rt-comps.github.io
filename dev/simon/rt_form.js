@@ -4,14 +4,14 @@
 //--- getStyle
 // Search if <style id="<component-name>"> has been defined in the upstream DOM (light or shadow).
 // If found then the node is cloned into the components shadow DOM to supercede the default styles.
-export function getStyle(node, name) {
+export function getStyle(node) {
     // Is <order-form> in the current Light DOM
     const formNode = node.closest('order-form');
 
     if (formNode !== null) {
         // Terminate any iteration once the <order-form> node has been found in Light DOM
         // Has a <style> element been defined in the datafile for this component
-        const styleNode = formNode.querySelector(`style#${name.toLowerCase()}`);
+        const styleNode = formNode.querySelector(`style#${node.nodeName.toLowerCase()}`);
         // If found then recover style element else do nothing
         if (styleNode) {
             // Check if component has an existing style declaration
