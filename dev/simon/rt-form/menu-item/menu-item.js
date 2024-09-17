@@ -22,7 +22,7 @@ customElements.define(
     //--- connectedCallback
     connectedCallback() {
       // Look for and pull in external style definition (if found)
-      if (rtForm) rtForm.getStyle(this, compName);
+      if (rtForm) rtForm.getStyle(this);
 
       // Set background image - if provided
       if (this.hasAttribute('bgimg')) this.shadowRoot.querySelector('#menu-item-img').style.backgroundImage = `url("${this.$attr('bgimg')}")`;
