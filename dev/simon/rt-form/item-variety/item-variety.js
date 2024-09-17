@@ -44,7 +44,7 @@ customElements.define(
                 const eventBus = this.closest('#eventBus');
                 if (eventBus) eventBus.addEventListener('updatemenu', (e) => this.#initialiseDisplay(e));
                 else console.error(`${this.tagName}: Element with id of "eventBus" not found`);
-            });
+            }, 100);
         }
         //+++ End Of Lifecycle events
 
