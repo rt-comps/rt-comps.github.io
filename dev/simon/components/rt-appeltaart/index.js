@@ -3,8 +3,6 @@
 // --- loadGlobalMods()
 // Load base modules into global scope
 async function loadGlobalMods(basePath) {
-
-  console.log(basePath)
   // Define modules to load
   // [
   //    { label: <moduleName>, file: <moduleURL> },
