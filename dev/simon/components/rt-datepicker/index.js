@@ -14,7 +14,7 @@ async function loadGlobalMods(basePath) {
     { label: 'rtForm', file: 'rt_form.mjs' }
   ]
   // Load modules simultaneously
-  Promise.all(modules.map((module) => { if (typeof window[module.label] === 'undefined') import(`${basePath}/modules/${module.file}`).then((result) => window[module.label] = result) }))
+  return Promise.all(modules.map((module) => { if (typeof window[module.label] === 'undefined') import(`${basePath}/modules/${module.file}`).then((result) => window[module.label] = result) }))
 }
 
 // --- Main
