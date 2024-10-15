@@ -15,9 +15,6 @@ Where ***elementName*** is the name of the custom tag.
 &nbsp;  
 The following sections describe the structure of each of these files  
 &nbsp;  
-
----
-
 ## index.js
 
 This file is used to initiating the loading of this module.  
@@ -61,9 +58,6 @@ If it can reasonably be expected that the `rt.mjs` & `rt_baseclass.mjs` modules 
 rtlib.loadComponent(import.meta.url);
 ```  
 &nbsp;
-
----
-
 ## elementName.html
 This file contains a template for the code destined for the Shadow DOM.  The file should exist even if it is empty.
 
@@ -74,9 +68,6 @@ Typically, a file will contain something like
 </template>
 ```  
 &nbsp;  
-
----
-
 ## elementName.js
 This is the actual definition of your component.
 
