@@ -13,10 +13,8 @@ modules/
 ```
 Where ***elementName*** is the name of the custom tag.  
 &nbsp;  
-&nbsp;
 The following sections describe the structure of each of these files  
-` `  
-` `  
+&nbsp;  
 
 ---
 
@@ -62,8 +60,7 @@ If it can reasonably be expected that the `rt.mjs` & `rt_baseclass.mjs` modules 
 ```js
 rtlib.loadComponent(import.meta.url);
 ```  
-  
-  
+&nbsp;
 
 ---
 
@@ -76,8 +73,7 @@ Typically, a file will contain something like
     <!-- Some HTML content -->
 </template>
 ```  
-` `  
-` `  
+&nbsp;  
 
 ---
 
