@@ -100,7 +100,7 @@ try {
     // Check if a previous attempt failed
     if (fs.existsSync(stgPath)) throw new Error(`Staging DIR already exists!\nSomething must have gone wrong previously\nExiting...`, { cause: 'custom' });
     // Check that the component(s) can be found before starting
-    srcPathList.forEach(srcPath => { if (!fs.existsSync(srcPath)) throw new Error(`Component ${comp.toUpperCase()} not found!`, { cause: 'custom' }); });
+    srcPathList.forEach(srcPath => { if (!fs.existsSync(srcPath)) throw new Error(`Component ${srcPath.split('/').pop().toUpperCase()} not found!`, { cause: 'custom' }); });
 
     // ### Main Code - run for each component
     compList.forEach((comp, index) => {
