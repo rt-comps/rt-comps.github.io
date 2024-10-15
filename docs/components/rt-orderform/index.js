@@ -1,0 +1,1 @@
+const moduleName=import.meta.url.split("/").slice(-2)[0],components=(console.time("loadModules for "+moduleName),["rt-menuitem","rt-itemdata","rt-lineitem","rt-pickup-locations","rt-form-field"]);Promise.all(components.map(o=>import(`../${o}/index.js`))).then(()=>{console.timeEnd("loadModules for "+moduleName),rtlib.loadComponent(import.meta.url)});
