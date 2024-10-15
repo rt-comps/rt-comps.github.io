@@ -38,11 +38,10 @@ const compList = process.argv.slice(2);
 if (compList.length === 0) {
     fs.readdirSync(devPath, { withFileTypes: true }).forEach(
         (item) => {
-            if (item.isDirectory() && item.name !== 'Node') compList.push(item.name)
+            if (item.isDirectory() && item.name !== 'Node' && item.name !== 'mydev') compList.push(item.name)
         }
     )
 }
-console.log(compList);
 // Store path(s) to component(s)
 const srcPathList = compList.map(comp => `${devPath}/${comp}`);
 
@@ -103,9 +102,7 @@ try {
     // Check that the component(s) can be found before starting
     srcPathList.forEach(srcPath => { if (!fs.existsSync(srcPath)) throw new Error(`Component ${comp.toUpperCase()} not found!`, { cause: 'custom' }); });
 
-    //    process.exit();
     // ### Main Code - run for each component
-
     compList.forEach((comp, index) => {
         // Create array of files to process
         const files = walk(srcPathList[index]);
@@ -119,6 +116,7 @@ try {
             switch (fileType) {
                 // Use uglify-js with default settings for JS
                 case 'js':
+                case 'mjs':
                     // Find any required constant substitutions when moving dev to prod
                     // Get original file contents <string>
                     let contents = fs.readFileSync(`${devPath}${file}`, 'utf8');
@@ -140,7 +138,6 @@ try {
                     fs.copyFileSync(`${devPath}${file}`, `${stgPath}${file}`);
             }
         }
-
         const rmOpts = { recursive: true, force: true };
         // Move files from stage to 'docs' folder
         fs.rmSync(`${dstPath}/${comp}`, rmOpts);
