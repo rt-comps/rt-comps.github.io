@@ -4,12 +4,13 @@ This directory is intended to hold all components.
 
 Each component is expected to be loaded as a module (`import()`) and to reside in its own directory that has the following structure (as a minimum)
 ```
-components/
-|- elementName/  
-|  |- index.js  
-|  |- elementName.html  
-|  |- elementName.js
-modules/
+/
+|-components/
+|  |- elementName/  
+|  |  |- index.js  
+|  |  |- elementName.html  
+|  |  |- elementName.js
+|-modules/
 ```
 Where ***elementName*** is the name of the custom tag.  
 &nbsp;  
