@@ -12,7 +12,7 @@ components/
 modules/
 ```
 Where ***elementName*** is the name of the custom tag.  
-` `  
+  
 ` `  
 The following sections describe the structure of each of these files  
 ` `  
@@ -57,14 +57,13 @@ loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
  });
 ```
 This code initiates the loading of components that this component is dependent on before actually loading the component itself.  
-` `  
-` `  
+  
 If it can reasonably be expected that the `rt.mjs` & `rt_baseclass.mjs` modules have been loaded and there are no dependancies then this file can be as simple as
 ```js
 rtlib.loadComponent(import.meta.url);
 ```  
-` `  
-` `  
+  
+  
 
 ---
 
@@ -73,9 +72,9 @@ This file contains a template for the code destined for the Shadow DOM.  The fil
 
 Typically, a file will contain something like
 ```html
-&lt;template id="ELEMENTNAME">
-    &lt;!-- Some HTML content -->
-&lt;/template>
+<template id="ELEMENTNAME">
+    <!-- Some HTML content -->
+</template>
 ```  
 ` `  
 ` `  
