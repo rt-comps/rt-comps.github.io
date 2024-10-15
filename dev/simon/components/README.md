@@ -13,6 +13,7 @@ modules/
 ```
 Where ***elementName*** is the name of the custom tag.  
 &nbsp;  
+&nbsp;
 The following sections describe the structure of each of these files  
 ` `  
 ` `  
