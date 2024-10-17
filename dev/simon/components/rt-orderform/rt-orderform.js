@@ -183,7 +183,7 @@ customElements.define(compName,
       this.#displayCartButtons();
 
       /// Move user's form to shadowDOM - as a form cannot be slotted
-      const srcNode = this.querySelector('div[slot="user-details"]');
+      const srcNode = this.querySelector('div#user-details');
       if (srcNode) {
 
         this.#_form.append(...srcNode.children);

@@ -4,8 +4,8 @@
 // This is a container for an order form
 // It provides functions for loading the menu HTML and responds to a new order being placed
 // 
-// Note: Template file exist, even though it is unnecessary, for rt.loadComponent() to function
-// Note 2: Form HTML must be loaded into shadowDOM for it to be rendered
+// Note 1:  Template file exist (even though it is unnecessary) for rt.loadComponent() to 
+//          function correctly
 //
 const [compName, compPath] = rtlib.parseURL(import.meta.url);
 
