@@ -5,9 +5,14 @@
 // Search if <style id="<component-name>"> has been defined in the upstream DOM (light or shadow).
 // If found then the node is cloned into the components shadow DOM to supercede the default styles.
 function getStyle(node) {
+    const debug = node.nodeName.toUpperCase() === 'RT-PICKUP-LOCATIONS' ? true : false;
     // Is <rt-orderform> in the current Light DOM
     const formNode = node.closest('rt-orderform');
-
+    if (debug) {
+        console.log(formNode);
+        console.log(node.getRootNode());
+        console.log(node.getRootNode().host);
+    }
     if (formNode !== null) {
         // Terminate any iteration once the <rt-orderform> node has been found in Light DOM
         // Has a <style> element been defined in the datafile for this component
@@ -23,8 +28,8 @@ function getStyle(node) {
         }
     } else if (node.getRootNode() instanceof ShadowRoot) {
         // If not found and root node is shadowRoot then continue search from shadowRoot's host element
-        return getStyle(node.getRootNode().host, name);
-    } else console.log('getStyle() - Something unexpected happened');
+        return getStyle(node.getRootNode().host);
+    } else console.log(`getStyle() - Something unexpected happened for ${node.nodeName.toUpperCase()}`);
 }
 
 export { getStyle };
