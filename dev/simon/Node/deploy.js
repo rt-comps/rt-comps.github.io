@@ -3,12 +3,15 @@
 //
 // Usage: node <pathToScript>/deploy.js [componentName] [componentName]
 // 
-// Code is taken from the specified component (Default: all components),
+// Code is taken from the specified component(s) (Default: all components and modules),
 // minified and component dir(s) in 'doc' directory over-written.
+// If a module has changed then specify 'modules' in component list 
 //
 // After running this script, a commit must be done manually
 //
-// uglify-js & html-minifier must be installed
+// Dependencies:
+// - uglify-js
+// - html-minifier
 // > npm install --save uglify-js html-minifier
 // ----------------------------
 
@@ -23,25 +26,43 @@ const mini = require('html-minifier').minify;
 // Get current working directory
 const workingDir = process.cwd();
 // Ensure script has been called from within project directory
-if (workingDir.indexOf('github.io') < 0) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
+if (workingDir.indexOf('github.io') < 0) throw new Error('No project directory found.  Ensure script is run from within project directory structure', { cause: 'custom' });
 // Files are output to 'docs' directory of project
 const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs`;
 // Get the path of this executable
 const execPath = process.argv[1];
-// Assume component directories are at same level as 'Node' directory (where script is placed)
-const devPath = execPath.slice(0, execPath.indexOf('/Node'));
 // Determine source and staging dirs 
+const devPath = execPath.slice(0, execPath.indexOf('/Node')); // assume comps at level below 'Node'
 const stgPath = `${devPath}/tmp`;
+// Define list of usable dirs in devPath
+const devDirs = [
+    'components',
+    'modules'
+];
 // Read in any project name(s) provided
-const compList = process.argv.slice(2);
-// If no component is specified then deploy all components in dev directory
-if (compList.length === 0) {
-    fs.readdirSync(devPath, { withFileTypes: true }).forEach(
-        (item) => {
-            if (item.isDirectory() && item.name !== 'Node' && item.name !== 'mydev') compList.push(item.name)
+let compList = process.argv.slice(2);
+// If no component is specified then deploy all components and modules in dev directory
+if (compList.length === 0) compList = devDirs;
+else {
+    // Check if argument exists in devPath
+    compList = compList.reduce((acc, comp) => {
+        switch (true) {
+            // Special case for 'modules'
+            case comp === 'modules':
+                acc.push(comp);
+                break;
+            // Add path if component found
+            case fs.existsSync(`${devPath}/components/${comp}`):
+                acc.push(`components/${comp}`);
+                break;
+            // Warn and ignore if not found
+            default:
+                console.warn(`Could not find ${comp.toUpperCase()}.  Ignoring!`);
         }
-    )
+        return acc;
+    }, []);
 }
+
 // Store path(s) to component(s)
 const srcPathList = compList.map(comp => `${devPath}/${comp}`);
 
