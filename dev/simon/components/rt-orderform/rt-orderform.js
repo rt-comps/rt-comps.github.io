@@ -71,9 +71,9 @@ customElements.define(compName,
 
     //--- connectedCallback
     connectedCallback() {
-      this.#initialiseAll();
+      this.$dispatch({ name: 'formready' });
       // Remove class used for mobile version (wait for transition to occur)
-      setTimeout(() => this.#_cart.classList.remove('init'), 500);
+      // setTimeout(() => this.#_cart.classList.remove('init'), 500);
       // Make <rt-orderform> visible - all style should be active by this point
       this.style.display = 'inline-block';
     }
@@ -486,6 +486,29 @@ customElements.define(compName,
       this.#_form.reset();
       //DEBUG
       console.log('Form Submitted!');
+    }
+
+    //--- loadMenu
+    // Recover the order form data from the enclosing component
+    // This should not called until the enclosing component receives a 'formready' event
+    async loadMenu(url) {
+      // Check datafile 
+      if (typeof url === 'undefined') {
+        console.warn('Datafile was not provided');
+        const frag = document.createRange().createContextualFragment('<h1 style="color: red;">datafile attribute not provided</h1>');
+        this.appendChild(frag);
+        return false;
+      } else {
+        try {
+          const response = await fetch(url)
+          const htmlText = await response.text();
+          const frag = document.createRange().createContextualFragment(htmlText);
+          this.appendChild(frag);
+          this.#initialiseAll();
+        } catch (e) {
+          console.warn(e);
+        }
+      }
     }
   }
 );
