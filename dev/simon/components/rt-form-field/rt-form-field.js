@@ -36,7 +36,7 @@ customElements.define(compName,
             }
 
             // Set input contraints if one of these type specified
-            const inputType = this.getAttribute('type'); 
+            const inputType = this.getAttribute('type');
             switch (inputType) {
                 case 'tel':
                     // constrain phone number to exactly 10 digits starting with zero(0)
@@ -61,7 +61,7 @@ customElements.define(compName,
             // Look for and pull in external style definition
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
         }
-        
+
         //--- formAssociatedCallback
         // triggered when component is associated with (or dissociated from) a form
         formAssociatedCallback() {
