@@ -37,7 +37,7 @@ customElements.define(
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
-            if (rtForm) rtForm.getStyle(this);
+            if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
 
             // Delay listener attachment to ensure '#eventBus' is present
             setTimeout(() => {

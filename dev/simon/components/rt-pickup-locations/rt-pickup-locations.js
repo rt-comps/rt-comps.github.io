@@ -26,15 +26,18 @@ customElements.define(
       // Useful node
       this.#_times = this.#_sR.querySelector('#pu-times');
 
-      // Look for and pull in external style definition
-      if (rtForm) rtForm.getStyle(this);
-
       // Render Shadow DOM elements based on provided HTML
       this.#render();
 
       //###### Event Listeners
       // Update times when location selected
       this.#_sR.querySelector('#pickup').addEventListener('change', (e) => this.#updateLoc(e));
+    }
+
+    //--- connectedCallBack
+    connectedCallBack() {
+      // Look for and pull in external style definition
+      if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
     }
 
     //--- formAssociatedCallback
@@ -51,7 +54,7 @@ customElements.define(
         });
       }
     }
-    
+
     //--- formResetCallback
     // respond to the enclosing form being reset
     formResetCallback() {
@@ -60,7 +63,7 @@ customElements.define(
       this.#_times.style.display = 'none';
     }
     //+++++ End of Lifecycle Events
-    
+
     //--- #render
     // Populate the shadow DOM
     #render() {

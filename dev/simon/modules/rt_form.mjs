@@ -12,6 +12,12 @@ function getStyle(node) {
         console.log(formNode);
         console.log(node.getRootNode());
         console.log(node.getRootNode().host);
+        setTimeout(()=> {
+            console.log('After Timeout');
+            console.log(node.getRootNode());
+            const formNode2 = node.closest('rt-orderform');
+            console.log(node.getRootNode().host)
+        }, 1000)
     }
     if (formNode !== null) {
         // Terminate any iteration once the <rt-orderform> node has been found in Light DOM
