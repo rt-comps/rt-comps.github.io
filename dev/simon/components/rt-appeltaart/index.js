@@ -27,7 +27,7 @@ loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
     console.time(`loadModules for ${moduleName}`);
     // List of dependancies
     const components = ['rt-orderform', 'rt-datepicker'];
-    // Load all required top-level components
+    // Trigger the Loading of all dependencies
     Promise.all(components.map((component) => import(`../${component}/index.js`)
       .catch(e => console.error(`${e.message} ${moduleName.toUpperCase()} could not find ${component.toUpperCase()}`)))
     ).then(() => {
