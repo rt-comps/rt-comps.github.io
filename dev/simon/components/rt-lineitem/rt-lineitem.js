@@ -32,7 +32,7 @@ customElements.define(
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
-            if (rtForm) rtForm.getStyle(this);
+            if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
     
             // update total price on count change
             this.#render();
