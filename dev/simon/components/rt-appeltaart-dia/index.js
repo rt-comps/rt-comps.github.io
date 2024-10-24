@@ -1,5 +1,5 @@
 // ===== Load component plus any dependancies
-// Start timer (informational)
+// Timer start (information only) (informational)
 const moduleName = import.meta.url.split('/').slice(-2)[0];
 console.time(`loadModules for ${moduleName}`);
 
