@@ -21,7 +21,7 @@ function loadGlobalMods(basePath) {
 // Load any missing modules in to global scope, dependencies and then load component
 loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
   .then(() => {
-    // Timer start (information only)
+    // Timer start (informational)
     const moduleName = import.meta.url.split('/').slice(-2)[0];
     console.time(`loadModules for ${moduleName}`);
     // List of dependancies

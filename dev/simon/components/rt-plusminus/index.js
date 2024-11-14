@@ -2,7 +2,7 @@
 
 //--- loadGlobalMods()
 // Load base modules into global scope
-function loadGlobalMods(basePath) {
+async function loadGlobalMods(basePath) {
     // Define modules to load
     const modules = [
       { label: 'rtlib', file: 'rt.mjs' },
@@ -19,5 +19,9 @@ function loadGlobalMods(basePath) {
   
   //--- MAIN
   // Load any missing modules in to global scope then load component
-  loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
-    .then(() => rtlib.loadComponent(import.meta.url));
+  async function init() {
+    await loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'));
+    rtlib.loadComponent(import.meta.url);
+  }
+
+  init();
