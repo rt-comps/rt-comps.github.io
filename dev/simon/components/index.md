@@ -57,7 +57,7 @@ function loadGlobalMods(basePath) {
 loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
   .then(() => rtlib.loadComponent(import.meta.url));
 ```
-- For sub-components it can reasonably be expected that the `rt.mjs` & `rt_baseclass.mjs` modules have been loaded and there are no dependancies then this file can be as simple as
+- For sub-components it can reasonably be expected that the `rt.mjs` & `rt_baseclass.mjs` modules have been loaded and so, as there are no dependancies, this file can be as simple as
 ```js
 rtlib.loadComponent(import.meta.url);
 ```  
