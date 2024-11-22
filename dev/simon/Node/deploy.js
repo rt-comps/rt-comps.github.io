@@ -163,8 +163,6 @@ try {
         fs.rmSync(`${dstPath}/${comp}`, rmOpts);
         // Move new files to 'docs' folder
         fs.renameSync(`${stgPath}/${comp}`, `${dstPath}/${comp}`);
-        // // Tidy up
-        fs.rmSync(stgPath, rmOpts);
     })
     // Tidy up
     fs.rmSync(stgPath, rmOpts);
