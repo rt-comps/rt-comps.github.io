@@ -43,13 +43,6 @@ async function loadTemplate(url) {
   } catch (e) {
     throw e;
   }
-
-  // return fetch(url)
-  //   .then((response) => {
-  //     if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
-  //     return response.text()
-  //   })
-  //   .then((htmlText) => document.head.insertAdjacentHTML('beforeend', htmlText));
 }
 
 // ================================================================
@@ -74,12 +67,6 @@ async function loadComponent(url, version = false) {
   } catch (e) {
     throw e;
   }
-  // loadTemplate(`${baseFile}.html`)
-  //   .then(() => {
-  //     const js_module = `${baseFile}.js`;
-  //     import(js_module)
-  //       .catch((err) => console.error("failed import", js_module, err));
-  //   })
 }
 
 // ================================================================
@@ -90,12 +77,12 @@ async function loadComponent(url, version = false) {
 // 
 async function loadMods(basePath, addModules = []) {
   // Define modules to load
-  // Default modules to load
+  //  Default modules to load
   const modules = [
-    { label: 'rtlib', file: 'rt.mjs' },
+    //{ label: 'rtlib', file: 'rt.mjs' },
     { label: 'rtBC', file: 'rt_baseclass.mjs' }
   ];
-  // Additional modules to load list
+  //  Additional modules to load list
   addModules.forEach(newMod => modules.push(newMod));
   // Load any missing modules
   return Promise.all(modules.map(async (module) => {
