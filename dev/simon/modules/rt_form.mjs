@@ -5,7 +5,8 @@
 // Search if <style id="<component-name>"> has been defined in the upstream DOM (light or shadow).
 // If found then the node is cloned into the components shadow DOM to supercede the default styles.
 function getStyle(node) {
-    const debug = node.nodeName.toUpperCase() === 'RT-PICKUP-LOCATIONS' ? true : false;
+    // Set '???' to component node name of interest to deug errors
+    const debug = node.nodeName.toUpperCase() === '???' ? true : false;
     // Is <rt-orderform> in the current Light DOM
     const formNode = node.closest('rt-orderform');
     if (debug) {
