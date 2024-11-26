@@ -95,7 +95,7 @@ async function loadMods(basePath, addModules = []) {
     { label: 'rtlib', file: 'rt.mjs' },
     { label: 'rtBC', file: 'rt_baseclass.mjs' }
   ];
-  // Additional modules to load
+  // Additional modules to load list
   addModules.forEach(newMod => modules.push(newMod));
   // Load any missing modules
   return Promise.all(modules.map(async (module) => {

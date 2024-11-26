@@ -1,25 +1,17 @@
 // ===== Import all required modules and components
 
-//--- loadGlobalMods()
-// Load base modules into global scope
-function loadGlobalMods(basePath) {
-    // Define modules to load
-    const modules = [
-        { label: 'rtlib', file: 'rt.mjs' },
-        { label: 'rtBC', file: 'rt_baseclass.mjs' },
-    ];
-    // Load any missing modules
-    return Promise.all(modules.map(async (module) => {
-        if (typeof window[module.label] === 'undefined') {
-            window[module.label] = await import(`${basePath}/modules/${module.file}`)
-                .catch(e => Promise.reject(`Failed to load '${module.file}' into '${module.label}'`));
-        } else return true;
-    }));
+// ===== Import all required modules and components
+
+async function initialise(comp, options = {}) {
+    try {
+        // Load base module if not already loaded
+        if (typeof rtlib === 'undefined') window.rtlib = await import(`${comp.split('/').slice(0, -3).join('/')}/modules/rt.mjs`)
+        // Initialise component
+        rtlib.init(comp, options.dependencies, options.additionalModules);
+    } catch (e) {
+        console.warn(e);
+    }
 }
 
 //--- MAIN
-// Load any missing modules in to global scope then load component
-loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
-    .then(() => rtlib.loadComponent(import.meta.url));
-
-
+initialise(import.meta.url);
