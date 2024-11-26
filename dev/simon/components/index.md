@@ -3,7 +3,7 @@
 
 This file is used to initiating the loading of this module.
 
-It depends on the ***rtlib*** module so every file contains the following *async* function that ensures the module has been loaded before continuing
+It depends on the ***rtlib*** module so every file contains the following `async` function that ensures the module has been loaded before continuing
 
 ```js
 // ===== Import all required modules and components
@@ -41,7 +41,7 @@ const options = {
 // Start the initialisation
 initialise(import.meta.url, options);
 ```
-All properties of *options* and *options* itself are optional so the main code could be as simple as
+All properties of `options` and `options` itself are optional so the main code could be as simple as
 ```js
 //--- MAIN
 // Start the initialisation

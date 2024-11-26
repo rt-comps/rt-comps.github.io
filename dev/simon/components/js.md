@@ -8,7 +8,7 @@ Typically, this file will have a base structure of
 // Get component name from directory name
 const [compName] = rtlib.parseURL(import.meta.url);
 
-// Define the element usin the template in the associated .html file
+// Define the element using the template in the associated .html file
 customElements.define(
     compName,
     class extends rtBC.RTBaseClass {
