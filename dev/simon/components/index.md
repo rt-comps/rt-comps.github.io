@@ -1,64 +1,49 @@
 [< Back](README.md)
 # index.js
 
-This file is used to initiating the loading of this module.  
+This file is used to initiating the loading of this module.
 
-- The following should be used for any top-level component with dependencies
+It depends on the ***rtlib*** module so every file contains the following *async* function that ensures the module has been loaded before continuing
+
 ```js
-// Load base modules into global scope
-function loadGlobalMods(basePath) {
-  // Define modules to load
-  const modules = [
-    { label: 'rtlib', file: 'rt.mjs' },
-    { label: 'rtBC', file: 'rt_baseclass.mjs' }
-  ];
-  // Load any missing modules
-  return Promise.all(modules.map(async (module) => {
-    if (typeof window[module.label] === 'undefined') {
-      window[module.label] = await import(`${basePath}/modules/${module.file}`)
-        .catch(e => Promise.reject(`Failed to load '${module.file}' into '${module.label}'`));
-    } else return true;
-  }));
+// ===== Import all required modules and components
+
+// --- initialise
+// An 'async' function to allow use of 'await' for module load
+async function initialise(comp, options = {}) {
+  try {
+    // Load base module if not already loaded
+    if (typeof rtlib === 'undefined') window.rtlib = await import(`${comp.split('/').slice(0, -3).join('/')}/modules/rt.mjs`)
+    // Initialise component
+    rtlib.init(comp, options.dependencies, options.additionalModules);
+  } catch (e) {
+    console.warn(e);
+  }
 }
-
-// Load any missing modules in to global scope
-// ...then initiate dependency loading
-// ...finally, load component
-loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
-  .then(() => {
-    // List of dependencies
-    const components = ['rt-dep1', 'rt-dep2'];
-    // Trigger the Loading of all dependencies then load this component
-    Promise.all(components.map((component) => import(`../${component}/index.js`)
-      .catch(e => console.error(`${e.message} ${moduleName.toUpperCase()} could not find ${component.toUpperCase()}`)))
-    ).then(() => rtlib.loadComponent(import.meta.url))
-  });
 ```
-- For top-level components with no dependencies then this can be simplified to
-```js
-// Load base modules into global scope
-function loadGlobalMods(basePath) {
-  // Define modules to load
-  const modules = [
-    { label: 'rtlib', file: 'rt.mjs' },
-    { label: 'rtBC', file: 'rt_baseclass.mjs' }
-  ];
-  // Load any missing modules
-  return Promise.all(modules.map(async (module) => {
-    if (typeof window[module.label] === 'undefined') {
-      window[module.label] = await import(`${basePath}/modules/${module.file}`)
-        .catch(e => Promise.reject(`Failed to load '${module.file}' into '${module.label}'`));
-    } else return true;
-  }));
+The main code that follows depends on what the component requires but a component that utilises all the functionality may look like
+```js 
+//--- MAIN
+const options = {
+  // Required components this component depends on
+  dependencies: [
+    'rt-orderform',
+    'rt-datepicker'
+  ],
+  // Modules desired in addition to base module and base class
+  additionalModules: [
+    {
+      label: 'rtform',
+      file: 'rt_form.mjs'
+    }
+  ]
 }
-
-// Load any missing modules in to global scope
-// ...then load component
-loadGlobalMods(import.meta.url.split('/').slice(0, -3).join('/'))
-  .then(() => rtlib.loadComponent(import.meta.url));
+// Start the initialisation
+initialise(import.meta.url, options);
 ```
-- For sub-components it can reasonably be expected that the `rt.mjs` & `rt_baseclass.mjs` modules have been loaded and so, as there are no dependancies, this file can be as simple as
+All properties of *options* and *options* itself are optional so the main code could be as simple as
 ```js
-rtlib.loadComponent(import.meta.url);
-```  
-
+//--- MAIN
+// Start the initialisation
+initialise(import.meta.url);
+``` 
