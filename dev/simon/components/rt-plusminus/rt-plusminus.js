@@ -2,7 +2,7 @@
 // === plus-minus
 
 // get component name from directory name
-const [compName] = rtlib.parseURL(import.meta.url);
+const [compName] = rtlib.parseCompURL(import.meta.url);
 
 // Define the element usin the template in the associated .html file
 customElements.define(

@@ -7,7 +7,7 @@
 // Note 1:  Template file exist (even though it is unnecessary) for rt.loadComponent() to 
 //          function correctly
 //
-const [compName, compPath] = rtlib.parseURL(import.meta.url);
+const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
 
 customElements.define(
     compName,
