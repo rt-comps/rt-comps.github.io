@@ -3,28 +3,17 @@ const html = (strings, ...values) =>
   String.raw({ raw: strings }, ...values);
 
 // ================================================================
-// Split a URL in to base path, component and file names
+// Split a URL in to component name and base path
 // 
 // Returns ["<componentName>","<filePath>"]
-// if getFile is set then returns "<filePath>/<baseFilename>"
 // 
-function parseURL(url, getFile = false) {
+function parseCompURL(url) {
   // Split URL into array using / as delimiter
   // 'http://test:5500/mypath/component/filename' => ['http','',test:5500','mypath','component','filename']
   const urlArray = url.split('/');
-  // Only return something if passed a string that has some meaning... 
+  // Only return something if passed a string that has some meaning, ie more than the just the FQDN
   if (urlArray.length > 4) {
-    // Parse component name - will be second to last element
-    const compName = urlArray[urlArray.length - 2];
-    // Parse absolute path - everything before last element (filename)
-    const basePath = urlArray.slice(0, urlArray.length - 1).join('/');
-    if (!getFile) return [compName, basePath];
-    else {
-      // Parse filename - last item
-      const rawFN = urlArray[urlArray.length - 1];
-      const fileName = (rawFN.indexOf('_v') > -1 ? rawFN.substring(0, rawFN.indexOf('.')) : compName);
-      return (`${basePath}/${fileName}`);
-    }
+    return [urlArray[urlArray.length - 2], urlArray.slice(0, urlArray.length - 1).join('/')];
   }
 }
 
@@ -53,7 +42,7 @@ async function loadTemplate(url) {
 // 
 async function loadComponent(url, version = false) {
   // Parse URL in to useful values
-  const [compDir, basePath] = parseURL(url);
+  const [compDir, basePath] = parseCompURL(url);
   // Filename is directory name plus version string (if provided)
   const compFile = `${compDir}${version ? '_v' + version : ''}`;
   // Build file path (excluding file extension)
@@ -133,9 +122,9 @@ async function init(module, deps = [], mods = []) {
   // Load this component
   try {
     await loadComponent(module);
-  } catch(e){
+  } catch (e) {
     throw e
   }
 }
 
-export { html, parseURL, loadComponent, loadMods, init };
+export { html, parseCompURL, loadComponent, loadMods, init };

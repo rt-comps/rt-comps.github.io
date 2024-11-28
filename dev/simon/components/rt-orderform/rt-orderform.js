@@ -2,7 +2,7 @@
 // === rt-orderform class definition
 
 // Recover component name from URL
-const [compName, compPath] = rtlib.parseURL(import.meta.url);
+const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
 
 // Define the component
 customElements.define(compName,

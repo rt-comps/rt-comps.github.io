@@ -1,6 +1,6 @@
 // ================================================================
 // get component name from directory name
-const [compName] = rtlib.parseURL(import.meta.url);
+const [compName] = rtlib.parseCompURL(import.meta.url);
 
 customElements.define(
   compName,

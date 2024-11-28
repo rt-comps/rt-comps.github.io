@@ -2,7 +2,7 @@
 // === dp-date class definition
 
 // Recover component name from URL
-const [compName] = rtlib.parseURL(import.meta.url);
+const [compName] = rtlib.parseCompURL(import.meta.url);
 
 
 customElements.define(compName,

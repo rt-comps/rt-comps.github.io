@@ -1,6 +1,6 @@
 // ================================================================
 // === line-item (displayed in cart)
-const [compName, compPath] = rtlib.parseURL(import.meta.url);
+const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
 
 customElements.define(
     compName,

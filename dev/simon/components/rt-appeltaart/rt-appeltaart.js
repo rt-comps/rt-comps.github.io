@@ -4,7 +4,7 @@
 // This is a container for an order form
 // It provides code to load the menu HTML and respond to a new order being placed
 // 
-const [compName, compPath] = rtlib.parseURL(import.meta.url);
+const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
 
 customElements.define(
     compName,
