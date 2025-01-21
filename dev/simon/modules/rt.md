@@ -9,24 +9,24 @@ This file contains the following functions
 
 ---
 ### parseCompURL(url)
-|||||
-| --- | --- | --- | --- |
+|Param|Type||Use|
+| :--- | --- | --- | :--- |
 |*url*|{String}|-|URL of component file|
 
 Parse the URL of a component file to return the component name and base path.
 
 ---
 ### loadTemplate(url)
-|||||
-| --- | --- | --- | --- |
+|Param|Type||Use|
+| :--- | --- | --- | :--- |
 |*url*|{String}|-|URL of template file|
 
 Load the specified template file in to the document HEAD.
 
 ---
 ### loadComponent(url, version = false)
-|||||
-| --- | --- | --- | --- |
+|Param|Type||Use|
+| :--- | --- | --- | :--- |
 |*url*|{String}|-|URL of template file|
 |*version*|{String}|-|Version to use (optional)|
 
@@ -34,8 +34,8 @@ Load the component code.
 
 ---
 ### loadMods(basePath, addModules = [])
-|||||
-| --- | --- | --- | --- |
+|Param|Type||Use|
+| :--- | --- | --- | :--- |
 |*basePath*|{String}|-|URL of directory that contains the  *modules* directory|
 |*addModules*|{Array}|-|Any modules that should be loaded in addition to the base modules|
 
@@ -52,8 +52,8 @@ Object values are treated as String
 
 ---
 ### init(module, deps = [], mods = [])
-|||||
-| --- | --- | --- | --- |
+|Param|Type||Use|
+| :--- | --- | --- | :--- |
 |*module*|{String}|-|URL of component file|
 |*deps*|{Array}|-|List of components needed by this component|
 |*mods*|{Array}|-|List of additional modules needed by this component|
