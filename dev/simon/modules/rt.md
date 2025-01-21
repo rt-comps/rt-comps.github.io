@@ -9,8 +9,6 @@ This file contains the following functions
 
 ---
 ### parseCompURL(url)
-|||||
-| --- | --- | --- | --- |
 |*url*|{String}|-|URL of component file|
 
 Parse the URL of a component file to return the component name and base path.
