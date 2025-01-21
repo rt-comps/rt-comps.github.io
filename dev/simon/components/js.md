@@ -6,7 +6,7 @@ This is the actual definition of your component.
 Typically, this file will have a base structure of
 ```js
 // Get component name from directory name
-const [compName] = rtlib.parseURL(import.meta.url);
+const [compName] = rtlib.parseCompURL(import.meta.url);
 
 // Define the element using the template in the associated .html file
 customElements.define(
@@ -32,7 +32,7 @@ customElements.define(
 If you are not likely to use the `shadowRoot` a significant amount then you could abbreviate this to
 ```js
 // Get component name from directory name
-const [compName] = rtlib.parseURL(import.meta.url);
+const [compName] = rtlib.parseCompURL(import.meta.url);
 
 // Define the element usin the template in the associated .html file
 customElements.define(
