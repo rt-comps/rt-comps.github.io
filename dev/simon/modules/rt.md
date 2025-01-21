@@ -9,6 +9,7 @@ This file contains the following functions
 
 ---
 ### parseCompURL(url)
+|||||
 | --- | --- | --- | --- |
 |*url*|{String}|-|URL of component file|
 
