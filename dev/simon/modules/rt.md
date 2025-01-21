@@ -29,6 +29,7 @@ Load the specified template file in to the document HEAD.
 | --- | --- | --- | --- |
 |*url*|{String}|-|URL of template file|
 |*version*|{String}|-|Version to use (optional)|
+
 Load the component code.
 
 ---
@@ -56,4 +57,5 @@ Object values are treated as String
 |*module*|{String}|-|URL of component file|
 |*deps*|{Array}|-|List of components needed by this component|
 |*mods*|{Array}|-|List of additional modules needed by this component|
+
 Initialise a new component and load any dependencies (components and/or modules)
