@@ -158,6 +158,5 @@ try {
     // Tidy up
     fs.rmSync(stgPath, rmOpts);
 } catch (e) {
-    if (e.cause && e.cause === 'custom') console.log(e.message);
-    else console.log(e)
+    console.log((e.cause && e.cause === 'custom') ? e.message : e);
 }
