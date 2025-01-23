@@ -17,18 +17,22 @@
 
 // ### Load modules 
 // Allow FileSystem access
-const fs = require('fs');
+import * as fs from 'fs';
+//const fs = require('fs');
 // Minifiers
-const uglify = require('uglify-js').minify;
-const mini = require('html-minifier').minify;
+import {minify as uglify} from 'uglify-js';
+import {minify as mini} from 'html-minifier';
+//const uglify = require('uglify-js').minify;
+//const mini = require('html-minifier').minify;
 
 // ### Define constants
+
 //  Where files are expected to be found in devPath
 const pathList = [
     'components',
     'modules'
 ]
-//  html-minifier options
+//  'html-minifier' options
 const miniOpt = {
     collapseWhitespace: true,
     removeComments: true,
@@ -36,19 +40,6 @@ const miniOpt = {
 }
 //  Options for removing directories
 const rmOpts = { recursive: true, force: true };
-
-// ### Derive more constants
-//  Get current working directory
-const workingDir = process.cwd();
-//  Ensure script has been called from within project directory
-if (workingDir.indexOf('github.io') < 0) throw new Error('No project directory found.  Ensure script is run from within project directory structure', { cause: 'custom' });
-//  Files are output to 'docs' directory of project
-const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs`;
-//  Get the path of this executable
-const execPath = process.argv[1];
-//  Determine source and staging dirs 
-const devPath = execPath.slice(0, execPath.indexOf('/Node')); // assume comps at level below 'Node'
-const stgPath = `${devPath}/tmp`;
 
 
 // ### Local Functions
@@ -109,9 +100,9 @@ try {
     //  Determine source and staging dirs 
     const stgPath = `${devPath}/tmp`;
     //  Read in any project name(s) provided
-    const paramList = process.argv.slice(2);
+    let paramList = process.argv.slice(2);
     //  If no component is specified then deploy all files in 'components' and 'modules' directories
-    if (paramList.length === 0) pathList.forEach(comp => paramList.push(comp));
+    if (paramList.length === 0) paramList = [...pathList];
     //  Convert parameter list to relative paths
     const compList = paramList.map(param => `${pathList.indexOf(param) > -1 ? '' : 'components/'}${param}`);
 
