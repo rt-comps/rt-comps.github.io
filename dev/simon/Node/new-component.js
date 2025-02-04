@@ -19,18 +19,22 @@ try {
         throw new Error(`Component with name ${compName.toUpperCase()} already exists`, { cause: 'custom' })
     // ### End of Pre-Flight Checks
 
-    const templates = fs.readdirSync(`${workingDir}/templates`);
+    // Create new directory
     const newDir = `${dstPath}/${compName}`
     fs.mkdirSync(newDir);
+    // Get template file names
+    const templates = fs.readdirSync(`${workingDir}/templates`);
+    // Create new files with filename reflecting new component name
     templates.forEach(filename => {
-        console.log(filename.replace('comp', compName));
-        const contents = fs.readFileSync(`${workingDir}/templates/${filename}`, 'utf8');
+        // Read template file contents
+        let contents = fs.readFileSync(`${workingDir}/templates/${filename}`, 'utf8');
+        // Replace <compName> with component name in HTML file 
+        if (filename.indexOf('.html') > -1) contents = contents.replace('<compName>',compName.toUpperCase());
+        // Write contents to new file
         fs.writeFileSync(`${newDir}/${filename.replace('comp', compName)}`, contents, 'utf8');
-        //      console.log(contents);
-        //        if (filename.indexOf('comp') > -1) filename
     })
-    //    console.log(fs.readdirSync(newDir));
 
 } catch (e) {
     console.log((e.cause && e.cause === 'custom') ? e.message : e);
+    process.exitCode=1;
 }
