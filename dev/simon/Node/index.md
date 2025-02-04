@@ -1,7 +1,7 @@
 [< Back](README.md)
 # index.js
 
-This file is used to initiating the loading of the component.
+This file is used to initiate the loading of the component and its dependencies.
 
 ```js
 // ===== Import all required modules and components
