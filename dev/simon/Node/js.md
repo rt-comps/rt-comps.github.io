@@ -1,8 +1,9 @@
-// ================================================================
-// === <compName>
-//
-// ***Provide description of component function here***
-// 
+[< Back](README.md)
+
+# comp.js
+This contains the class definition of the component.
+
+```js
 const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
 
 customElements.define(
@@ -27,3 +28,4 @@ customElements.define(
 
     }
 );
+```
