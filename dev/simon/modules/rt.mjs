@@ -66,14 +66,14 @@ async function loadComponent(url, version = false) {
 // 
 async function loadMods(basePath, addModules = []) {
   // Define modules to load
-  //  Default modules to load
+  //  Default module(s) to load
   const modules = [
-    //{ label: 'rtlib', file: 'rt.mjs' },
     { label: 'rtBC', file: 'rt_baseclass.mjs' }
   ];
   //  Additional modules to load list
   addModules.forEach(newMod => modules.push(newMod));
-  // Load any missing modules
+
+  // Initiate the loading any missing modules
   return Promise.all(modules.map(async (module) => {
     // Attempt to load module when not present
     if (typeof window[module.label] === 'undefined') {
@@ -94,34 +94,34 @@ async function loadMods(basePath, addModules = []) {
 // deps   : Componenets that are dependencies
 // mods   : Additional Modules 
 // 
-async function init(module, deps = [], mods = []) {
+async function init(comp, deps = [], mods = []) {
   // Attempt to load any missing modules
   try {
-    await loadMods(module.split('/').slice(0, -3).join('/'), mods)
+    await loadMods(comp.split('/').slice(0, -3).join('/'), mods)
   } catch (e) {
     // Stop further loading if any modules fail to load
     throw e;
   }
 
   // Timer start (informational)
-  const moduleName = module.split('/').slice(-2)[0];
-  console.time(`loadModules for ${moduleName}`);
+  const compName = comp.split('/').slice(-2)[0];
+  console.time(`load Modules for ${compName}`);
 
   // Trigger the Loading of all dependencies
-  await Promise.all(deps.map(async (component) => {
+  await Promise.all(deps.map(async (depComp) => {
     try {
-      await import(`../components/${component}/index.js`);
+      await import(`../components/${depComp}/index.js`);
     } catch (e) {
-      throw `Component "${moduleName}" could not load dependency "${component}" so stopping!!`;
+      throw `Component "${compName}" could not load dependency "${depComp}" so stopping!!`;
     }
   }));
 
   // Stop timer
-  console.timeEnd(`loadModules for ${moduleName}`);
+  console.timeEnd(`load Modules for ${compName}`);
 
   // Load this component
   try {
-    await loadComponent(module);
+    await loadComponent(comp);
   } catch (e) {
     throw e
   }
