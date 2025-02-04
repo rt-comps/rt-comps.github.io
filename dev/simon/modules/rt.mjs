@@ -94,10 +94,11 @@ async function loadMods(basePath, addModules = []) {
 // deps   : Componenets that are dependencies
 // mods   : Additional Modules 
 // 
-async function init(comp, deps = [], mods = []) {
+//async function init(comp, deps = [], mods = []) {
+async function init(comp, options = {}) {
   // Attempt to load any missing modules
   try {
-    await loadMods(comp.split('/').slice(0, -3).join('/'), mods)
+    await loadMods(comp.split('/').slice(0, -3).join('/'), options.additionalModules)
   } catch (e) {
     // Stop further loading if any modules fail to load
     throw e;
@@ -106,15 +107,16 @@ async function init(comp, deps = [], mods = []) {
   // Timer start (informational)
   const compName = comp.split('/').slice(-2)[0];
   console.time(`load Modules for ${compName}`);
-
   // Trigger the Loading of all dependencies
-  await Promise.all(deps.map(async (depComp) => {
-    try {
-      await import(`../components/${depComp}/index.js`);
-    } catch (e) {
-      throw `Component "${compName}" could not load dependency "${depComp}" so stopping!!`;
-    }
-  }));
+  if (typeof options.dependencies !== 'undefined') {
+    await Promise.all(options.dependencies.map(async (depComp) => {
+      try {
+        await import(`../components/${depComp}/index.js`);
+      } catch (e) {
+        throw `Component "${compName}" could not load dependency "${depComp}" so stopping!!`;
+      }
+    }));
+  }
 
   // Stop timer
   console.timeEnd(`load Modules for ${compName}`);
