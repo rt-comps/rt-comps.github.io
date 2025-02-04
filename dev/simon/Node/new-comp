@@ -1,0 +1,4 @@
+#!/bin/zsh
+# Wrapper for new-module.js
+read "name?Provide component name: "
+[[ -n "$name" ]] && node "${0%/*}/new-component.js" "rt-$name" || printf "No name specified ...exiting\n"
