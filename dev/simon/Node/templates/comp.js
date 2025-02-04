@@ -23,5 +23,7 @@ customElements.define(
         }
         //+++ End OF Lifecycle Events
 
+        // Put private and public methods HERE
+
     }
 );
