@@ -167,9 +167,10 @@ customElements.define(compName,
           const cartMod = (parseInt(cartStyle.paddingTop) * 2) + (parseInt(cartStyle.borderLeftWidth) * 2);
           // Determine size of cart-title and add adjustment for padding and borders
           const cartTitleSize = `${(parseFloat(cartTitle.getBoundingClientRect().height) + cartMod).toFixed(0)}px`;
-          // Set CSS variable for minimized size
+          // Set CSS variable for minimized cart size - will cause 'expanding' transition
           this.#_cart.style.setProperty('--MINIMIZED-CART', cartTitleSize);
-          this.#toggleCart();
+          // Unhide the cart div to see transition
+          this.#_cart.classList.remove('init');
         }, 200);
       }
 
