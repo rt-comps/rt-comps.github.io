@@ -1,1 +1,0 @@
-const moduleName=import.meta.url.split("/").slice(-2)[0],components=(console.time("loadModules for "+moduleName),["dp-arrow","dp-date"]);Promise.all(components.map(o=>import(`../${o}/index.js`))).then(()=>{console.timeEnd("loadModules for "+moduleName),rtlib.loadComponent(import.meta.url)});
