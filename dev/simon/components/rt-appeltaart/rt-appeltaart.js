@@ -32,16 +32,19 @@ customElements.define(
         // Tell form to retrieve the specified menu data file
         #getMenu(e) {
             if (e) e.stopPropagation();
-            // Get the menu file
-            if (this.hasAttribute('datafile') && this.getAttribute('datafile')) {
+            // Get the menu file - if a non-NULL value has been provided
+            if (this.getAttribute('datafile')) {
                 // Determing the path to the menu data file
                 const dataFile = this.getAttribute('datafile');
                 const regex = /^http[s]?:\/\//;
                 const url = dataFile.match(regex) ? `${dataFile}` : `${compPath}/${dataFile}`;
                 this.#_sR.querySelector('rt-orderform').loadMenu(url);
             } else {
-                const frag = document.createRange().createContextualFragment('<h1 style="color: red;">datafile attribute not provided</h1>');
+                // Make it obvious that something critical is missing 
+                const frag = document.createRange().createContextualFragment('<h1 style="color: white; background-color: red; text-align: center">datafile attribute not provided</h1>');
                 this.#_sR.appendChild(frag);
+                // Add the message to the console log too
+                console.error('Datafile attribute value is missing or an empty string')
             }
         }
 
