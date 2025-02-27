@@ -36,8 +36,11 @@ customElements.define(
             if (this.getAttribute('datafile')) {
                 // Determing the path to the menu data file
                 const dataFile = this.getAttribute('datafile');
+                //  Set regex to determine if path is absolute or relative
                 const regex = /^http[s]?:\/\//;
+                //  If path is relative then assume file is in this component's directory
                 const url = dataFile.match(regex) ? `${dataFile}` : `${compPath}/${dataFile}`;
+                // Initiate loading of the menu data
                 this.#_sR.querySelector('rt-orderform').loadMenu(url);
             } else {
                 // Make it obvious that something critical is missing 
