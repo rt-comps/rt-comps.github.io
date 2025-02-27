@@ -71,13 +71,8 @@ customElements.define(compName,
 
     //--- connectedCallback
     connectedCallback() {
+      // Inform containing code that 
       this.$dispatch({ name: 'formready' });
-
-      // Remove class used for mobile version (wait for transition to occur)
-      // setTimeout(() => this.#_cart.classList.remove('init'), 500);
-
-      // Make <rt-orderform> visible - all style should be active by this point
-      this.style.display = 'inline-block';
     }
     //+++ End of Lifecycle Events
 
@@ -510,6 +505,7 @@ customElements.define(compName,
           const frag = document.createRange().createContextualFragment(htmlText);
           this.appendChild(frag);
           this.#initialiseAll();
+          this.style.display = 'inline-block';
         } catch (e) {
           console.error(e);
         }
