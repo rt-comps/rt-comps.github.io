@@ -25,7 +25,7 @@ customElements.define(compName,
       // Attach contents of template placed in document.head by LoadComponent()
       this.#_sR.append(this.$getTemplate());
 
-      // Set this component as the 'eventbus'
+      // Set this component as the 'eventbus' - used for handling event communications between components
       this.id = 'eventBus';
 
       // Store some useful nodes in private fields
@@ -72,8 +72,10 @@ customElements.define(compName,
     //--- connectedCallback
     connectedCallback() {
       this.$dispatch({ name: 'formready' });
+
       // Remove class used for mobile version (wait for transition to occur)
       // setTimeout(() => this.#_cart.classList.remove('init'), 500);
+
       // Make <rt-orderform> visible - all style should be active by this point
       this.style.display = 'inline-block';
     }
@@ -137,7 +139,7 @@ customElements.define(compName,
     #initialiseAll() {
       /// Create pictorial menu
       // Recover image path from setting in HTML
-      const imgPath = this.querySelector("form-config span#imgpath").innerHTML;
+      const imgPath = this.querySelector("form-config span#imgpath").textContent;
       // Collect all <rt-itemdata> elements
       const nodes = [...this.querySelectorAll('rt-itemdata')];
       // ...then create a new <rt-menuitem> element for each, assigned to 'menu-items' slot  
@@ -502,12 +504,14 @@ customElements.define(compName,
       } else {
         try {
           const response = await fetch(url)
+          // Do not attempt to parse file if server resonse is not 200
+          if (!response.ok) throw new Error("Datafile URL is not valid");
           const htmlText = await response.text();
           const frag = document.createRange().createContextualFragment(htmlText);
           this.appendChild(frag);
           this.#initialiseAll();
         } catch (e) {
-          console.warn(e);
+          console.error(e);
         }
       }
     }
