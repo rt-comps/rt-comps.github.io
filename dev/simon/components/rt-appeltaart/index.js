@@ -23,7 +23,7 @@ const options = {
   // Modules desired in addition to base module and base class
   additionalModules: [
     {
-      label: 'rtform',
+      label: 'rtForm',
       file: 'rt_form.mjs'
     }
   ]
