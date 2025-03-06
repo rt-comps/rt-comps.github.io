@@ -15,12 +15,12 @@ async function initialise(comp, options = {}) {
 // Determine extra URL for unique dependencies
 const compUrl = import.meta.url;
 const startStr = 'components/';
-const extraUrl = compUrl.slice(compUrl.indexOf(startStr) + startStr.length, compUrl.indexOf('index.js'));
+const url = compUrl.slice(compUrl.indexOf(startStr) + startStr.length, compUrl.indexOf('index.js'));
 
 const options = {
   dependencies: [
-    `${extraUrl}dp-arrow`,
-    `${extraUrl}dp-date`
+    `${url}dp-arrow`,
+    `${url}dp-date`
   ]
 }
 initialise(compUrl, options);
