@@ -51,6 +51,11 @@ customElements.define(compName,
             }
         }
 
+        connectedCallback() {
+            // Look for and pull in external style definition
+            if (typeof rtForm !== 'undefined') rtForm.getStyle(this)
+        }
+
         //--- formAssociatedCallback
         // triggered when component is associated with (or dissociated from) a form
         formAssociatedCallback() {
@@ -115,7 +120,7 @@ customElements.define(compName,
 
         //--- dispatchChoice
         // Tell all <dp-date> components to clear highlight if not chosen
-        dispatchChoice(day){
+        dispatchChoice(day) {
             this.$dispatch({
                 name: 'choiceMade',
                 detail: { day },
