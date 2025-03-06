@@ -19,6 +19,6 @@ const options = {
     'rt-lineitem',
     'rt-pickup-locations',
     'rt-form-field'
-  ],
+  ]
 }
 initialise(import.meta.url, options);
