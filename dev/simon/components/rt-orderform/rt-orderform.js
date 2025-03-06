@@ -71,6 +71,7 @@ customElements.define(compName,
 
     //--- connectedCallback
     connectedCallback() {
+      if (typeof rtForm !== 'undefined') rtForm.getStyle(this)
       // Inform containing code that 
       this.$dispatch({ name: 'formready' });
     }
@@ -180,12 +181,11 @@ customElements.define(compName,
       if (localStorage.getItem('currentOrder')) this.#updateCart();
       this.#displayCartButtons();
 
-      /// Move user's form to shadowDOM - as a form cannot be slotted
-      const srcNode = this.querySelector('div#user-details');
-      if (srcNode) {
-
-        this.#_form.append(...srcNode.children);
-      } else console.warn('No details form provided');
+      /// Move user's form to shadowDOM - as a form cannot be slotted apparently
+      // const srcNode = this.querySelector('div#user-details');
+      // if (srcNode) {
+      //   this.#_form.append(...srcNode.children);
+      // } else console.warn('No details form provided');
     }
 
     //--- #showForm
@@ -502,8 +502,11 @@ customElements.define(compName,
           // Do not attempt to parse file if server resonse is not 200
           if (!response.ok) throw new Error("Datafile URL is not valid");
           const htmlText = await response.text();
+          // Create document fragment from file text
           const frag = document.createRange().createContextualFragment(htmlText);
+          // Append fragment to lightDOM 
           this.appendChild(frag);
+          // Build form from data in lightDOM and local storage
           this.#initialiseAll();
           this.style.display = 'inline-block';
         } catch (e) {
