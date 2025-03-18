@@ -31,5 +31,5 @@ Returns the STYLE **node** found within the FORM-CONFIG **node** of the target *
 |*node*|{DOMNode}|-|Component node|
 |*topNode*|{String}|-|Target node name (Default: 'rt-orderform')|
 
-If additional style has been defined in the FORM_CONFIG **node** of *topNode*, ie a STYLE **node** with an ID corresponding to the specified component's name, then copy that STYLE **node** into the component's ShadowDOM as the last STYLE **node** so that it overrides any default style.
+If additional style has been defined in the FORM_CONFIG **node** of *topNode* in the datafile, ie a STYLE **node** with an ID corresponding to the specified component's name, then copy that STYLE **node** into the component's ShadowDOM as the last STYLE **node** so that it overrides any default value for the specified style
 
