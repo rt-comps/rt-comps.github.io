@@ -42,7 +42,7 @@ customElements.define(
             // Delay listener attachment to ensure '#eventBus' is present
             setTimeout(() => {
                 const eventBus = this.closest('#eventBus');
-                if (eventBus) eventBus.addEventListener('updatemenu', (e) => this.#initialiseDisplay(e));
+                if (eventBus) eventBus.addEventListener('initmenu', (e) => this.#initialiseDisplay(e));
                 else console.error(`${this.tagName}: Element with id of "eventBus" not found`);
             }, 100);
         }

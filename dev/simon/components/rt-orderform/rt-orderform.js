@@ -34,12 +34,17 @@ customElements.define(compName,
       this.#_menu = this.#_sR.querySelector('#menu-items-container');
       this.#_cart = this.#_sR.querySelector('#cart');
 
-      // If it exists, load any locally stored cart contents into memory 
+      // If it exists, load any locally stored cart contents into memory (array of objects)
       this.#_cartContents = JSON.parse(localStorage.getItem('currentOrder')) || [];
 
+      // console.log(this.#hasDataChanged({
+      //   prodID: '02011',
+      //   count: 1
+      // }))
+
       //-- Event Listeners
-      //___ updatemenu - Display product information when product chosen
-      this.addEventListener('updatemenu', (e) => this.#updateItemDataDialog(e));
+      //___ initmenu - Display product information when product chosen
+      this.addEventListener('initmenu', (e) => this.#initItemDataDialog(e));
 
       /// Responding to +/- clicks
       //___ updatecount - Determine any detail overlay button appearance changes
@@ -50,7 +55,7 @@ customElements.define(compName,
       /// Button Actions
       ///- Product Details
       //___ close dialog
-      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#updateItemDataDialog());
+      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#initItemDataDialog());
       //___ add-items_click - Add the currently selected items to the cart
       this.#_sR.querySelector('#prod-add-but').addEventListener('click', () => this.#addToCart());
       ///- Cart
@@ -88,7 +93,7 @@ customElements.define(compName,
         last: this.#_sR.getElementById('recover-but')
       }
       // Start by hiding all buttons
-      for (const button in buttons) if (buttons.hasOwnProperty(button)) buttons[button].style.display = 'none';
+      for (const button in buttons) /*if (buttons.hasOwnProperty(button))*/if (button) buttons[button].style.display = 'none';
 
       // Choose which button to display
       let newBut;
@@ -113,17 +118,35 @@ customElements.define(compName,
     //--- #displayDetailButton
     // Determine appearance of button for details overlay
     #displayDetailButton(e) {
-      if (e) e.stopPropagation();
-      let newDisplay;
+      if (e instanceof Event) e.stopPropagation();
+      let newDisplay = 'none';
       // Does anything in dialog have a value?
-      if (this.querySelectorAll('rt-itemdata[slot] rt-itemline[count]').length > 0) {
+      const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline[count]');
+      if (lineItems.length > 0) {
+        let notFound=true;
+        lineItems.forEach(element => {
+          if (notFound && this.#hasDataChanged({
+            prodID: element.$attr('prodid'),
+            count: parseInt(element.$attr('count'))
+          })) {
+            console.log('this has changed?')
+            newDisplay='';
+            notFound=false;
+          }
+        })
+        
         // When something selected, button reverts to style and says 'Add'
-        newDisplay = '';
-      } else {
-        // When no selection, button disappears
-        newDisplay = 'none';
+        // newDisplay = '';
       }
       this.shadowRoot.querySelector('#prod-add-but').style.display = newDisplay;
+    }
+
+    //--- #hasDataChanged
+    // Determine if current value matches value in 'currentOrder' local storage object
+    #hasDataChanged(testData) {
+      console.log(this.#_cartContents);
+      console.log(testData);
+      return (JSON.stringify(this.#_cartContents).indexOf(JSON.stringify(testData)) === -1);
     }
 
     //--- #initialiseAll
@@ -255,10 +278,21 @@ customElements.define(compName,
     }
 
     //--- #updateCurOrderStor
-    // The currentOrder local storage instance holds the order information (JSON string of array of objects)
-    // When a change is made to the order then the currentOrder instance is updated as required 
-    //  and the cart is rebuilt from the new contents of this instance
+    // The current order information is stored in this.#_cartContents as an array of objects and is also mirrored as a JSON string in a local Storage object ('currentOrder')
+    // When a change is made to the order then this.#_cartContents is updated, the Storage object is rewritten and the cart rebuilt from the Storage object.
     #updateCurOrderStor(itemObj) {
+      // parameter 'itemObj' is expected in the form
+      // {
+      //  prodID: <String>,   - The product to update
+      //  count:  <Number,    - The new count
+      //  action: <String>    - optional (currently only a value of 'remove' does anything)
+      // }
+      // Check itemObj is as expected
+      if (!itemObj.prodID || !itemObj.count || !itemObj instanceof String || !itemObj instanceof Number) {
+        console.error('#updateCurOrderStor: itemObj not in expected form');
+        return
+      }
+
       // Let's assume this is a new value
       let notFound = true;
       // itemObj must contain an action property
@@ -267,7 +301,7 @@ customElements.define(compName,
         if (this.#_cartContents.length > 0) {
           for (const currentItem of this.#_cartContents) {
             if (itemObj.prodID === currentItem.prodID) {
-              // Remove element if deleted or new item count is zero
+              // Remove element if delete requested or new item count is zero
               if (itemObj.action === 'remove' || itemObj.count === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
               // Add new value to existing menu item
               if (itemObj.count) currentItem.count = itemObj.count;
@@ -280,16 +314,16 @@ customElements.define(compName,
 
         // If no existing entry found this must be new item to add to the array
         if (notFound) {
-          // Remove the 'action'property from the object
-          delete itemObj.action;
-          // Add the object to the array
+          // Remove the 'action' property from the object
+          if (itemObj.action) delete itemObj.action;
+          // Add the modified object to the array
           this.#_cartContents.push(itemObj);
         }
 
         // Update local storage
-        //  Save the current order to local storage
+        //  Save the current order to local Storage object
         if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
-        //  Or delete storage item
+        //  If this.#_cartContents is empty then delete Storage object
         else localStorage.removeItem('currentOrder');
 
         // Rebuild cart using latest data
@@ -297,12 +331,14 @@ customElements.define(compName,
       }
     }
 
-    //--- #updateItemDataDialog
-    // Display requested data (updatemenu event) or clear data (called manually)
-    #updateItemDataDialog(e) {
-      // Handle event if present
+    //--- #initItemDataDialog
+    // Display #product-details dialog with requested data.
+    // Close dialog if called manually with no parameter
+    #initItemDataDialog(e) {
+      // Declare in local global scope
       let newItem;
-      if (e) {
+      // Handle event if present
+      if (e instanceof Event) {
         e.stopPropagation();
         newItem = e.detail.id;
       }
@@ -311,44 +347,46 @@ customElements.define(compName,
         element.removeAttribute('slot');
       });
 
-      // Present correct data in details dialog if called by listener
-      if (newItem) {
-        // Get node for selected data
-        const newData = this.querySelector(`rt-itemdata#${newItem}`)
-        // Slot in correct product data
-        newData.setAttribute('slot', 'active-data');
-
-        // Retrieve any relevent data already in cart
-        // Convert cart content nodes to consistent 2D array of 'prodid' and 'count'
-        const lineItems = [...this.querySelectorAll('rt-lineitem[slot="cart"]')].reduce((acc, cur) => {
-          acc[0].push(cur.$attr('prodid'));
-          acc[1].push(cur.$attr('count'));
-          return acc;
-        }, [[], []]);
-        // Get rt-itemlines
-        const itemLines = [...newData.querySelectorAll('rt-itemvariety rt-itemline')];
-
-        // Search for any rt-itemlines in cart and set rt-itemline count to value in cart
-        for (const dispLine of itemLines) {
-          const prodIndex = lineItems[0].indexOf(dispLine.$attr('prodid'));
-          if (prodIndex > -1) {
-            // Match - Update rt-lineitem count to count in cart
-            dispLine.$dispatch({ name: 'updatecount', detail: { change: lineItems[1][prodIndex], replace: true } });
-          } else {
-            // Unmatched -  Reset line count in dialog to zero if needed
-            if (dispLine.$attr('count') > 0)
-              dispLine.$dispatch({ name: 'updatecount', detail: { change: '0', replace: true } });
-          }
-        }
-
-        // Display the dialog
-        this.#_details.showModal();
-        // Hide the button
-        this.#displayDetailButton();
-      } else {
-        // Close the dialog
+      // If called manually then the process can clean up and stop here
+      if (!newItem) {
+        // Close the dialog if Event has no value for details.id
         this.#_details.close();
+        // Ensure the correct button is visible in cart
+        this.#displayCartButtons();
+        return
       }
+
+      // Get node for selected data
+      const newData = this.querySelector(`rt-itemdata#${newItem}`)
+      // Slot in requested product data
+      newData.setAttribute('slot', 'active-data');
+
+      // Reduce this.#_cartContents to 2D array
+      const cartItems = this.#_cartContents.reduce((acc, cur) => {
+        acc[0].push(cur.prodID);
+        acc[1].push(cur.count);
+        return acc;
+      }, [[], []]);
+
+      // Determine any relevent data already in cart for this product
+      // Cycle through all itemLines for this product
+      newData.querySelectorAll('rt-itemline').forEach((item) => {
+        // Is this item already in the cart?
+        const itemIndex = cartItems[0].indexOf(item.$attr('prodid'));
+        if (itemIndex > -1) {
+          // If so update the count for this itemLine
+          item.$dispatch({ name: 'updatecountline', detail: { change: cartItems[1][itemIndex], replace: true } });
+        } else if (item.$attr('count') > 0) {
+          // If not in cart and value is greater than zero then reset
+          item.$dispatch({ name: 'updatecountline', detail: { change: '0', replace: true } })
+        }
+      });
+
+      // Display the dialog
+      this.#_details.showModal();
+      // Hide the button
+      this.#displayDetailButton();
+
       // Ensure the correct button is visible in cart
       this.#displayCartButtons();
     }
@@ -383,10 +421,10 @@ customElements.define(compName,
     //--- #addToCart
     // Add a new element to currentOrder for any rt-itemline with count > 0 and rebuild cart
     #addToCart() {
-      // Get array of any <rt-itemline> nodes in active <rt-itemdata> with a count > 0 
-      const activeItemLines = [...this.querySelectorAll('[slot="active-data"] rt-itemline[count]')];
+      console.log(this.querySelectorAll('[slot="active-data"] rt-itemline[count]'));
 
-      if (activeItemLines) activeItemLines.forEach(node => {
+      // Process all <rt-itemline> nodes in active <rt-itemdata> with a count > 0 
+      this.querySelectorAll('[slot="active-data"] rt-itemline[count]').forEach(node => {
         // Update the currentorder storage item
         this.#updateCurOrderStor({
           prodID: node.$attr('prodid'),
@@ -398,7 +436,7 @@ customElements.define(compName,
       });
 
       // Whether closing or adding, current item data is cleared
-      this.#updateItemDataDialog();
+      this.#initItemDataDialog();
     }
 
     //--- #continueOrder
@@ -491,27 +529,35 @@ customElements.define(compName,
     // This should not called until the enclosing component receives a 'formready' event
     async loadMenu(url) {
       // Check datafile 
-      if (typeof url === 'undefined') {
-        console.warn('Datafile was not provided');
-        const frag = document.createRange().createContextualFragment('<h1 style="color: red;">datafile attribute not provided</h1>');
-        this.appendChild(frag);
-        return false;
-      } else {
-        try {
+      try {
+        if (typeof url === 'undefined') throw new Error('No Datafile', { cause: 'nofile' })
+        else {
           const response = await fetch(url)
           // Do not attempt to parse file if server resonse is not 200
-          if (!response.ok) throw new Error("Datafile URL is not valid");
+          if (!response.ok) throw new Error("Datafile URL is not valid", { cause: 'invalid' });
           const htmlText = await response.text();
           // Create document fragment from file text
           const frag = document.createRange().createContextualFragment(htmlText);
           // Append fragment to lightDOM 
           this.appendChild(frag);
-          // Build form from data in lightDOM and local storage
+          // Build form from data in lightDOM and in local storage
           this.#initialiseAll();
           this.style.display = 'inline-block';
-        } catch (e) {
-          console.error(e);
         }
+      } catch (e) {
+        console.error(e);
+        let output;
+        switch (e.cause) {
+          case 'nofile':
+            output = '<h1 style="color: red;">Datafile URL not provided</h1>';
+            break;
+          case 'invalid':
+            output = '<h1 style="color: red;">Datafile URL not found</h1>';
+            break;
+        }
+        const frag = document.createRange().createContextualFragment(output);
+        this.appendChild(frag);
+        return false
       }
     }
   }

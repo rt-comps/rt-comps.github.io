@@ -22,17 +22,17 @@ customElements.define(compName,
 
             // Set maximum value
             this.maxCount = 10;
-            
+
             //### Event Listeners
             //___ updateCount
-            this.addEventListener('updatecount', (e) => this.#updateCount(e));
+            this.addEventListener('updatecountline', (e) => this.#updateCount(e));
         }
-        
+
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
-    
+
             this.#_sR.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
         }
         //+++ End of Lifecycle Events
@@ -56,7 +56,7 @@ customElements.define(compName,
                 // Write back new value
                 _count.innerHTML = `${currentCount}`;
                 this.setAttribute('count', currentCount)
-                // Handle style change for zero/non-zero
+                // Handle style change for zero/non-zero values
                 if (currentCount > 0) {
                     // Highlight line and make count available in LightDOM
                     this.#_sR.querySelector('#container').style.fontWeight = 'bold';
@@ -64,6 +64,7 @@ customElements.define(compName,
                     // Undo above
                     this.#_sR.querySelector('#container').style.fontWeight = '';
                 }
+                this.$dispatch({ name: 'updatecount' })
             };
         }
         //--- End of updateCount

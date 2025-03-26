@@ -56,7 +56,7 @@ customElements.define(
         //--- #buttonPressed
         // Respond to plus or minus being pressed to create an event to bubble up to parent
         #buttonPressed(value) {
-            this.$dispatch({ name: 'updatecount', detail: { change: value } });
+            this.$dispatch({ name: 'updatecountline', detail: { change: value } });
         }
     }
 );
