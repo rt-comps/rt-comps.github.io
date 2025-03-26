@@ -55,7 +55,9 @@ customElements.define(compName,
                 }
                 // Write back new value
                 _count.innerHTML = `${currentCount}`;
-                this.setAttribute('count', currentCount)
+                if (currentCount > 0) this.setAttribute('count', currentCount)
+                else this.removeAttribute('count');
+            
                 // Handle style change for zero/non-zero values
                 if (currentCount > 0) {
                     // Highlight line and make count available in LightDOM

@@ -37,11 +37,6 @@ customElements.define(compName,
       // If it exists, load any locally stored cart contents into memory (array of objects)
       this.#_cartContents = JSON.parse(localStorage.getItem('currentOrder')) || [];
 
-      // console.log(this.#hasDataChanged({
-      //   prodID: '02011',
-      //   count: 1
-      // }))
-
       //-- Event Listeners
       //___ initmenu - Display product information when product chosen
       this.addEventListener('initmenu', (e) => this.#initItemDataDialog(e));
@@ -123,18 +118,17 @@ customElements.define(compName,
       // Does anything in dialog have a value?
       const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline[count]');
       if (lineItems.length > 0) {
-        let notFound=true;
+        let notFound = true;
         lineItems.forEach(element => {
           if (notFound && this.#hasDataChanged({
             prodID: element.$attr('prodid'),
             count: parseInt(element.$attr('count'))
           })) {
-            console.log('this has changed?')
-            newDisplay='';
-            notFound=false;
+            newDisplay = '';
+            notFound = false;
           }
         })
-        
+
         // When something selected, button reverts to style and says 'Add'
         // newDisplay = '';
       }
@@ -144,8 +138,6 @@ customElements.define(compName,
     //--- #hasDataChanged
     // Determine if current value matches value in 'currentOrder' local storage object
     #hasDataChanged(testData) {
-      console.log(this.#_cartContents);
-      console.log(testData);
       return (JSON.stringify(this.#_cartContents).indexOf(JSON.stringify(testData)) === -1);
     }
 
@@ -284,51 +276,51 @@ customElements.define(compName,
       // parameter 'itemObj' is expected in the form
       // {
       //  prodID: <String>,   - The product to update
-      //  count:  <Number,    - The new count
-      //  action: <String>    - optional (currently only a value of 'remove' does anything)
+      //  count:  <Number>,   - The new count
       // }
       // Check itemObj is as expected
-      if (!itemObj.prodID || !itemObj.count || !itemObj instanceof String || !itemObj instanceof Number) {
+      if (!Object.hasOwn(itemObj, 'prodID') || !Object.hasOwn(itemObj, 'count') || typeof itemObj.prodID !== 'string' || typeof itemObj.count !== 'number') {
         console.error('#updateCurOrderStor: itemObj not in expected form');
         return
       }
 
-      // Let's assume this is a new value
-      let notFound = true;
-      // itemObj must contain an action property
-      if (itemObj.action) {
-        // If this.#_cartContents is not an empty array then search for an element to change
-        if (this.#_cartContents.length > 0) {
-          for (const currentItem of this.#_cartContents) {
-            if (itemObj.prodID === currentItem.prodID) {
-              // Remove element if delete requested or new item count is zero
-              if (itemObj.action === 'remove' || itemObj.count === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
-              // Add new value to existing menu item
-              if (itemObj.count) currentItem.count = itemObj.count;
-              // Terminate search on first match
-              notFound = false;
-              break;
-            }
+      // No changes made yet
+      let changeMade = false;
+      if (this.#_cartContents.length > 0) {
+        // If this.#_cartContents is not an empty array then search for existing cart entries for a match
+        for (const currentItem of this.#_cartContents) {
+          // Found a match?
+          if (itemObj.prodID === currentItem.prodID) {
+            // If count is unchanged then must have got here by error so stop
+            if (itemObj.count === currentItem.count) return
+            // We found a match and count has changed
+            changeMade = true;
+            // Remove cart entry if new item count is zero and stop
+            if (itemObj.count === 0) {
+              this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
+              // Update cart entry
+            } else currentItem.count = itemObj.count;
+            // Cart update has been made so exit search
+            break;
           }
         }
-
-        // If no existing entry found this must be new item to add to the array
-        if (notFound) {
-          // Remove the 'action' property from the object
-          if (itemObj.action) delete itemObj.action;
-          // Add the modified object to the array
-          this.#_cartContents.push(itemObj);
-        }
-
-        // Update local storage
-        //  Save the current order to local Storage object
-        if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
-        //  If this.#_cartContents is empty then delete Storage object
-        else localStorage.removeItem('currentOrder');
-
-        // Rebuild cart using latest data
-        this.#updateCart();
       }
+
+      // If no existing cart entry found this must be new item to add to the cart
+      if (!changeMade) {
+        // Add the modified object to the array
+        this.#_cartContents.push(itemObj);
+        changeMade = true;
+      }
+
+      // Update local storage
+      //  Save the current order data to local Storage object
+      if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
+      //  If this.#_cartContents is empty then delete Storage object
+      else localStorage.removeItem('currentOrder');
+
+      // Rebuild cart using latest data
+      this.#updateCart();
     }
 
     //--- #initItemDataDialog
@@ -421,21 +413,18 @@ customElements.define(compName,
     //--- #addToCart
     // Add a new element to currentOrder for any rt-itemline with count > 0 and rebuild cart
     #addToCart() {
-      console.log(this.querySelectorAll('[slot="active-data"] rt-itemline[count]'));
-
-      // Process all <rt-itemline> nodes in active <rt-itemdata> with a count > 0 
+      // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
       this.querySelectorAll('[slot="active-data"] rt-itemline[count]').forEach(node => {
-        // Update the currentorder storage item
+        // Update the currentorder Storage object with the new value
         this.#updateCurOrderStor({
           prodID: node.$attr('prodid'),
-          count: parseInt(node.$attr('count')),
-          action: 'update'
+          count: parseInt(node.$attr('count'))
         });
         // A zero 'count' is needed to remove the item from cart but should not be processed on next invocation
         if (node.$attr('count') === "0") node.removeAttribute('count');
       });
 
-      // Whether closing or adding, current item data is cleared
+      // Whether closing or adding, clear the item data slot
       this.#initItemDataDialog();
     }
 
