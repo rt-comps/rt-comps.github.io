@@ -22,11 +22,8 @@ function findStyle(startNode, targetNodeName, startNodeName=startNode.nodeName) 
 
 //--- getStyle
 // If <style id="<component-name>"> has been defined in the upstream DOM (light or shadow) then
-// Cloned the node into the components shadow DOM after the default <style> node to override entries in it.
+// clone the node into the components shadow DOM after the default <style> node to override entries in it.
 function getStyle(node, topNode = 'rt-orderform') {
-    // Set '???' to component node name of interest to debug errors
-    //const debug = node.nodeName.toUpperCase() === 'RT-LINEITEM' ? true : false;
-    //if (debug) console.log(something);
     // Look for 'topNode' in the current DOM
     const styleNode = findStyle(node, topNode);
 

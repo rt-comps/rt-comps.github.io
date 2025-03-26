@@ -74,7 +74,7 @@ customElements.define(
         // Catch the neworder event from <rt-orderform> and process it as required
         dispatchOrder(e) {
             // Catch order and prevent further bubbling
-            if (e) e.stopPropagation();
+            if (e instanceof Event) e.stopPropagation();
             // Process order
             if (e.detail) {
                 // Define API request parameters
