@@ -17,16 +17,18 @@ customElements.define(
             //### Listeners
             // Remove this item when 'delete' button pressed
             this.#_sR.querySelector('#delete').addEventListener('click', () => {
+                // Remove item from cart
                 this.$dispatch({
                     name: 'cartmod',
                     detail: {
-                        prodID: this.getAttribute('prodid'),
-                        action: 'remove'
+                        prodID: this.$attr('prodid'),
+                        count: 0
                     }
                 });
+                // Destroy this instance
                 this.remove();
             });
-            this.#_sR.querySelector('#container').addEventListener('updatecount', (e) => this.#update(e));
+            this.#_sR.querySelector('#container').addEventListener('updatecountline', (e) => this.#update(e));
         }
         
         //--- connectedCallback
@@ -71,8 +73,7 @@ customElements.define(
                     name: 'cartmod',
                     detail: {
                         prodID: this.$attr('prodid'),
-                        count,
-                        action: (count > 0) ? 'update' : 'remove'
+                        count: count
                     }
                 });
             }
