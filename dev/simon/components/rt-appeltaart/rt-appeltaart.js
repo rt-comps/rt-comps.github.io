@@ -31,7 +31,7 @@ customElements.define(
         //--- #getMenu
         // Tell form to retrieve the specified menu data file
         #getMenu(e) {
-            if (e) e.stopPropagation();
+            if (e instanceof Event) e.stopPropagation();
             // Get the menu file - if a non-NULL value has been provided
             if (this.getAttribute('datafile')) {
                 // Determing the path to the menu data file
@@ -47,7 +47,7 @@ customElements.define(
                 const frag = document.createRange().createContextualFragment('<h1 style="color: white; background-color: red; text-align: center">datafile attribute not provided</h1>');
                 this.#_sR.appendChild(frag);
                 // Add the message to the console log too
-                console.error('Datafile attribute value is missing or an empty string')
+                console.error('Datafile attribute value is missing or is an empty string')
             }
         }
 
@@ -55,7 +55,7 @@ customElements.define(
         // Catch the neworder event from <rt-orderform> and process it as required
         #dispatchOrder(e) {
             // Catch order and prevent further bubbling
-            if (e) e.stopPropagation();
+            if (e instanceof Event) e.stopPropagation();
             // Process order
             if (e.detail) {
                 // Define API request parameters
