@@ -14,7 +14,7 @@ customElements.define(
       //###### Event Listeners
       // Tell form that menu-item has been chosen
       this.addEventListener('click', () => this.$dispatch({
-        name: 'updatemenu',
+        name: 'initmenu',
         detail: { id: this.id.slice(3) }
       }));
     }

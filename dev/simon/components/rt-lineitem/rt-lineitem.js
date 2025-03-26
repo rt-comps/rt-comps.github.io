@@ -54,7 +54,7 @@ customElements.define(
         //--- #update
         #update(e) {            
             // When called from an event then update the count
-            if (e) {
+            if (e instanceof Event) {
                 e.stopImmediatePropagation();
                 let count = parseInt(this.$attr('count'));
 
