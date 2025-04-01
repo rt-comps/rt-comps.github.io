@@ -14,32 +14,38 @@ customElements.define(
             this.#_sR = this.attachShadow({ mode: "open" });
             this.#_sR.append(this.$getTemplate());
 
-            //### Listeners
+            this.maxCount = 10;
+
+            //### Event Listeners
             // Remove this item when 'delete' button pressed
-            this.#_sR.querySelector('#delete').addEventListener('click', () => {
-                // Remove item from cart
-                this.$dispatch({
-                    name: 'cartmod',
-                    detail: {
-                        prodID: this.$attr('prodid'),
-                        count: 0
-                    }
-                });
-                // Destroy this instance
-                this.remove();
-            });
+            this.#_sR.querySelector('#delete').addEventListener('click', () => this.#deleteMe());
+            // Respond to +/- button press
             this.#_sR.querySelector('#container').addEventListener('updatecountline', (e) => this.#update(e));
         }
-        
+
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
-    
+
             // update total price on count change
             this.#render();
         }
         //+++ End OF Lifecycle Events
+
+        //--- #deleteMe
+        #deleteMe() {
+            // Remove item from #_cartContents
+            this.$dispatch({
+                name: 'cartmod',
+                detail: {
+                    prodID: this.$attr('prodid'),
+                    count: 0
+                }
+            });
+            // Destroy this instance
+            this.remove();
+        }
 
         //--- #render
         // Initialise
@@ -54,21 +60,24 @@ customElements.define(
         }
 
         //--- #update
-        #update(e) {            
+        #update(e) {
             // When called from an event then update the count
             if (e instanceof Event) {
                 e.stopImmediatePropagation();
-                let count = parseInt(this.$attr('count'));
 
+                // Get current value of count
+                let count = parseInt(this.$attr('count'));
+                // Apply change
                 count += e.detail.change;
+                // Check boundaries
                 switch (true) {
-                    case (count > 10):
-                        count = 10;
+                    case (count > this.maxCount):
+                        count = this.maxCount;
                         break;
                     case (count < 0):
                         count = 0;
                 }
-
+                // Dispatch event to update #_cartContents
                 this.$dispatch({
                     name: 'cartmod',
                     detail: {

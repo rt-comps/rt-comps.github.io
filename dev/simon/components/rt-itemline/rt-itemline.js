@@ -24,7 +24,7 @@ customElements.define(compName,
             this.maxCount = 10;
 
             //### Event Listeners
-            //___ updateCount
+            // Respond to 
             this.addEventListener('updatecountline', (e) => this.#updateCount(e));
         }
 
@@ -40,34 +40,45 @@ customElements.define(compName,
         //--- updateCount
         // Respond to plus or minus event update count as required
         #updateCount(e) {
-            const _count = this.#_sR.querySelector('#count');
-            let currentCount;
-            if (_count) {
+            if (e instanceof Event) {
+                e.stopImmediatePropagation();
+
+                // Get current node of count
+                const _count = this.#_sR.querySelector('span#count');
+                // Declare new value
+                let currentCount;
                 if (e.detail.replace) {
+                    // Set new value  to replaced value
                     currentCount = e.detail.change;
                 } else {
-                    // Get the current value
-                    currentCount = parseInt(_count.innerHTML);
-                    // Adjust the value
-                    currentCount += e.detail.change;
-                    // Check boundaries
-                    if (currentCount > this.maxCount || currentCount < 0) currentCount = 0;
+                    // Set new value to the adjusted value
+                    currentCount = parseInt(_count.textContent) + e.detail.change;
                 }
+                // Check boundaries
+                switch (true) {
+                    case (currentCount > this.maxCount):
+                        currentCount = this.maxCount;
+                        break;
+                    case (currentCount < 0):
+                        currentCount = 0;
+                }
+
                 // Write back new value
-                _count.innerHTML = `${currentCount}`;
-                if (currentCount > 0) this.setAttribute('count', currentCount)
-                else this.removeAttribute('count');
-            
-                // Handle style change for zero/non-zero values
+                _count.textContent = `${currentCount}`;
+
+                // Handle style change and count attribute for zero/non-zero values
                 if (currentCount > 0) {
                     // Highlight line and make count available in LightDOM
                     this.#_sR.querySelector('#container').style.fontWeight = 'bold';
+                    this.setAttribute('count', `${currentCount}`);
                 } else {
                     // Undo above
                     this.#_sR.querySelector('#container').style.fontWeight = '';
+                    this.removeAttribute('count');
                 }
+                // Determine whether 'Update' button in dialog should be visible
                 this.$dispatch({ name: 'updatecount' })
-            };
+            }
         }
         //--- End of updateCount
     }
