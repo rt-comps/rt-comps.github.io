@@ -80,11 +80,20 @@
         .button {
             min-width: 200px;
             padding: 10px;
-            /* background-color: rgb(78, 78, 255); */
             background-color: rgb(128, 128, 128);
             color: white;
         }
 
+        /* Define disabled button appearance */
+        .button-dis {
+            color: rgb(160, 160, 160);
+        }
+
+        /* Hide the button */
+        .button-hide {
+            display: none;
+        }
+        
         /* Overal container */
         #rt-orderform-container {
             display: grid;
@@ -115,7 +124,7 @@
 
         /* Product Details Overlay */
         #product-details {
-            background: var(--rt-orderform-DETAILS-BACKGROUND, var(--BACKGROUND-DEFAULT));
+            background: var(--OF-DETAILS-BACKGROUND, var(--BACKGROUND-DEFAULT));
             color: var(--rt-orderform-DETAILS-COLOR, var(--COLOR-DEFAULT));
             border: var(--rt-orderform-DETAILS-BORDER, var(--BORDER-DEFAULT));
             border-radius: var(--rt-orderform-DETAILS-RADIUS, var(--BORDER-RADIUS-DEFAULT));
