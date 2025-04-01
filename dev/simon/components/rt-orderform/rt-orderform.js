@@ -43,7 +43,7 @@ customElements.define(compName,
 
       /// Responding to +/- clicks
       //___ updatecount - Determine any detail overlay button appearance changes
-      this.#_menu.addEventListener('updatecount', (e) => this.#displayDetailButton(e));
+      this.#_menu.addEventListener('updatecount', (e) => this.#displayDetailsUpdateButton(e));
       //___ cartmod - Respond to +/- presses in a <rt-lineitem> and re-render cart
       this.#_cart.addEventListener('cartmod', (e) => this.#modifyCurrentOrder(e));
 
@@ -52,7 +52,10 @@ customElements.define(compName,
       //___ close dialog
       this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#initItemDataDialog());
       //___ add-items_click - Add the currently selected items to the cart
-      this.#_sR.querySelector('#prod-add-but').addEventListener('click', () => this.#addToCart());
+      this.#_sR.querySelector('#prod-add-but').addEventListener('click', (e) => {
+        // Check if button is enabled before calling #addToCart
+        if (e.composedPath()[0].classList.contains('button-dis')) return
+        this.#addToCart()});
       ///- Cart
       //___ place-order_click - Send completed order to out of form
       this.#_sR.querySelector('#further-but').addEventListener('click', () => this.#continueOrder());
@@ -82,7 +85,7 @@ customElements.define(compName,
 
     //--- #displayCartButtons
     // Manage which buttons in the cart are displayed
-    #displayCartButtons(fiddle = false) {
+    #displayCartButtons() { //fiddle = false) {
       const buttons = {
         further: this.#_sR.getElementById('further-but'),
         last: this.#_sR.getElementById('recover-but')
@@ -97,7 +100,7 @@ customElements.define(compName,
       // Is form overlay active?
       const noOverlay = this.#_form.parentElement.style.display === 'none';
       switch (true) {
-        case ((cartEmpty || fiddle) && localStorage.getItem('lastOrder') !== null):
+        case (cartEmpty && localStorage.getItem('lastOrder') !== null):
           newBut = 'last';
           break;
         case noOverlay && !cartEmpty:
@@ -110,35 +113,50 @@ customElements.define(compName,
       if (newBut) buttons[newBut].style.display = '';
     }
 
-    //--- #displayDetailButton
+    //--- #displayDetailsUpdateButton
     // Determine appearance of button for details overlay
-    #displayDetailButton(e) {
+    #displayDetailsUpdateButton(e) {
       if (e instanceof Event) e.stopPropagation();
-      let newDisplay = 'none';
-      // Does anything in dialog have a value?
-      const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline[count]');
+      // Is button hiding enabled?
+      const hide = getComputedStyle(this).getPropertyValue('--OF-HIDE-UPDATE');
+      // Get class list for button element
+      const buttonClasses = this.shadowRoot.querySelector('#prod-add-but').classList
+
+      // Does anything in dialog have a new value relative to the cart contents?
+      const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline');
+      // Check there is something to process
       if (lineItems.length > 0) {
-        let notFound = true;
+        // Set flag to stop processing elements on first change found
+        let changed = false;
         lineItems.forEach(element => {
-          if (notFound && this.#hasDataChanged({
+          // Use lazy evaluation to skip change check once a change has been found
+          if (!changed && this.#hasDataChanged({
             prodID: element.$attr('prodid'),
-            count: parseInt(element.$attr('count'))
+            count: element.hasAttribute('count') ? parseInt(element.$attr('count')) : 0
           })) {
-            newDisplay = '';
-            notFound = false;
+            changed = true;
           }
         })
-
-        // When something selected, button reverts to style and says 'Add'
-        // newDisplay = '';
+        // Change button display to reflect state of data in dialog compared to cart
+        if (changed) {
+          buttonClasses.remove('button-dis')
+          if (hide) buttonClasses.remove('button-hide')
+        } else {
+          buttonClasses.add('button-dis')
+          if (hide) buttonClasses.add('button-hide')
+        }
       }
-      this.shadowRoot.querySelector('#prod-add-but').style.display = newDisplay;
     }
 
     //--- #hasDataChanged
     // Determine if current value matches value in 'currentOrder' local storage object
     #hasDataChanged(testData) {
-      return (JSON.stringify(this.#_cartContents).indexOf(JSON.stringify(testData)) === -1);
+      // Convert cart contents to JSON string
+      const cart = JSON.stringify(this.#_cartContents);
+      // If count is zero then should not be in cart
+      if (testData.count === 0) return (cart.indexOf(testData.prodid) > -1)
+      // If count is non-zero then check if the current value === cart value
+      else return (cart.indexOf(JSON.stringify(testData)) === -1)
     }
 
     //--- #initialiseAll
@@ -377,7 +395,7 @@ customElements.define(compName,
       // Display the dialog
       this.#_details.showModal();
       // Hide the button
-      this.#displayDetailButton();
+      this.#displayDetailsUpdateButton();
 
       // Ensure the correct button is visible in cart
       this.#displayCartButtons();
