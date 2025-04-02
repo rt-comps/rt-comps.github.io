@@ -30,6 +30,7 @@ async function loadTemplate(url) {
     const htmlText = await response.text();
     document.head.insertAdjacentHTML('beforeend', htmlText)
   } catch (e) {
+    console.log(`loadTemplate() - ${e}`)
     throw e;
   }
 }
@@ -54,7 +55,7 @@ async function loadComponent(url, version = false) {
     const js_module = `${baseFile}.js`;
     await import(js_module);
   } catch (e) {
-    throw e;
+    throw e
   }
 }
 
