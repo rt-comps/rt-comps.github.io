@@ -271,8 +271,6 @@ customElements.define(compName,
       if (!newItem) {
         // Close the dialog if Event has no value for details.id
         this.#_details.close();
-        // Ensure the correct button is visible in cart
-        // this.#cartButtonsDisplay();
         return
       }
 
@@ -304,9 +302,6 @@ customElements.define(compName,
 
       // Display the dialog
       this.#_details.showModal();
-
-      // Ensure the correct buttons are visible in cart
-      // this.#cartButtonsDisplay();
     }
 
     //--- #detailsButtonDisplay
@@ -446,14 +441,7 @@ customElements.define(compName,
       this.#_menu.querySelector('#menu').style.display = '';
 
       /// Restore cart contents
-      if (localStorage.getItem('currentOrder')) this.#cartRebuild();
-      this.#cartButtonsDisplay();
-
-      /// Move user's form to shadowDOM - as a form cannot be slotted apparently
-      // const srcNode = this.querySelector('div#user-details');
-      // if (srcNode) {
-      //   this.#_form.append(...srcNode.children);
-      // } else console.warn('No details form provided');
+      this.#cartRebuild();
     }
 
     //--- #orderContinue
