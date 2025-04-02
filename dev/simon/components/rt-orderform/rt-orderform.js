@@ -161,18 +161,22 @@ customElements.define(compName,
           // Found a match?
           if (item.get('prodID') === currentItem.prodID) {
             flags.set('found', true);
+            // Has the value changed
             if (item.get('count') !== currentItem.count) {
+              // If new value is 0 then remove item from cart
               if (item.get('count') === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
+              // else modify the value
               else currentItem.count = item.get('count');
-              // Cart update has been made so exit search
+              // Cart update has been made
               flags.set('updated', true);
             }
+            // Match found so quite search
             break;
           }
         }
       }
 
-      // If no existing cart entry found this must be new item to add to the cart
+      // No match found so, if count > 0, add new item to cart
       if (!flags.get('found') && item.get('count') > 0) {
         // Add the modified object to the array
         this.#_cartContents.push({
@@ -182,14 +186,9 @@ customElements.define(compName,
         flags.set('updated', true);
       }
 
-      // Update local storage after change
+      return flags.get('updated');
+      // Update local storage after change has been made
       if (flags.get('updated')) {
-        //  Save the current order data to local Storage object
-        if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
-        //  If this.#_cartContents is empty then delete Storage object
-        else localStorage.removeItem('currentOrder');
-        // Rebuild cart using latest data
-        this.#cartRebuild();
       }
     }
 
@@ -250,7 +249,7 @@ customElements.define(compName,
       if (classes.contains('mini')) classes.remove('mini');
       else classes.add('mini');
     }
-    
+
     //--- #detailsButtonDisplay
     // Determine appearance of button for details overlay
     #detailsButtonDisplay() {
@@ -284,7 +283,7 @@ customElements.define(compName,
         }
       }
     }
-   
+
     //--- #detailsHasDataChanged
     // Determine if current value matches value in 'currentOrder' local storage object
     #detailsHasDataChanged(testData) {
@@ -292,10 +291,10 @@ customElements.define(compName,
       const cart = JSON.stringify(this.#_cartContents);
       // If count is zero then should not be in cart
       if (testData.count === 0) return (cart.indexOf(testData.prodID) > -1)
-        // If count is non-zero then check if the current value === cart value
+      // If count is non-zero then check if the current value === cart value
       else return (cart.indexOf(JSON.stringify(testData)) === -1)
     }
-    
+
     //--- #detailsInitItemValues
     // Display #product-details dialog with requested data.
     // Close dialog if called manually with no parameter
@@ -311,26 +310,26 @@ customElements.define(compName,
       this.querySelectorAll('rt-itemdata').forEach((element) => {
         element.removeAttribute('slot');
       });
-      
+
       // If called manually then the process can clean up and stop here
       if (!newItem) {
         // Close the dialog if Event has no value for details.id
         this.#_details.close();
         return
       }
-      
+
       // Get node for selected data
       const newData = this.querySelector(`rt-itemdata#${newItem}`)
       // Slot in requested product data
       newData.setAttribute('slot', 'active-data');
-      
+
       // Convert this.#_cartContents to 2D array -> [ [productIDs], [itemcounts] ]
       const cartItems = this.#_cartContents.reduce((acc, cur) => {
         acc[0].push(cur.prodID);
         acc[1].push(cur.count);
         return acc;
       }, [[], []]);
-      
+
       // Determine any relevent data already in cart for this product
       // Cycle through all itemLines for this product
       newData.querySelectorAll('rt-itemline').forEach((item) => {
@@ -344,30 +343,36 @@ customElements.define(compName,
           item.$dispatch({ name: 'updatecountline', detail: { change: '0', replace: true } })
         }
       });
-      
+
       // Display the dialog
       this.#_details.showModal();
     }
-    
+
     //--- #detailsUpdateCart
     // Update values in cart for all itemLine elements of the product currently slotted as active
     #detailsUpdateCart() {
+      // Start with no save necessary
+      let updated = false;
       // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
       this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
-        // Update the currentorder Storage object with the new value
-        // this.#cartCurOrderStorUpdate({
-        //   prodID: node.$attr('prodid'),
-        //   count: node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0
-        // });
-        this.#cartCurOrderStorUpdate(new Map([
+        // Update the currentorder Storage object with the new value?
+        const test = this.#cartCurOrderStorUpdate(new Map([
           ['prodID', node.$attr('prodid')],
           ['count', node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0]
         ]));
-        // A zero 'count' is needed to remove the item from cart but should not be processed on next invocation
-        // if (node.$attr('count') === "0") node.removeAttribute('count');
+        // When test returns true then a save is needed
+        if (test && !updated) updated=true;
       });
-
-      // Whether closing or adding, clear the item data slot
+      // Save updates
+      if (updated) {
+        //  Save the current order data to local Storage object
+        if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
+        //  If this.#_cartContents is empty then delete Storage object
+        else localStorage.removeItem('currentOrder');
+        // Rebuild cart using latest data
+        this.#cartRebuild();
+      }
+      // Close the dialog
       this.#detailsInitItemValues();
     }
 
