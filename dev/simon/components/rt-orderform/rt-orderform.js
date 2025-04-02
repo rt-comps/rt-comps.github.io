@@ -82,7 +82,7 @@ customElements.define(compName,
       // Inform containing code that 
       this.$dispatch({ name: 'formready' });
     }
-    
+
     //+++ End of Lifecycle Events
 
 
@@ -90,34 +90,40 @@ customElements.define(compName,
 
     //--- #cartButtonsDisplay
     // Manage which buttons in the cart are displayed
-    #cartButtonsDisplay() { //fiddle = false) {
-      const buttons = {
-        further: this.#_sR.getElementById('further-but'),
-        last: this.#_sR.getElementById('recover-but')
-      }
-      // Start by hiding all buttons
-      for (const button in buttons) /*if (buttons.hasOwnProperty(button))*/if (button) buttons[button].style.display = 'none';
+    #cartButtonsDisplay() {
+      // Store button elements in map
+      const buttons = new Map([
+        ['further', this.#_sR.getElementById('further-but')],
+        ['last', this.#_sR.getElementById('recover-but')]
+      ])
 
-      // Choose which button to display
+      // Start by hiding all buttons
+      for (const [key, value] of buttons) {
+        value.style.display = 'none'
+      }
+
+      // initialise as local global
       let newBut;
       // Is the cart empty?
       const cartEmpty = this.querySelectorAll('rt-lineitem[slot="cart"][count]').length === 0;
-      // Is form overlay active?
-      const noOverlay = this.#_form.parentElement.style.display === 'none';
+      // Determine correct button to show
       switch (true) {
+        // Is cart empty and previous order stored?
         case (cartEmpty && localStorage.getItem('lastOrder') !== null):
           newBut = 'last';
           break;
-        case noOverlay && !cartEmpty:
+        // Does cart have contents and for is not being displayed?
+        case (!cartEmpty && this.#_form.parentElement.style.display === 'none'):
           newBut = 'further';
           break;
         default:
           newBut = null;
       }
-      // Display the correct button - if there is one
-      if (newBut) buttons[newBut].style.display = '';
+
+      // Display the correct button - if there should be one
+      if (newBut) buttons.get(newBut).style.display = '';
     }
-    
+
     //--- #cartCurOrderStorUpdate
     // The current order information is stored in this.#_cartContents as an array of objects and is also mirrored as a JSON string in a local Storage object ('currentOrder')
     // When a change is made to the order then this.#_cartContents is updated, the Storage object is rewritten and the cart rebuilt from the Storage object.
@@ -232,7 +238,7 @@ customElements.define(compName,
       const classes = this.#_cart.classList;
       if (classes.contains('mini')) classes.remove('mini');
       else classes.add('mini');
-    }  
+    }
 
     //--- #detailsHasDataChanged
     // Determine if current value matches value in 'currentOrder' local storage object
