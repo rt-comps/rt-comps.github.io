@@ -39,38 +39,39 @@ customElements.define(compName,
 
       //-- Event Listeners
       //___ initmenu - Display product information when product chosen
-      this.addEventListener('initmenu', (e) => this.#initItemDataDialog(e));
+      this.addEventListener('initmenu', (e) => this.#detailsInitItemValues(e));
 
       /// Responding to +/- clicks
       //___ updatecount - Determine button appearance based on changes made to itemLines
-      this.#_menu.addEventListener('updatecount', (e) => this.#displayDetailsUpdateButton(e));
+      this.#_menu.addEventListener('updatecount', (e) => {
+        e.stopPropagation();
+        this.#detailsButtonDisplay()
+      });
       //___ cartmod - Respond to +/- presses in a <rt-lineitem> and re-render cart
-      this.#_cart.addEventListener('cartmod', (e) => this.#modifyCurrentOrder(e));
+      this.#_cart.addEventListener('cartmod', (e) => this.#orderModifyCurrent(e));
 
       /// Button Actions
       ///- Product Details
       //___ close dialog
-      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#initItemDataDialog());
+      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#detailsInitItemValues());
       //___ add-items_click - Add the currently selected items to the cart
       this.#_sR.querySelector('#prod-add-but').addEventListener('click', (e) => {
-        console.log('Clicked...')
-        // Check if button is enabled before calling #addToCart
+        // Check that button is enabled before calling #detailsUpdateCart
         if (e.composedPath()[0].classList.contains('button-dis')) return
-        console.log('updating cart...')
-        this.#addToCart()
+        this.#detailsUpdateCart()
       });
       ///- Cart
       //___ place-order_click - Send completed order to out of form
-      this.#_sR.querySelector('#further-but').addEventListener('click', () => this.#continueOrder());
+      this.#_sR.querySelector('#further-but').addEventListener('click', () => this.#orderContinue());
       //___ recover-order_click - Fill cart with the items from the last order
-      this.#_sR.querySelector('#recover-but').addEventListener('click', () => this.#recoverOrder());
+      this.#_sR.querySelector('#recover-but').addEventListener('click', () => this.#orderRecover());
 
       /// Form
       //___ Submit the order
-      this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.#dispatchOrder());
+      this.#_sR.querySelector('#submit-but').addEventListener('click', () => this.#orderDispatch());
       //___ Hide the form
       this.#_sR.querySelector('#cancel-but').addEventListener('click', () => {
-        this.#showForm(false);
+        this.#formShow(false);
         this.#_sR.querySelector('div#cart').style.display = '';
       });
     }
@@ -81,14 +82,15 @@ customElements.define(compName,
       // Inform containing code that 
       this.$dispatch({ name: 'formready' });
     }
+    
     //+++ End of Lifecycle Events
 
 
     /// ### Private Methods
 
-    //--- #displayCartButtons
+    //--- #cartButtonsDisplay
     // Manage which buttons in the cart are displayed
-    #displayCartButtons() { //fiddle = false) {
+    #cartButtonsDisplay() { //fiddle = false) {
       const buttons = {
         further: this.#_sR.getElementById('further-but'),
         last: this.#_sR.getElementById('recover-but')
@@ -115,140 +117,69 @@ customElements.define(compName,
       // Display the correct button - if there is one
       if (newBut) buttons[newBut].style.display = '';
     }
+    
+    //--- #cartCurOrderStorUpdate
+    // The current order information is stored in this.#_cartContents as an array of objects and is also mirrored as a JSON string in a local Storage object ('currentOrder')
+    // When a change is made to the order then this.#_cartContents is updated, the Storage object is rewritten and the cart rebuilt from the Storage object.
+    #cartCurOrderStorUpdate(itemObj) {
+      /* 
+      parameter 'itemObj' is expected in the form
+        {
+          prodID: <String>,   - The product to update
+          count:  <Number>,   - The new count
+        }
+       */
+      // Check itemObj is as expected
+      if (!Object.hasOwn(itemObj, 'prodID') || !Object.hasOwn(itemObj, 'count') || typeof itemObj.prodID !== 'string' || typeof itemObj.count !== 'number') {
+        console.error('#cartCurOrderStorUpdate: itemObj not in expected form');
+        return
+      }
 
-    //--- #displayDetailsUpdateButton
-    // Determine appearance of button for details overlay
-    #displayDetailsUpdateButton(e) {
-      if (e instanceof Event) e.stopPropagation();
-      // Is button hiding enabled?
-      const hide = getComputedStyle(this).getPropertyValue('--OF-HIDE-UPDATE');
-      // Get class list for button element
-      const buttonClasses = this.shadowRoot.querySelector('#prod-add-but').classList
+      // No changes made yet
+      const flags = {
+        updated: false,
+        found: false
+      }
 
-      // Does anything in dialog have a new value relative to the cart contents?
-      const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline');
-      // Check there is something to process
-      if (lineItems.length > 0) {
-        // Set flag to stop processing elements on first change found
-        let changed = false;
-        console.log('Cart contents...')
-        console.log(this.#_cartContents)
-        lineItems.forEach(element => {
-          console.log('element...')
-          console.log(element)
-          // Use lazy evaluation to skip change check once a change has been found
-          if (!changed && this.#hasDataChanged({
-            prodID: element.$attr('prodid'),
-            count: element.hasAttribute('count') ? parseInt(element.$attr('count')) : 0
-          })) {
-            console.log('changed')
-            changed = true;
+      // Check if there is a need to search the current cart
+      if (this.#_cartContents.length > 0) {
+        // If this.#_cartContents is not an empty array then search for existing cart entries for a match
+        for (const currentItem of this.#_cartContents) {
+          // Found a match?
+          if (itemObj.prodID === currentItem.prodID) {
+            flags.found = true;
+            if (itemObj.count !== currentItem.count) {
+              if (itemObj.count === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
+              else currentItem.count = itemObj.count;
+              // Cart update has been made so exit search
+              flags.updated = true;
+            }
+            break;
           }
-        })
-        // Change button display to reflect state of data in dialog compared to cart
-        if (changed) {
-          buttonClasses.remove('button-dis')
-          if (hide) buttonClasses.remove('button-hide')
-        } else {
-          buttonClasses.add('button-dis')
-          if (hide) buttonClasses.add('button-hide')
         }
       }
-    }
 
-    //--- #hasDataChanged
-    // Determine if current value matches value in 'currentOrder' local storage object
-    #hasDataChanged(testData) {
-      // Convert cart contents to JSON string
-      const cart = JSON.stringify(this.#_cartContents);
-      // If count is zero then should not be in cart
-      if (testData.count === 0) return (cart.indexOf(testData.prodID) > -1)
-      // If count is non-zero then check if the current value === cart value
-      else return (cart.indexOf(JSON.stringify(testData)) === -1)
-    }
-
-    //--- #initialiseAll
-    // Performs the following actions
-    // - Create the pictoral menu at the top of the order form based on form HTML
-    // - Restore cart if there were previously items present
-    // - Move form HTML into the shadowDOM
-    // - Prepopulate form if saved details found
-    #initialiseAll() {
-      /// Create pictorial menu
-      // Recover image path from setting in HTML
-      const imgPath = this.querySelector("form-config span#imgpath").textContent;
-      // Collect all <rt-itemdata> elements
-      const nodes = [...this.querySelectorAll('rt-itemdata')];
-      // ...then create a new <rt-menuitem> element for each, assigned to 'menu-items' slot  
-      this.append(...nodes.map(element => {
-        let elementAttrs = { id: `mi-${element.id}`, slot: 'menu-items' };//, style: 'justify-self: center' };
-        // Attempt to retrieve image
-        let imgNode = element.querySelector('img')
-        // Add bgimg attribute if img element found
-        if (imgNode) elementAttrs.bgimg = `${imgPath}/${imgNode.getAttribute('file')}`
-        // Append the new <rt-menuitem> element to the div
-        return this.$createElement({
-          tag: 'rt-menuitem',
-          innerHTML: `${element.querySelector('item-title').innerHTML}`,
-          attrs: elementAttrs
-        })
-      }));
-      /// Only do this for smaller screens
-      // Additional initialisation for mobile client
-      if (window.matchMedia("(max-width: 430px)").matches) {
-        const cartTitle = this.#_cart.querySelector('#cart-title');
-        // Add cart toggle when cart-title clicked
-        cartTitle.addEventListener('click', () => this.#toggleCart());
-        // 200ms delay to ensure cart title has rendered (yuck!)
-        setTimeout(() => {
-          // Determine padding and border sizes
-          const cartStyle = getComputedStyle(this.#_cart);
-          const cartMod = (parseInt(cartStyle.paddingTop) * 2) + (parseInt(cartStyle.borderLeftWidth) * 2);
-          // Determine size of cart-title and add adjustment for padding and borders
-          const cartTitleSize = `${(parseFloat(cartTitle.getBoundingClientRect().height) + cartMod).toFixed(0)}px`;
-          // Set CSS variable for minimized cart size - will cause 'expanding' transition
-          this.#_cart.style.setProperty('--MINIMIZED-CART', cartTitleSize);
-          // Unhide the cart div to see transition
-          this.#_cart.classList.remove('init');
-        }, 200);
+      // If no existing cart entry found this must be new item to add to the cart
+      if (!flags.found && itemObj.count > 0) {
+        // Add the modified object to the array
+        this.#_cartContents.push(itemObj);
+        flags.updated = true;
       }
 
-      // Add image to details dialog
-      this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
-
-      this.#_menu.querySelector('#menu').style.display = '';
-
-      /// Restore cart contents
-      if (localStorage.getItem('currentOrder')) this.#updateCart();
-      this.#displayCartButtons();
-
-      /// Move user's form to shadowDOM - as a form cannot be slotted apparently
-      // const srcNode = this.querySelector('div#user-details');
-      // if (srcNode) {
-      //   this.#_form.append(...srcNode.children);
-      // } else console.warn('No details form provided');
+      // Update local storage after change
+      if (flags.updated) {
+        //  Save the current order data to local Storage object
+        if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
+        //  If this.#_cartContents is empty then delete Storage object
+        else localStorage.removeItem('currentOrder');
+        // Rebuild cart using latest data
+        this.#cartRebuild();
+      }
     }
 
-    //--- #showForm
-    // show == true - hide product menu / display user-defined form
-    // show == false - hide user-define form / display product menu
-    #showForm(show) {
-      this.#_menu.querySelector('#menu').style.display = show ? 'none' : '';
-      this.#_menu.querySelector('#form-container').style.display = show ? '' : 'none';
-      this.#displayCartButtons();
-    }
-
-    //--- #toggleCart
-    // Handle Cart visibilty in mobile version by toggling class 'mini'
-    #toggleCart() {
-      const classes = this.#_cart.classList;
-      if (classes.contains('mini')) classes.remove('mini');
-      else classes.add('mini');
-    }
-
-    //--- #updateCart
+    //--- #cartRebuild
     // Recreate the cart from the currentOrder local storage item
-    #updateCart() {
+    #cartRebuild() {
       // Delete all current cart contents
       const currentCartContents = [...this.querySelectorAll('rt-lineitem')];
       currentCartContents.forEach((node) => node.remove());
@@ -292,69 +223,32 @@ customElements.define(compName,
       this.#_sR.querySelector('#order-total-amount').innerHTML = this.$euro(orderTotal / 100);
 
       // Re-determine if cart button visibilty should change
-      this.#displayCartButtons();
+      this.#cartButtonsDisplay();
     }
 
-    //--- #updateCurOrderStor
-    // The current order information is stored in this.#_cartContents as an array of objects and is also mirrored as a JSON string in a local Storage object ('currentOrder')
-    // When a change is made to the order then this.#_cartContents is updated, the Storage object is rewritten and the cart rebuilt from the Storage object.
-    #updateCurOrderStor(itemObj) {
-      // parameter 'itemObj' is expected in the form
-      // {
-      //  prodID: <String>,   - The product to update
-      //  count:  <Number>,   - The new count
-      // }
-      // Check itemObj is as expected
-      if (!Object.hasOwn(itemObj, 'prodID') || !Object.hasOwn(itemObj, 'count') || typeof itemObj.prodID !== 'string' || typeof itemObj.count !== 'number') {
-        console.error('#updateCurOrderStor: itemObj not in expected form');
-        return
-      }
+    //--- #cartToggle
+    // Handle Cart visibilty in mobile version by toggling class 'mini'
+    #cartToggle() {
+      const classes = this.#_cart.classList;
+      if (classes.contains('mini')) classes.remove('mini');
+      else classes.add('mini');
+    }  
 
-      // No changes made yet
-      let updated = false;
-      let found = false;
-
-      // Check if there is a need to search the current cart
-      if (this.#_cartContents.length > 0) {
-        // If this.#_cartContents is not an empty array then search for existing cart entries for a match
-        for (const currentItem of this.#_cartContents) {
-          // Found a match?
-          if (itemObj.prodID === currentItem.prodID) {
-            found = true;
-            if (itemObj.prodID === currentItem.prodID && itemObj.count !== currentItem.count) {
-              if (itemObj.count === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
-              else currentItem.count = itemObj.count;
-              // Cart update has been made so exit search
-              updated = true;
-            }
-            break;
-          }
-        }
-      }
-
-      // If no existing cart entry found this must be new item to add to the cart
-      if (!found && itemObj.count > 0) {
-        // Add the modified object to the array
-        this.#_cartContents.push(itemObj);
-        updated = true;
-      }
-
-      // Update local storage
-      if (updated) {
-        //  Save the current order data to local Storage object
-        if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
-        //  If this.#_cartContents is empty then delete Storage object
-        else localStorage.removeItem('currentOrder');
-
-        // Rebuild cart using latest data
-        this.#updateCart();
-      }
+    //--- #detailsHasDataChanged
+    // Determine if current value matches value in 'currentOrder' local storage object
+    #detailsHasDataChanged(testData) {
+      // Convert cart contents to JSON string
+      const cart = JSON.stringify(this.#_cartContents);
+      // If count is zero then should not be in cart
+      if (testData.count === 0) return (cart.indexOf(testData.prodID) > -1)
+      // If count is non-zero then check if the current value === cart value
+      else return (cart.indexOf(JSON.stringify(testData)) === -1)
     }
 
-    //--- #initItemDataDialog
+    //--- #detailsInitItemValues
     // Display #product-details dialog with requested data.
     // Close dialog if called manually with no parameter
-    #initItemDataDialog(e) {
+    #detailsInitItemValues(e) {
       // Declare in local global scope
       let newItem;
       // Handle event if present
@@ -372,7 +266,7 @@ customElements.define(compName,
         // Close the dialog if Event has no value for details.id
         this.#_details.close();
         // Ensure the correct button is visible in cart
-        // this.#displayCartButtons();
+        // this.#cartButtonsDisplay();
         return
       }
 
@@ -406,12 +300,73 @@ customElements.define(compName,
       this.#_details.showModal();
 
       // Ensure the correct buttons are visible in cart
-      // this.#displayCartButtons();
+      // this.#cartButtonsDisplay();
     }
 
-    //--- #validateForm
+    //--- #detailsButtonDisplay
+    // Determine appearance of button for details overlay
+    #detailsButtonDisplay() {
+      // Is button hiding enabled?
+      const hide = getComputedStyle(this).getPropertyValue('--OF-HIDE-UPDATE');
+      // Get class list for button element
+      const buttonClasses = this.shadowRoot.querySelector('#prod-add-but').classList
+
+      // Does anything in dialog have a new value relative to the cart contents?
+      const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline');
+      // Check there is something to process
+      if (lineItems.length > 0) {
+        // Set flag to stop processing elements on first change found
+        let changed = false;
+        lineItems.forEach(element => {
+          // Use lazy evaluation to skip change check once a change has been found
+          if (!changed && this.#detailsHasDataChanged({
+            prodID: element.$attr('prodid'),
+            count: element.hasAttribute('count') ? parseInt(element.$attr('count')) : 0
+          })) {
+            changed = true;
+          }
+        })
+        // Change button display to reflect state of data in dialog compared to cart
+        if (changed) {
+          buttonClasses.remove('button-dis')
+          if (hide) buttonClasses.remove('button-hide')
+        } else {
+          buttonClasses.add('button-dis')
+          if (hide) buttonClasses.add('button-hide')
+        }
+      }
+    }
+
+    //--- #detailsUpdateCart
+    // Update values in cart for all itemLine elements of the product currently slotted as active
+    #detailsUpdateCart() {
+      // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
+      this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
+        // Update the currentorder Storage object with the new value
+        this.#cartCurOrderStorUpdate({
+          prodID: node.$attr('prodid'),
+          count: node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0
+        });
+        // A zero 'count' is needed to remove the item from cart but should not be processed on next invocation
+        // if (node.$attr('count') === "0") node.removeAttribute('count');
+      });
+
+      // Whether closing or adding, clear the item data slot
+      this.#detailsInitItemValues();
+    }
+
+    //--- #formShow
+    // show == true - hide product menu / display user-defined form
+    // show == false - hide user-define form / display product menu
+    #formShow(show) {
+      this.#_menu.querySelector('#menu').style.display = show ? 'none' : '';
+      this.#_menu.querySelector('#form-container').style.display = show ? '' : 'none';
+      this.#cartButtonsDisplay();
+    }
+
+    //--- #formValidate
     // Determine if the form has been completed as required
-    #validateForm() {
+    #formValidate() {
       // Declare flag
       let firstFail = false;
       // Continue if form found
@@ -433,30 +388,71 @@ customElements.define(compName,
       return !firstFail;
     }
 
+    //--- #initialiseAll
+    // Performs the following actions
+    // - Create the pictoral menu at the top of the order form based on form HTML
+    // - Restore cart if there were previously items present
+    // - Move form HTML into the shadowDOM
+    // - Prepopulate form if saved details found
+    #initialiseAll() {
+      /// Create pictorial menu
+      // Recover image path from setting in HTML
+      const imgPath = this.querySelector("form-config span#imgpath").textContent;
+      // Collect all <rt-itemdata> elements
+      const nodes = [...this.querySelectorAll('rt-itemdata')];
+      // ...then create a new <rt-menuitem> element for each, assigned to 'menu-items' slot  
+      this.append(...nodes.map(element => {
+        let elementAttrs = { id: `mi-${element.id}`, slot: 'menu-items' };//, style: 'justify-self: center' };
+        // Attempt to retrieve image
+        let imgNode = element.querySelector('img')
+        // Add bgimg attribute if img element found
+        if (imgNode) elementAttrs.bgimg = `${imgPath}/${imgNode.getAttribute('file')}`
+        // Append the new <rt-menuitem> element to the div
+        return this.$createElement({
+          tag: 'rt-menuitem',
+          innerHTML: `${element.querySelector('item-title').innerHTML}`,
+          attrs: elementAttrs
+        })
+      }));
+      /// Only do this for smaller screens
+      // Additional initialisation for mobile client
+      if (window.matchMedia("(max-width: 430px)").matches) {
+        const cartTitle = this.#_cart.querySelector('#cart-title');
+        // Add cart toggle when cart-title clicked
+        cartTitle.addEventListener('click', () => this.#cartToggle());
+        // 200ms delay to ensure cart title has rendered (yuck!)
+        setTimeout(() => {
+          // Determine padding and border sizes
+          const cartStyle = getComputedStyle(this.#_cart);
+          const cartMod = (parseInt(cartStyle.paddingTop) * 2) + (parseInt(cartStyle.borderLeftWidth) * 2);
+          // Determine size of cart-title and add adjustment for padding and borders
+          const cartTitleSize = `${(parseFloat(cartTitle.getBoundingClientRect().height) + cartMod).toFixed(0)}px`;
+          // Set CSS variable for minimized cart size - will cause 'expanding' transition
+          this.#_cart.style.setProperty('--MINIMIZED-CART', cartTitleSize);
+          // Unhide the cart div to see transition
+          this.#_cart.classList.remove('init');
+        }, 200);
+      }
 
-    /// Event ONLY methods
+      // Add image to details dialog
+      this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
 
-    //--- #addToCart
-    // Add a new element to currentOrder for any rt-itemline with count > 0 and rebuild cart
-    #addToCart() {
-      // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
-      this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
-        // Update the currentorder Storage object with the new value
-        this.#updateCurOrderStor({
-          prodID: node.$attr('prodid'),
-          count: node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0
-        });
-        // A zero 'count' is needed to remove the item from cart but should not be processed on next invocation
-        // if (node.$attr('count') === "0") node.removeAttribute('count');
-      });
+      this.#_menu.querySelector('#menu').style.display = '';
 
-      // Whether closing or adding, clear the item data slot
-      this.#initItemDataDialog();
+      /// Restore cart contents
+      if (localStorage.getItem('currentOrder')) this.#cartRebuild();
+      this.#cartButtonsDisplay();
+
+      /// Move user's form to shadowDOM - as a form cannot be slotted apparently
+      // const srcNode = this.querySelector('div#user-details');
+      // if (srcNode) {
+      //   this.#_form.append(...srcNode.children);
+      // } else console.warn('No details form provided');
     }
 
-    //--- #continueOrder
+    //--- #orderContinue
     // Display the form and pre-populate fields if previous data found
-    #continueOrder() {
+    #orderContinue() {
       /// Prepopulate form if saved details found
       const details = localStorage.getItem('user-details');
       if (details) {
@@ -470,16 +466,16 @@ customElements.define(compName,
         }
       }
       // Bring form to front
-      this.#showForm(true);
+      this.#formShow(true);
       // Hide the cart
       this.#_sR.querySelector('div#cart').style.display = 'none';
     }
 
-    //--- #dispatchOrder
+    //--- #orderDispatch
     // Catch the form submit event
-    #dispatchOrder() {
+    #orderDispatch() {
       // Disptach order if all checks pass
-      if (this.#validateForm()) {
+      if (this.#formValidate()) {
         //### Dispatch order and reset form
         // Collect the current form data
         const formValues = new FormData(this.#_form);
@@ -494,20 +490,20 @@ customElements.define(compName,
       } else console.warn('Form submission not valid');
     }
 
-    //--- #modifyCurrentOrder
+    //--- #orderModifyCurrent
     // Catch event and send details on for cart modification
-    #modifyCurrentOrder(e) {
+    #orderModifyCurrent(e) {
       e.stopPropagation();
-      this.#updateCurOrderStor(e.detail);
+      this.#cartCurOrderStorUpdate(e.detail);
     }
 
-    //--- #recoverOrder
+    //--- #orderRecover
     // Reload the last order dispatched
-    #recoverOrder() {
+    #orderRecover() {
       // Fill the currentOrder storage item with the contents from lastOrder
       if (localStorage.getItem('lastOrder')) localStorage.setItem('currentOrder', localStorage.getItem('lastOrder'))
       // Rebuild cart
-      this.#updateCart();
+      this.#cartRebuild();
     }
 
 
@@ -521,9 +517,9 @@ customElements.define(compName,
       localStorage.setItem('lastOrder', localStorage.getItem('currentOrder'));
       // Clear the cart
       localStorage.removeItem('currentOrder');
-      this.#updateCart();
+      this.#cartRebuild();
       // Reset display
-      this.#showForm(false);
+      this.#formShow(false);
       // Save user details if chosen
       const saveFields = this.#_sR.querySelector('#savefields');
       // If yes then put details in object and store as JSON string
