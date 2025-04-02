@@ -13,7 +13,7 @@ customElements.define(compName,
     #_details;      // Product Details node
     #_form;         // Form node
     #_cart;         // Cart node
-    #_cartContents; // The current contents of the cart
+    #_cartContents; // Object with current contents of the cart
 
     // +++ Lifecycle Events
     //--- constructor
@@ -42,7 +42,7 @@ customElements.define(compName,
       this.addEventListener('initmenu', (e) => this.#initItemDataDialog(e));
 
       /// Responding to +/- clicks
-      //___ updatecount - Determine any detail overlay button appearance changes
+      //___ updatecount - Determine button appearance based on changes made to itemLines
       this.#_menu.addEventListener('updatecount', (e) => this.#displayDetailsUpdateButton(e));
       //___ cartmod - Respond to +/- presses in a <rt-lineitem> and re-render cart
       this.#_cart.addEventListener('cartmod', (e) => this.#modifyCurrentOrder(e));
@@ -53,9 +53,12 @@ customElements.define(compName,
       this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#initItemDataDialog());
       //___ add-items_click - Add the currently selected items to the cart
       this.#_sR.querySelector('#prod-add-but').addEventListener('click', (e) => {
+        console.log('Clicked...')
         // Check if button is enabled before calling #addToCart
         if (e.composedPath()[0].classList.contains('button-dis')) return
-        this.#addToCart()});
+        console.log('updating cart...')
+        this.#addToCart()
+      });
       ///- Cart
       //___ place-order_click - Send completed order to out of form
       this.#_sR.querySelector('#further-but').addEventListener('click', () => this.#continueOrder());
@@ -128,12 +131,17 @@ customElements.define(compName,
       if (lineItems.length > 0) {
         // Set flag to stop processing elements on first change found
         let changed = false;
+        console.log('Cart contents...')
+        console.log(this.#_cartContents)
         lineItems.forEach(element => {
+          console.log('element...')
+          console.log(element)
           // Use lazy evaluation to skip change check once a change has been found
           if (!changed && this.#hasDataChanged({
             prodID: element.$attr('prodid'),
             count: element.hasAttribute('count') ? parseInt(element.$attr('count')) : 0
           })) {
+            console.log('changed')
             changed = true;
           }
         })
@@ -154,7 +162,7 @@ customElements.define(compName,
       // Convert cart contents to JSON string
       const cart = JSON.stringify(this.#_cartContents);
       // If count is zero then should not be in cart
-      if (testData.count === 0) return (cart.indexOf(testData.prodid) > -1)
+      if (testData.count === 0) return (cart.indexOf(testData.prodID) > -1)
       // If count is non-zero then check if the current value === cart value
       else return (cart.indexOf(JSON.stringify(testData)) === -1)
     }
@@ -303,42 +311,44 @@ customElements.define(compName,
       }
 
       // No changes made yet
-      let changeMade = false;
+      let updated = false;
+      let found = false;
+
+      // Check if there is a need to search the current cart
       if (this.#_cartContents.length > 0) {
         // If this.#_cartContents is not an empty array then search for existing cart entries for a match
         for (const currentItem of this.#_cartContents) {
           // Found a match?
           if (itemObj.prodID === currentItem.prodID) {
-            // If count is unchanged then must have got here by error so stop
-            if (itemObj.count === currentItem.count) return
-            // We found a match and count has changed
-            changeMade = true;
-            // Remove cart entry if new item count is zero and stop
-            if (itemObj.count === 0) {
-              this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
-              // Update cart entry
-            } else currentItem.count = itemObj.count;
-            // Cart update has been made so exit search
+            found = true;
+            if (itemObj.prodID === currentItem.prodID && itemObj.count !== currentItem.count) {
+              if (itemObj.count === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
+              else currentItem.count = itemObj.count;
+              // Cart update has been made so exit search
+              updated = true;
+            }
             break;
           }
         }
       }
 
       // If no existing cart entry found this must be new item to add to the cart
-      if (!changeMade) {
+      if (!found && itemObj.count > 0) {
         // Add the modified object to the array
         this.#_cartContents.push(itemObj);
-        changeMade = true;
+        updated = true;
       }
 
       // Update local storage
-      //  Save the current order data to local Storage object
-      if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
-      //  If this.#_cartContents is empty then delete Storage object
-      else localStorage.removeItem('currentOrder');
+      if (updated) {
+        //  Save the current order data to local Storage object
+        if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
+        //  If this.#_cartContents is empty then delete Storage object
+        else localStorage.removeItem('currentOrder');
 
-      // Rebuild cart using latest data
-      this.#updateCart();
+        // Rebuild cart using latest data
+        this.#updateCart();
+      }
     }
 
     //--- #initItemDataDialog
@@ -362,7 +372,7 @@ customElements.define(compName,
         // Close the dialog if Event has no value for details.id
         this.#_details.close();
         // Ensure the correct button is visible in cart
-        this.#displayCartButtons();
+        // this.#displayCartButtons();
         return
       }
 
@@ -371,7 +381,7 @@ customElements.define(compName,
       // Slot in requested product data
       newData.setAttribute('slot', 'active-data');
 
-      // Reduce this.#_cartContents to 2D array
+      // Convert this.#_cartContents to 2D array -> [ [productIDs], [itemcounts] ]
       const cartItems = this.#_cartContents.reduce((acc, cur) => {
         acc[0].push(cur.prodID);
         acc[1].push(cur.count);
@@ -381,24 +391,22 @@ customElements.define(compName,
       // Determine any relevent data already in cart for this product
       // Cycle through all itemLines for this product
       newData.querySelectorAll('rt-itemline').forEach((item) => {
-        // Is this item already in the cart?
+        // Search for item in the cart?
         const itemIndex = cartItems[0].indexOf(item.$attr('prodid'));
+        // If found then update displayed value
         if (itemIndex > -1) {
-          // If so update the count for this itemLine
           item.$dispatch({ name: 'updatecountline', detail: { change: cartItems[1][itemIndex], replace: true } });
+          // If not found and displayed value > 0 then reset to 0
         } else if (item.$attr('count') > 0) {
-          // If not in cart and value is greater than zero then reset
           item.$dispatch({ name: 'updatecountline', detail: { change: '0', replace: true } })
         }
       });
 
       // Display the dialog
       this.#_details.showModal();
-      // Hide the button
-      this.#displayDetailsUpdateButton();
 
-      // Ensure the correct button is visible in cart
-      this.#displayCartButtons();
+      // Ensure the correct buttons are visible in cart
+      // this.#displayCartButtons();
     }
 
     //--- #validateForm
@@ -432,14 +440,14 @@ customElements.define(compName,
     // Add a new element to currentOrder for any rt-itemline with count > 0 and rebuild cart
     #addToCart() {
       // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
-      this.querySelectorAll('[slot="active-data"] rt-itemline[count]').forEach(node => {
+      this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
         // Update the currentorder Storage object with the new value
         this.#updateCurOrderStor({
           prodID: node.$attr('prodid'),
-          count: parseInt(node.$attr('count'))
+          count: node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0
         });
         // A zero 'count' is needed to remove the item from cart but should not be processed on next invocation
-        if (node.$attr('count') === "0") node.removeAttribute('count');
+        // if (node.$attr('count') === "0") node.removeAttribute('count');
       });
 
       // Whether closing or adding, clear the item data slot
