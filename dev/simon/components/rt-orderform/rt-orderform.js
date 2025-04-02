@@ -127,38 +127,45 @@ customElements.define(compName,
     //--- #cartCurOrderStorUpdate
     // The current order information is stored in this.#_cartContents as an array of objects and is also mirrored as a JSON string in a local Storage object ('currentOrder')
     // When a change is made to the order then this.#_cartContents is updated, the Storage object is rewritten and the cart rebuilt from the Storage object.
-    #cartCurOrderStorUpdate(itemObj) {
+    #cartCurOrderStorUpdate(item) {
       /* 
       parameter 'itemObj' is expected in the form
         {
           prodID: <String>,   - The product to update
-          count:  <Number>,   - The new count
+          count:  <Number>    - The new count
         }
        */
-      // Check itemObj is as expected
-      if (!Object.hasOwn(itemObj, 'prodID') || !Object.hasOwn(itemObj, 'count') || typeof itemObj.prodID !== 'string' || typeof itemObj.count !== 'number') {
-        console.error('#cartCurOrderStorUpdate: itemObj not in expected form');
+      /*
+      parameter 'item is expect to be a Map of structure
+        [
+          ['prodID', <String>], - The product to update
+          ['count', <Number>]   - The new count
+        ]
+      */
+      // Check item is as expected
+      if (!item.has('prodID') || !item.has('count') || typeof item.get('prodID') !== 'string' || typeof item.get('count') !== 'number') {
+        console.error('#cartCurOrderStorUpdate() : itemObj not in expected form');
         return
       }
 
       // No changes made yet
-      const flags = {
-        updated: false,
-        found: false
-      }
+      const flags = new Map([
+        ['updated', false],
+        ['found', false]
+      ]);
 
       // Check if there is a need to search the current cart
       if (this.#_cartContents.length > 0) {
         // If this.#_cartContents is not an empty array then search for existing cart entries for a match
         for (const currentItem of this.#_cartContents) {
           // Found a match?
-          if (itemObj.prodID === currentItem.prodID) {
-            flags.found = true;
-            if (itemObj.count !== currentItem.count) {
-              if (itemObj.count === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
-              else currentItem.count = itemObj.count;
+          if (item.get('prodID') === currentItem.prodID) {
+            flags.set('found', true);
+            if (item.get('count') !== currentItem.count) {
+              if (item.get('count') === 0) this.#_cartContents.splice(this.#_cartContents.indexOf(currentItem), 1);
+              else currentItem.count = item.get('count');
               // Cart update has been made so exit search
-              flags.updated = true;
+              flags.set('updated', true);
             }
             break;
           }
@@ -166,14 +173,17 @@ customElements.define(compName,
       }
 
       // If no existing cart entry found this must be new item to add to the cart
-      if (!flags.found && itemObj.count > 0) {
+      if (!flags.get('found') && item.get('count') > 0) {
         // Add the modified object to the array
-        this.#_cartContents.push(itemObj);
-        flags.updated = true;
+        this.#_cartContents.push({
+          prodID: item.get('prodID'),
+          count: item.get('count')
+        });
+        flags.set('updated', true);
       }
 
       // Update local storage after change
-      if (flags.updated) {
+      if (flags.get('updated')) {
         //  Save the current order data to local Storage object
         if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
         //  If this.#_cartContents is empty then delete Storage object
@@ -186,6 +196,7 @@ customElements.define(compName,
     //--- #cartRebuild
     // Recreate the cart from the currentOrder local storage item
     #cartRebuild() {
+      // console.log('rebuilding...')
       // Delete all current cart contents
       const currentCartContents = [...this.querySelectorAll('rt-lineitem')];
       currentCartContents.forEach((node) => node.remove());
@@ -239,71 +250,7 @@ customElements.define(compName,
       if (classes.contains('mini')) classes.remove('mini');
       else classes.add('mini');
     }
-
-    //--- #detailsHasDataChanged
-    // Determine if current value matches value in 'currentOrder' local storage object
-    #detailsHasDataChanged(testData) {
-      // Convert cart contents to JSON string
-      const cart = JSON.stringify(this.#_cartContents);
-      // If count is zero then should not be in cart
-      if (testData.count === 0) return (cart.indexOf(testData.prodID) > -1)
-      // If count is non-zero then check if the current value === cart value
-      else return (cart.indexOf(JSON.stringify(testData)) === -1)
-    }
-
-    //--- #detailsInitItemValues
-    // Display #product-details dialog with requested data.
-    // Close dialog if called manually with no parameter
-    #detailsInitItemValues(e) {
-      // Declare in local global scope
-      let newItem;
-      // Handle event if present
-      if (e instanceof Event) {
-        e.stopPropagation();
-        newItem = e.detail.id;
-      }
-      // Clear any previous slot settings
-      this.querySelectorAll('rt-itemdata').forEach((element) => {
-        element.removeAttribute('slot');
-      });
-
-      // If called manually then the process can clean up and stop here
-      if (!newItem) {
-        // Close the dialog if Event has no value for details.id
-        this.#_details.close();
-        return
-      }
-
-      // Get node for selected data
-      const newData = this.querySelector(`rt-itemdata#${newItem}`)
-      // Slot in requested product data
-      newData.setAttribute('slot', 'active-data');
-
-      // Convert this.#_cartContents to 2D array -> [ [productIDs], [itemcounts] ]
-      const cartItems = this.#_cartContents.reduce((acc, cur) => {
-        acc[0].push(cur.prodID);
-        acc[1].push(cur.count);
-        return acc;
-      }, [[], []]);
-
-      // Determine any relevent data already in cart for this product
-      // Cycle through all itemLines for this product
-      newData.querySelectorAll('rt-itemline').forEach((item) => {
-        // Search for item in the cart?
-        const itemIndex = cartItems[0].indexOf(item.$attr('prodid'));
-        // If found then update displayed value
-        if (itemIndex > -1) {
-          item.$dispatch({ name: 'updatecountline', detail: { change: cartItems[1][itemIndex], replace: true } });
-          // If not found and displayed value > 0 then reset to 0
-        } else if (item.$attr('count') > 0) {
-          item.$dispatch({ name: 'updatecountline', detail: { change: '0', replace: true } })
-        }
-      });
-
-      // Display the dialog
-      this.#_details.showModal();
-    }
-
+    
     //--- #detailsButtonDisplay
     // Determine appearance of button for details overlay
     #detailsButtonDisplay() {
@@ -337,17 +284,85 @@ customElements.define(compName,
         }
       }
     }
-
+   
+    //--- #detailsHasDataChanged
+    // Determine if current value matches value in 'currentOrder' local storage object
+    #detailsHasDataChanged(testData) {
+      // Convert cart contents to JSON string
+      const cart = JSON.stringify(this.#_cartContents);
+      // If count is zero then should not be in cart
+      if (testData.count === 0) return (cart.indexOf(testData.prodID) > -1)
+        // If count is non-zero then check if the current value === cart value
+      else return (cart.indexOf(JSON.stringify(testData)) === -1)
+    }
+    
+    //--- #detailsInitItemValues
+    // Display #product-details dialog with requested data.
+    // Close dialog if called manually with no parameter
+    #detailsInitItemValues(e) {
+      // Declare in local global scope
+      let newItem;
+      // Handle event if present
+      if (e instanceof Event) {
+        e.stopPropagation();
+        newItem = e.detail.id;
+      }
+      // Clear any previous slot settings
+      this.querySelectorAll('rt-itemdata').forEach((element) => {
+        element.removeAttribute('slot');
+      });
+      
+      // If called manually then the process can clean up and stop here
+      if (!newItem) {
+        // Close the dialog if Event has no value for details.id
+        this.#_details.close();
+        return
+      }
+      
+      // Get node for selected data
+      const newData = this.querySelector(`rt-itemdata#${newItem}`)
+      // Slot in requested product data
+      newData.setAttribute('slot', 'active-data');
+      
+      // Convert this.#_cartContents to 2D array -> [ [productIDs], [itemcounts] ]
+      const cartItems = this.#_cartContents.reduce((acc, cur) => {
+        acc[0].push(cur.prodID);
+        acc[1].push(cur.count);
+        return acc;
+      }, [[], []]);
+      
+      // Determine any relevent data already in cart for this product
+      // Cycle through all itemLines for this product
+      newData.querySelectorAll('rt-itemline').forEach((item) => {
+        // Search for item in the cart?
+        const itemIndex = cartItems[0].indexOf(item.$attr('prodid'));
+        // If found then update displayed value
+        if (itemIndex > -1) {
+          item.$dispatch({ name: 'updatecountline', detail: { change: cartItems[1][itemIndex], replace: true } });
+          // If not found and displayed value > 0 then reset to 0
+        } else if (item.$attr('count') > 0) {
+          item.$dispatch({ name: 'updatecountline', detail: { change: '0', replace: true } })
+        }
+      });
+      
+      // Display the dialog
+      this.#_details.showModal();
+    }
+    
     //--- #detailsUpdateCart
     // Update values in cart for all itemLine elements of the product currently slotted as active
     #detailsUpdateCart() {
       // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
       this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
         // Update the currentorder Storage object with the new value
-        this.#cartCurOrderStorUpdate({
-          prodID: node.$attr('prodid'),
-          count: node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0
-        });
+        // this.#cartCurOrderStorUpdate({
+        //   prodID: node.$attr('prodid'),
+        //   count: node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0
+        // });
+        this.#cartCurOrderStorUpdate(new Map([
+          ['prodID', node.$attr('prodid')],
+          ['count', node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0]
+        ]));
         // A zero 'count' is needed to remove the item from cart but should not be processed on next invocation
         // if (node.$attr('count') === "0") node.removeAttribute('count');
       });
