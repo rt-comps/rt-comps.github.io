@@ -10,7 +10,7 @@ Attributes:
 
 Events:
 - Dispatched:
-    - updatemenu
+    - initmenu
         - Sends component ID when component clicked
 - Listened: None
 
