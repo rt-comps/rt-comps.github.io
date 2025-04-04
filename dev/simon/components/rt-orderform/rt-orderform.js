@@ -143,8 +143,8 @@ customElements.define(compName,
         ]
       */
       // Check item is as expected
-      if (!item.has('prodID') || !item.has('count') || typeof item.get('prodID') !== 'string' || typeof item.get('count') !== 'number') {
-        console.error('#cartCurOrderStorUpdate() : itemObj not in expected form');
+      if (!(item instanceof Map && item.has('prodID') && item.has('count'))) {
+        console.error('#cartCurOrderStorUpdate() : "item" not in expected form');
         return
       }
 
@@ -186,10 +186,8 @@ customElements.define(compName,
         flags.set('updated', true);
       }
 
+      // Does local storage need updating?
       return flags.get('updated');
-      // Update local storage after change has been made
-      if (flags.get('updated')) {
-      }
     }
 
     //--- #cartRebuild
@@ -356,12 +354,12 @@ customElements.define(compName,
       // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
       this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
         // Update the currentorder Storage object with the new value?
-        const test = this.#cartCurOrderStorUpdate(new Map([
+        const update = this.#cartCurOrderStorUpdate(new Map([
           ['prodID', node.$attr('prodid')],
           ['count', node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0]
         ]));
-        // When test returns true then a save is needed
-        if (test && !updated) updated=true;
+        // When any test returns true then a save is needed
+        if (update && !updated) updated = true;
       });
       // Save updates
       if (updated) {
@@ -423,7 +421,10 @@ customElements.define(compName,
       const nodes = [...this.querySelectorAll('rt-itemdata')];
       // ...then create a new <rt-menuitem> element for each, assigned to 'menu-items' slot  
       this.append(...nodes.map(element => {
-        let elementAttrs = { id: `mi-${element.id}`, slot: 'menu-items' };//, style: 'justify-self: center' };
+        let elementAttrs = { 
+          id: `mi-${element.id}`,
+          slot: 'menu-items'
+        };
         // Attempt to retrieve image
         let imgNode = element.querySelector('img')
         // Add bgimg attribute if img element found
@@ -435,12 +436,12 @@ customElements.define(compName,
           attrs: elementAttrs
         })
       }));
+
       /// Only do this for smaller screens
       // Additional initialisation for mobile client
       if (window.matchMedia("(max-width: 430px)").matches) {
-        const cartTitle = this.#_cart.querySelector('#cart-title');
         // Add cart toggle when cart-title clicked
-        cartTitle.addEventListener('click', () => this.#cartToggle());
+        this.#_cart.querySelector('#cart-title').addEventListener('click', () => this.#cartToggle());
         // 200ms delay to ensure cart title has rendered (yuck!)
         setTimeout(() => {
           // Determine padding and border sizes
@@ -455,9 +456,9 @@ customElements.define(compName,
         }, 200);
       }
 
-      // Add image to details dialog
+      // Add X image to details dialog
       this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
-
+      // Ensure menu items are visible
       this.#_menu.querySelector('#menu').style.display = '';
 
       /// Restore cart contents
