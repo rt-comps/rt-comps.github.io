@@ -89,7 +89,8 @@ customElements.define(compName,
     /// ### Private Methods
 
     //--- #cartButtonsDisplay
-    // Manage which buttons in the cart are displayed
+    // The cart has two 'button' DIVs that can be displayed
+    // This function determines which (if any) button should be displayed
     #cartButtonsDisplay() {
       // Store button elements in map
       const buttons = new Map([
@@ -263,13 +264,11 @@ customElements.define(compName,
         // Set flag to stop processing elements on first change found
         let changed = false;
         lineItems.forEach(element => {
-          // Use lazy evaluation to skip change check once a change has been found
-          if (!changed && this.#detailsHasDataChanged({
-            prodID: element.$attr('prodid'),
-            count: element.hasAttribute('count') ? parseInt(element.$attr('count')) : 0
-          })) {
-            changed = true;
-          }
+          // Only need one match so use lazy evaluation to skip check once first change has been found
+          if (!changed && this.#detailsHasDataChanged(new Map([
+            ['prodID', element.$attr('prodid')],
+            ['count', element.hasAttribute('count') ? parseInt(element.$attr('count')) : 0]
+          ]))) changed = true;
         })
         // Change button display to reflect state of data in dialog compared to cart
         if (changed) {
@@ -288,9 +287,12 @@ customElements.define(compName,
       // Convert cart contents to JSON string
       const cart = JSON.stringify(this.#_cartContents);
       // If count is zero then should not be in cart
-      if (testData.count === 0) return (cart.indexOf(testData.prodID) > -1)
+      if (testData.get('count') === 0) return (cart.indexOf(testData.get('prodID')) > -1)
       // If count is non-zero then check if the current value === cart value
-      else return (cart.indexOf(JSON.stringify(testData)) === -1)
+      else return (cart.indexOf(JSON.stringify({
+        prodID: testData.get('prodID'),
+        count: testData.get('count')
+      })) === -1)
     }
 
     //--- #detailsInitItemValues
@@ -309,7 +311,7 @@ customElements.define(compName,
         element.removeAttribute('slot');
       });
 
-      // If called manually then the process can clean up and stop here
+      // If ni ID is provided then the fucntion can clean up and stop here
       if (!newItem) {
         // Close the dialog if Event has no value for details.id
         this.#_details.close();
@@ -407,13 +409,53 @@ customElements.define(compName,
       return !firstFail;
     }
 
-    //--- #initialiseAll
+    //--- #orderContinue
+    // Display the form and pre-populate fields if previous data found
+    #orderContinue() {
+      /// Prepopulate form if saved details found
+      const details = localStorage.getItem('user-details');
+      if (details) {
+        // Set 'savefields' boolean
+        this.#_form.querySelector('#savefields').checked = true;
+        // Get stored details
+        const productDetailsObj = JSON.parse(details);
+        // Repopulate details in to form
+        for (const [key, value] of Object.entries(productDetailsObj)) {
+          this.#_form.querySelector(`[name=${key}]`).value = value;
+        }
+      }
+      // Bring form to front
+      this.#formShow(true);
+      // Hide the cart
+      this.#_sR.querySelector('div#cart').style.display = 'none';
+    }
+
+    //--- #orderDispatch
+    // Catch the form submit event
+    #orderDispatch() {
+      // Disptach order if all checks pass
+      if (this.#formValidate()) {
+        //### Dispatch order and reset form
+        // Collect the current form data
+        const formValues = new FormData(this.#_form);
+        // Bubble a composed event containing the order details
+        this.$dispatch({
+          name: 'neworder',
+          detail: {
+            person: Object.fromEntries(formValues.entries()),
+            order: this.#_cartContents
+          }
+        });
+      } else console.warn('Form submission not valid');
+    }
+
+    //--- #orderInitialise
     // Performs the following actions
     // - Create the pictoral menu at the top of the order form based on form HTML
     // - Restore cart if there were previously items present
     // - Move form HTML into the shadowDOM
     // - Prepopulate form if saved details found
-    #initialiseAll() {
+    #orderInitialise() {
       /// Create pictorial menu
       // Recover image path from setting in HTML
       const imgPath = this.querySelector("form-config span#imgpath").textContent;
@@ -421,7 +463,7 @@ customElements.define(compName,
       const nodes = [...this.querySelectorAll('rt-itemdata')];
       // ...then create a new <rt-menuitem> element for each, assigned to 'menu-items' slot  
       this.append(...nodes.map(element => {
-        let elementAttrs = { 
+        let elementAttrs = {
           id: `mi-${element.id}`,
           slot: 'menu-items'
         };
@@ -463,46 +505,6 @@ customElements.define(compName,
 
       /// Restore cart contents
       this.#cartRebuild();
-    }
-
-    //--- #orderContinue
-    // Display the form and pre-populate fields if previous data found
-    #orderContinue() {
-      /// Prepopulate form if saved details found
-      const details = localStorage.getItem('user-details');
-      if (details) {
-        // Set 'savefields' boolean
-        this.#_form.querySelector('#savefields').checked = true;
-        // Get stored details
-        const productDetailsObj = JSON.parse(details);
-        // Repopulate details in to form
-        for (const [key, value] of Object.entries(productDetailsObj)) {
-          this.#_form.querySelector(`[name=${key}]`).value = value;
-        }
-      }
-      // Bring form to front
-      this.#formShow(true);
-      // Hide the cart
-      this.#_sR.querySelector('div#cart').style.display = 'none';
-    }
-
-    //--- #orderDispatch
-    // Catch the form submit event
-    #orderDispatch() {
-      // Disptach order if all checks pass
-      if (this.#formValidate()) {
-        //### Dispatch order and reset form
-        // Collect the current form data
-        const formValues = new FormData(this.#_form);
-        // Bubble a composed event containing the order details
-        this.$dispatch({
-          name: 'neworder',
-          detail: {
-            person: Object.fromEntries(formValues.entries()),
-            order: this.#_cartContents
-          }
-        });
-      } else console.warn('Form submission not valid');
     }
 
     //--- #orderModifyCurrent
@@ -567,7 +569,7 @@ customElements.define(compName,
           // Append fragment to lightDOM 
           this.appendChild(frag);
           // Build form from data in lightDOM and in local storage
-          this.#initialiseAll();
+          this.#orderInitialise();
           this.style.display = 'inline-block';
         }
       } catch (e) {
