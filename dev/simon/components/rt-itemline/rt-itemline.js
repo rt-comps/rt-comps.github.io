@@ -31,7 +31,10 @@ customElements.define(compName,
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
-            if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
+            if (typeof rtForm !== 'undefined') {
+                const menuNode = rtForm.findNode(this);
+                if (menuNode) rtForm.getStyle(this, menuNode);
+            }
 
             this.#_sR.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
         }
