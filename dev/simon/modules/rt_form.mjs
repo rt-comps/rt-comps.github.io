@@ -45,7 +45,7 @@ function getStyle(node, menuNode) {
 //--- findNode
 // Search up through DOM to find target node
 // If ShadowRoot reached then recurse through enclosing DOM
-function findNode(startNode, targetNodeName) {
+function findNode(startNode, targetNodeName = 'rt-orderform') {
     // See if targetNode is in this component's 'LightDOM'
     const targetNode = startNode.closest(targetNodeName);
 

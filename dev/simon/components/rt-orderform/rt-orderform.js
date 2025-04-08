@@ -81,7 +81,7 @@ customElements.define(compName,
 
     //--- connectedCallback
     connectedCallback() {
-      if (typeof rtForm !== 'undefined') rtForm.getStyle(this)
+      if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
       // Inform containing code that 
       this.$dispatch({ name: 'formready' });
     }
@@ -510,10 +510,6 @@ customElements.define(compName,
       this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
       // Ensure menu items are visible
       this.#_menu.querySelector('#menu').style.display = '';
-
-      console.log(Object.getPrototypeOf(this))
-      console.log(Object.getOwnPropertyNames(this))
-      console.log(Object.keys(this))
 
       /// Restore cart contents
       this.#cartRebuild();

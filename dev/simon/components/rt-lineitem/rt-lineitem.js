@@ -26,7 +26,7 @@ customElements.define(
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
-            if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
+            if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
 
             // update total price on count change
             this.#render();
