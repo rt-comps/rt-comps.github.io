@@ -11,7 +11,7 @@ The first word of the method indicates the focus for that method.
 - 'order...' - The overall order form
 
 ---
-### #cartButtonsDisplay()
+### #cartButtonsDisplay() ---
 Determine what buttons should be displayed at the bottom of the shopping cart when the page is loaded, changes are made to the cart contents or the User Details form is opened.
 
 **Return Value:** Null
@@ -44,7 +44,7 @@ Each call causes the cart display to toggle between open (displayed) or closed.
 **Return Value:** Null
 
 ---
-### #detailsButtonDisplay()
+### #detailsButtonDisplay() ---
 Determines how the Update button in the product details dialog should appear/function.
   - Enabled
     - When values in the dialog do not match those in the cart
@@ -62,7 +62,9 @@ Determines how the Update button in the product details dialog should appear/fun
 | :--- | --- | --- | :--- |
 |*testData*|{Map}|-|itemLine data to compare|
 
-Compares *testData* with the current contents of the cart to look for any changes
+Compares *testData* with the current contents of the cart to look for any changes.
+
+This function is only used by 
 
 **Return Value:** Boolean
   - *True*
@@ -72,7 +74,7 @@ Compares *testData* with the current contents of the cart to look for any change
      - Test *count* == 0 **&&** *prodID* **NOT** found in cart
      - Test *count* > 0 **&&** *prodID*:*count* combo found on cart  
 ---
-### #detailsInitItemValues(e)
+### #detailsInitItemValues(e) ---
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*e*|{Event}|-|Expected to be an **initmenu** custom event|
@@ -121,7 +123,6 @@ Calls the checkValidity() method of all form elements and returns either pass or
 - *True* - All fields passed validation
 - *False* - One or more fields failed validation
 ---
-
 ### #orderContinue()
 Changes the process from filling the cart to configuring pickup/delivery and completing the order.
 
@@ -140,11 +141,6 @@ Validation will highlight any invalid fields
 ---
 ### #orderInitialise()
 The main function of this method is to build the menu of the order form from the data presented in the HTML(XML)
-**Return Value:** Null
-
----
-### #orderModifyCurrent(e)
-
 **Return Value:** Null
 
 ---
