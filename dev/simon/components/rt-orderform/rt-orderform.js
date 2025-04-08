@@ -14,6 +14,8 @@ customElements.define(compName,
     #_form;         // Form node
     #_cart;         // Cart node
     #_cartContents; // Object with current contents of the cart
+    /// ### PUBLIC CLASS FIELDS
+    _cartExposed    // Allow access to cart contents - only ever written, never read
 
     // +++ Lifecycle Events
     //--- constructor
@@ -36,6 +38,7 @@ customElements.define(compName,
 
       // If it exists, load any locally stored cart contents into memory (array of objects)
       this.#_cartContents = JSON.parse(localStorage.getItem('currentOrder')) || [];
+      this._cartExposed = this.#_cartContents;
 
       //-- Event Listeners
       //___ initmenu - Display product information when product chosen
@@ -186,6 +189,9 @@ customElements.define(compName,
         });
         flags.set('updated', true);
       }
+
+      // If #_cartContents updated then update _cartExposed
+      if (flags.get('updated')) this._cartExposed = this.#_cartContents
 
       // Does local storage need updating?
       return flags.get('updated');
@@ -352,7 +358,9 @@ customElements.define(compName,
     // Update values in cart for all itemLine elements of the product currently slotted as active
     #detailsUpdateCart() {
       // Start with no save necessary
-      let updated = false;
+      const flags = new Map([
+        ['updated', false]
+      ])
       // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
       this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
         // Update the currentorder Storage object with the new value?
@@ -361,10 +369,10 @@ customElements.define(compName,
           ['count', node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0]
         ]));
         // When any test returns true then a save is needed
-        if (update && !updated) updated = true;
+        if (update && !flags.get('updated')) flags.set('updated', true);
       });
       // Save updates
-      if (updated) {
+      if (flags.get('updated')) {
         //  Save the current order data to local Storage object
         if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
         //  If this.#_cartContents is empty then delete Storage object
@@ -503,6 +511,10 @@ customElements.define(compName,
       // Ensure menu items are visible
       this.#_menu.querySelector('#menu').style.display = '';
 
+      console.log(Object.getPrototypeOf(this))
+      console.log(Object.getOwnPropertyNames(this))
+      console.log(Object.keys(this))
+
       /// Restore cart contents
       this.#cartRebuild();
     }
@@ -525,6 +537,8 @@ customElements.define(compName,
 
 
     /// ### PUBLIC METHODS
+
+    get cartContents() { return this._cartExposed; }
 
     //--- accepted
     // Reset the component once order has been accepted
