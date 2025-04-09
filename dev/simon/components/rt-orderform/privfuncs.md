@@ -45,7 +45,7 @@ Each call causes the cart display to toggle between open (displayed) or closed.
 
 ---
 ### #detailsButtonDisplay() ---
-Determines how the Update button in the product details dialog should appear/function.
+Determines if the **Update** button of the product details dialog should be enabled.
   - Enabled
     - When: Any rt-itemlist component has a *updated* property
     - Appearance is specified in the *.button* CSS entry.  
@@ -75,15 +75,15 @@ If this function is called manually (or the event does not contain the expected 
 
 ---
 ### #detailsUpdateCart() 
-Called by clicking on the 'Update' button of the Product Details dialog (when enabled).
+Intended to be called by clicking on the 'Update' button of the Product Details dialog only.
 
-Attempts to update the cart to contain all values for itemLines in the dialog then close said dialog.
+Attempts to update the cart with all rt-itemlines in the dialog with an *updated* property then close said dialog.
 
-If *#_cartContents* is modified then:
-- Cart contains at least one line item:  
-A JSON serialized value of *#_cartContents* is sent to the *currentOrder* local storage object.
-- Cart is empty:  
-The *currentOrder* local storage object is deleted.
+For each component with the property set, the object stored in *#_cartContents* is modified with the new value.
+
+Once all updates have been made to the cart object:
+- If cart has contents: Copies a JSON serialise copy of object to the *currentOrder* local storage object.
+- If cart is empty: Deletes tThe *currentOrder* local storage object.
 - Cart is rebuilt from the latest value of *#_cartContents*
 
 **Return value:** *Undefined*
@@ -107,9 +107,9 @@ Calls the checkValidity() method of all form elements and returns either pass or
 - *False* - One or more fields failed validation
 ---
 ### #orderContinue()
-Changes the process from filling the cart to configuring pickup/delivery and completing the order.
+Replaces the menu with a form for specifying pickup information and user details
 
-If the user has previously saved their details then these are used to populate the form.
+If the user has previously saved their details then these are recovered from the *user-details* local storage object and used to populate the form.
 
 **Return Value:** *Undefined*
 
