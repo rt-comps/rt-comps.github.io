@@ -14,7 +14,7 @@ The first word of the method indicates the focus for that method.
 ### #cartButtonsDisplay() ---
 Determine what buttons should be displayed at the bottom of the shopping cart when the page is loaded, changes are made to the cart contents or the User Details form is opened.
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #cartCurOrderStorUpdate(item)
@@ -24,7 +24,7 @@ Determine what buttons should be displayed at the bottom of the shopping cart wh
 
 Check item against the current cart contents and adds, updates or deletes the item in the cart if required.
 
-**Return Value:** Boolean
+**Return Value:** *Boolean*
  - *True* - cart was modified
  - *False* - no change was made
 ---
@@ -33,7 +33,7 @@ Deletes the current contents of the displayed cart and rebuilds from the values 
 
 Should be called if ***#cartCurOrderStorUpdate()*** returns *True*
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #cartToggle()
@@ -41,38 +41,21 @@ Only active when screen width triggers mobile CSS.
 
 Each call causes the cart display to toggle between open (displayed) or closed.
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #detailsButtonDisplay() ---
 Determines how the Update button in the product details dialog should appear/function.
   - Enabled
-    - When values in the dialog do not match those in the cart
+    - When: Any rt-itemlist component has a *updated* property
     - Appearance is specified in the *.button* CSS entry.  
   - Disabled
-    - When values in the dialog match the values in the cart
-    - Appearance is modified as per the *.button-dis* CSS entry.
+    - When: No rt-itemlist components have an *updated* property
+    - Appearance is modified as per the *.button-dis* CSS class.
     - If the CSS variable *--OF-HIDE-UPDATE* is set then the button will also be hidden
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
----
-### #detailsHasDataChanged(testData)
-|Param|Type||Use|
-| :--- | --- | --- | :--- |
-|*testData*|{Map}|-|itemLine data to compare|
-
-Compares *testData* with the current contents of the cart to look for any changes.
-
-This function is only used by 
-
-**Return Value:** Boolean
-  - *True*
-     - Test *count* == 0 **AND** *prodID* found in cart
-     - Test *count* > 0 **AND** *prodID*:*count* combo **NOT** found on cart  
-  - *False*
-     - Test *count* == 0 **&&** *prodID* **NOT** found in cart
-     - Test *count* > 0 **&&** *prodID*:*count* combo found on cart  
 ---
 ### #detailsInitItemValues(e) ---
 |Param|Type||Use|
@@ -88,7 +71,7 @@ When triggered by an *Event* then an *id* corresponding to a product in the menu
 
 If this function is called manually (or the event does not contain the expected data) then it will unslot any slotted data and close the Product Details dialog
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #detailsUpdateCart() 
@@ -103,7 +86,7 @@ A JSON serialized value of *#_cartContents* is sent to the *currentOrder* local 
 The *currentOrder* local storage object is deleted.
 - Cart is rebuilt from the latest value of *#_cartContents*
 
-**Return value:** Null
+**Return value:** *Undefined*
 
 ---
 ### #formShow(show)
@@ -113,13 +96,13 @@ The *currentOrder* local storage object is deleted.
 
 Switches display from menu to form (or vice versa) and updates button visibility in the cart
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #formValidate(show)
 Calls the checkValidity() method of all form elements and returns either pass or fail
 
-**Return Value:** Boolean
+**Return Value:** *Boolean*
 - *True* - All fields passed validation
 - *False* - One or more fields failed validation
 ---
@@ -128,7 +111,7 @@ Changes the process from filling the cart to configuring pickup/delivery and com
 
 If the user has previously saved their details then these are used to populate the form.
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #orderDispatch()
@@ -136,16 +119,16 @@ When order complete is chosen then the form is validated and then, if all is goo
 
 Validation will highlight any invalid fields
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #orderInitialise()
 The main function of this method is to build the menu of the order form from the data presented in the HTML(XML)
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
 ### #orderRecover()
 
-**Return Value:** Null
+**Return Value:** *Undefined*
 
 ---
