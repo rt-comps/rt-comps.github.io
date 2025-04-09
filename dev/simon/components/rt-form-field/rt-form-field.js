@@ -59,7 +59,7 @@ customElements.define(compName,
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
-            if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
+            if (typeof rtForm !== 'undefined' && rtForm.findNode(this, 'form')) rtForm.getStyle(this, rtForm.findNode(this));
         }
 
         //--- formAssociatedCallback

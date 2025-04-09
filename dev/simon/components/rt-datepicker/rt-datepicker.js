@@ -52,8 +52,8 @@ customElements.define(compName,
         }
 
         connectedCallback() {
-            // Look for and pull in external style definition
-            if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
+            // Once appended in to form, look for and pull in external style definition
+            if (typeof rtForm !== 'undefined' && rtForm.findNode(this, 'form')) rtForm.getStyle(this, rtForm.findNode(this));
         }
 
         //--- formAssociatedCallback
