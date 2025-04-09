@@ -31,7 +31,7 @@ customElements.define(compName,
       this.id = 'eventBus';
 
       // Store some useful nodes in private fields
-      this.#_form = this.#_sR.querySelector('#user-form');
+      this.#_form = this.#_sR.querySelector('form#user-form');
       this.#_details = this.#_sR.querySelector('#product-details');
       this.#_menu = this.#_sR.querySelector('#menu-items-container');
       this.#_cart = this.#_sR.querySelector('#cart');
@@ -106,6 +106,7 @@ customElements.define(compName,
         value.style.display = 'none'
       }
 
+      console.log()
       // initialise as local global
       let newBut;
       // Is the cart empty?
@@ -117,7 +118,7 @@ customElements.define(compName,
           newBut = 'last';
           break;
         // Does cart have contents and for is not being displayed?
-        case (!cartEmpty && this.#_form.parentElement.style.display === 'none'):
+        case (!cartEmpty && this.#_sR.querySelector('#form-container').style.display === 'none'):
           newBut = 'further';
           break;
         default:
@@ -357,7 +358,7 @@ customElements.define(compName,
 
     //--- #formShow
     // show == true - hide product menu / display user-defined form
-    // show == false - hide user-define form / display product menu
+    // show == falsy - hide user-define form / display product menu
     #formShow(show) {
       this.#_menu.querySelector('#menu').style.display = show ? 'none' : '';
       this.#_menu.querySelector('#form-container').style.display = show ? '' : 'none';
@@ -367,24 +368,29 @@ customElements.define(compName,
     //--- #formValidate
     // Determine if the form has been completed as required
     #formValidate() {
+      console.log('validating...')
       // Declare flag
       let firstFail = false;
+      console.log(this.#_form)
       // Continue if form found
       if (this.#_form) {
         // Collect all possible field types
         const nodes = this.#_form.querySelectorAll('form-field, pickup-locations, date-picker');
+        console.log(nodes.length)
         // Check validity of each field type and set focus to first field to fail check
         for (const el of nodes) {
+          console.log(el)
           if (!el.checkValidity()) {
             if (!firstFail) {
               el.focus();
               firstFail = true;
             }
           }
+          console.log(firstFail)
         }
       } else firstFail = false;
 
-      // Return valid status
+      // Return validity status
       return !firstFail;
     }
 
@@ -406,7 +412,7 @@ customElements.define(compName,
       // Bring form to front
       this.#formShow(true);
       // Hide the cart
-      this.#_sR.querySelector('div#cart').style.display = 'none';
+      //this.#_sR.querySelector('div#cart').style.display = 'none';
     }
 
     //--- #orderDispatch
@@ -435,6 +441,16 @@ customElements.define(compName,
     // - Move form HTML into the shadowDOM
     // - Prepopulate form if saved details found
     #orderInitialise() {
+      // Move user-form data into place.  Forms do not function correctly if content is slotted!
+      const detailsForm = this.querySelector('div[slot="user-form"]');
+      if (detailsForm) {
+        this.#_sR.querySelector('form#user-form').append(detailsForm);
+      } else {
+        console.error('User details form is missing!!');
+        this.#_sR.querySelector('#menu-items-container').append(document.createRange().createContextualFragment('<h1 style="color: red;">User details form is missing from data file!!</h1>'))
+        return
+      }
+
       /// Create pictorial menu
       // Recover image path from setting in HTML
       const imgPath = this.querySelector("form-config span#imgpath").textContent;
@@ -477,7 +493,7 @@ customElements.define(compName,
         }, 200);
       }
 
-      // Add X image to details dialog
+      // Add 'X' image to details dialog
       this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
       // Ensure menu items are visible
       this.#_menu.querySelector('#menu').style.display = '';
@@ -549,7 +565,7 @@ customElements.define(compName,
           const frag = document.createRange().createContextualFragment(htmlText);
           // Append fragment to lightDOM 
           this.appendChild(frag);
-          // Build form from data in lightDOM and in local storage
+          // Build order form from data in lightDOM and in local storage
           this.#orderInitialise();
           this.style.display = 'inline-block';
         }
