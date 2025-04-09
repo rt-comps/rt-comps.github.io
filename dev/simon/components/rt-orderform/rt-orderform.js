@@ -332,15 +332,17 @@ customElements.define(compName,
     // Update values in cart for all itemLine elements of the product currently slotted as active
     #detailsUpdateCart() {
       // Get any updated lines (should be > 0)
-      const updatedLines = this.querySelectorAll('[slot="active-data"] rt-itemline[updated');
+      const updatedLines = this.querySelectorAll('[slot="active-data"] rt-itemline[updated]');
       // Shouldn't be able to click button if aero elements returned so this check is just for sanity
       if (updatedLines.length > 0) {
         updatedLines.forEach(node => {
           // Update the currentorder Storage object with the new value?
-          const update = this.#cartCurOrderStorUpdate(new Map([
+          this.#cartCurOrderStorUpdate(new Map([
             ['prodID', node.$attr('prodid')],
             ['count', node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0]
           ]));
+          // Mark node as processed
+          node.removeAttribute('updated');
         });
         // Save the current order data to local Storage object
         if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
