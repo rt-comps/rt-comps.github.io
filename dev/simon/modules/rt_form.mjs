@@ -50,11 +50,10 @@ function findNode(startNode, targetNodeName = 'rt-orderform') {
     const targetNode = startNode.closest(targetNodeName);
 
     // If found then return value of query for style node (null if style node not present)
-    if (targetNode !== null)
-        return targetNode
+    if (targetNode !== null) return targetNode
     // If not found BUT root node is ShadowRoot then recurse out of ShadowDOM
-    else if (startNode.getRootNode() instanceof ShadowRoot)
-        return findStyle(startNode.getRootNode().host, targetNodeName)
+    else if (startNode.getRootNode() instanceof ShadowRoot) {
+        return findNode(startNode.getRootNode().host, targetNodeName)}
     // If not found AND root node is not ShadowRoot then terminate as this means that the tergetNode was not found on this DOM branch!
     else return null;
 }
