@@ -264,41 +264,15 @@ customElements.define(compName,
       const buttonClasses = this.shadowRoot.querySelector('#prod-add-but').classList
 
       // Does anything in dialog have a new value relative to the cart contents?
-      const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline');
-      // Check there is something to process
+      const lineItems = this.querySelectorAll('rt-itemdata[slot] rt-itemline[updated]');
+      // Alter button appearance
       if (lineItems.length > 0) {
-        // Set flag to stop processing elements on first change found
-        let changed = false;
-        lineItems.forEach(element => {
-          // Only need one match so use lazy evaluation to skip check once first change has been found
-          if (!changed && this.#detailsHasDataChanged(new Map([
-            ['prodID', element.$attr('prodid')],
-            ['count', element.hasAttribute('count') ? parseInt(element.$attr('count')) : 0]
-          ]))) changed = true;
-        })
-        // Change button display to reflect state of data in dialog compared to cart
-        if (changed) {
-          buttonClasses.remove('button-dis')
-          if (hide) buttonClasses.remove('button-hide')
-        } else {
-          buttonClasses.add('button-dis')
-          if (hide) buttonClasses.add('button-hide')
-        }
+        buttonClasses.remove('button-dis')
+        if (hide) buttonClasses.remove('button-hide')
+      } else {
+        buttonClasses.add('button-dis')
+        if (hide) buttonClasses.add('button-hide')
       }
-    }
-
-    //--- #detailsHasDataChanged
-    // Determine if current value matches value in 'currentOrder' local storage object
-    #detailsHasDataChanged(testData) {
-      // Convert cart contents to JSON string
-      const cart = JSON.stringify(this.#_cartContents);
-      // If count is zero then should not be in cart
-      if (testData.get('count') === 0) return (cart.indexOf(testData.get('prodID')) > -1)
-      // If count is non-zero then check if the current value === cart value
-      else return (cart.indexOf(JSON.stringify({
-        prodID: testData.get('prodID'),
-        count: testData.get('count')
-      })) === -1)
     }
 
     //--- #detailsInitItemValues
@@ -357,25 +331,20 @@ customElements.define(compName,
     //--- #detailsUpdateCart
     // Update values in cart for all itemLine elements of the product currently slotted as active
     #detailsUpdateCart() {
-      // Start with no save necessary
-      const flags = new Map([
-        ['updated', false]
-      ])
-      // Process all <rt-itemline> nodes in active <rt-itemdata> with a attribute 
-      this.querySelectorAll('[slot="active-data"] rt-itemline').forEach(node => {
-        // Update the currentorder Storage object with the new value?
-        const update = this.#cartCurOrderStorUpdate(new Map([
-          ['prodID', node.$attr('prodid')],
-          ['count', node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0]
-        ]));
-        // When any test returns true then a save is needed
-        if (update && !flags.get('updated')) flags.set('updated', true);
-      });
-      // Save updates
-      if (flags.get('updated')) {
-        //  Save the current order data to local Storage object
+      // Get any updated lines (should be > 0)
+      const updatedLines = this.querySelectorAll('[slot="active-data"] rt-itemline[updated');
+      // Shouldn't be able to click button if aero elements returned so this check is just for sanity
+      if (updatedLines.length > 0) {
+        updatedLines.forEach(node => {
+          // Update the currentorder Storage object with the new value?
+          const update = this.#cartCurOrderStorUpdate(new Map([
+            ['prodID', node.$attr('prodid')],
+            ['count', node.hasAttribute('count') ? parseInt(node.$attr('count')) : 0]
+          ]));
+        });
+        // Save the current order data to local Storage object
         if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
-        //  If this.#_cartContents is empty then delete Storage object
+        // If this.#_cartContents is empty then delete Storage object
         else localStorage.removeItem('currentOrder');
         // Rebuild cart using latest data
         this.#cartRebuild();

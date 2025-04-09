@@ -8,8 +8,8 @@ const [compName] = rtlib.parseCompURL(import.meta.url);
 customElements.define(compName,
     class extends rtBC.RTBaseClass {
         /// ### PRIVATE CLASS FIELDS
-        #_sR;   // Shadow Root node
-
+        #_sR;       // Shadow Root node
+        #_menuNode  // Top level node 
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {
@@ -32,10 +32,10 @@ customElements.define(compName,
         connectedCallback() {
             // Look for and pull in external style definition
             if (typeof rtForm !== 'undefined') {
-                const menuNode = rtForm.findNode(this);
-                if (menuNode) rtForm.getStyle(this, menuNode);
+                this.#_menuNode = rtForm.findNode(this);
+                if (this.#_menuNode) rtForm.getStyle(this, this.#_menuNode);
             }
-
+            // Display price in Euro
             this.#_sR.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
         }
         //+++ End of Lifecycle Events
@@ -49,31 +49,46 @@ customElements.define(compName,
                 // Get current node of count
                 const _count = this.#_sR.querySelector('span#count');
                 // Declare new value
-                let currentCount;
+                let newCount;
                 if (e.detail.replace) {
                     // Set new value  to replaced value
-                    currentCount = e.detail.change;
+                    newCount = e.detail.change;
                 } else {
                     // Set new value to the adjusted value
-                    currentCount = parseInt(_count.textContent) + e.detail.change;
+                    newCount = parseInt(_count.textContent) + e.detail.change;
                 }
                 // Check boundaries
                 switch (true) {
-                    case (currentCount > this.maxCount):
-                        currentCount = this.maxCount;
+                    case (newCount > this.maxCount):
+                        newCount = this.maxCount;
                         break;
-                    case (currentCount < 0):
-                        currentCount = 0;
+                    case (newCount < 0):
+                        newCount = 0;
                 }
-
                 // Write back new value
-                _count.textContent = `${currentCount}`;
-
+                _count.textContent = `${newCount}`;
+                /// Check if newCount matches value in the cart
+                // Get current cart contents in JSON 
+                const currentCart = JSON.stringify(this.#_menuNode._cartExposed)
+                // Is prodid already in cart?
+                const inCart = currentCart.indexOf(this.$attr('prodid')) > -1;
+                // Is prodid in cart with matching count
+                const objMatch = currentCart.indexOf(JSON.stringify({ prodID: this.$attr('prodid'), count: newCount })) > -1;
+                // Determine when an entry has been updated
+                switch (true) {
+                    case (newCount > 0 && !inCart):
+                    case (inCart && !objMatch):
+                    case (newCount === 0 && inCart):
+                        this.setAttribute('updated', '');
+                        break;
+                    default:
+                        this.removeAttribute('updated');
+                }
                 // Handle style change and count attribute for zero/non-zero values
-                if (currentCount > 0) {
+                if (newCount > 0) {
                     // Highlight line and make count available in LightDOM
                     this.#_sR.querySelector('#container').style.fontWeight = 'bold';
-                    this.setAttribute('count', `${currentCount}`);
+                    this.setAttribute('count', `${newCount}`);
                 } else {
                     // Undo above
                     this.#_sR.querySelector('#container').style.fontWeight = '';
