@@ -1,25 +1,6 @@
 // ================================================================
 // Functions used used by <rt-orderform> components
 
-//--- findStyle
-// Search up the DOM (light or shadow) for <style id="<component-name>">.
-function findStyle(startNode, targetNodeName, startNodeName = startNode.nodeName) {
-    // See if targetNode is in this component's 'LightDOM'
-    const targetNode = startNode.closest(targetNodeName);
-    // No need to do anything in this case as any matching STYLE will already have been applied
-    if (targetNode === startNode) return null
-
-    // If found then return value of query for style node (null if style node not present)
-    if (targetNode !== null)
-        return targetNode.querySelector(`form-config style#${startNodeName.toLowerCase()}`)
-    // If not found BUT root node is ShadowRoot then recurse out of ShadowDOM
-    else if (startNode.getRootNode() instanceof ShadowRoot)
-        return findStyle(startNode.getRootNode().host, targetNodeName, startNodeName)
-    // If not found AND root node is not ShadowRoot then terminate as this means that the tergetNode was not found on this DOM branch!
-    else return null;
-
-}
-
 //--- getStyle
 // If <style id="<component-name>"> has been defined in the menu data file  then
 // clone the node into the components shadow DOM after the default <style> node to override.
