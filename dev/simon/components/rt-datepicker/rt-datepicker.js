@@ -138,9 +138,15 @@ customElements.define(compName,
         //get validity() { return this.#_internals.validity; }
 
         // Check validity of value provided
-        checkValidity() { return this.#_value ? true : false }
+        checkValidity() {
+            return new Map([
+                ['valid', this.#_value ? true : false],
+                ['field', 'datepicker']
+            ])
+        }
+
         //reportValidity() { return this.#_internals.reportValidity(); }
-        focus() { this.#_sR.querySelector('#container').focus() };
+        focus() { this.#_sR.querySelector('#container').focus({ focusVisible: true }) };
 
     }
 );
