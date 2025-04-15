@@ -36,8 +36,8 @@ customElements.define(
 
     //--- connectedCallBack
     connectedCallBack() {
-      // Look for and pull in external style definition
-      if (typeof rtForm !== 'undefined') rtForm.getStyle(this);
+      // Look for and pull in external style definition only when component is connected to a form element
+      if (typeof rtForm !== 'undefined' && rtForm.findNode(this, 'form')) rtForm.getStyle(this, rtForm.findNode(this));
     }
 
     //--- formAssociatedCallback
@@ -135,18 +135,26 @@ customElements.define(
     //--- checkValidity
     // Ensure a value has been chosen
     checkValidity() {
-      return (this.#_sR.querySelector('input[name="location"]:checked') && this.#_sR.querySelector('input[name="time-slot"]:checked')) ? true : false;
+      const flags = new Map([
+        ['valid', true]
+      ]);
+
+      ['location', 'time-slot'].forEach(field => {
+        if (flags.get('valid')) {
+          if (!this.#_sR.querySelector(`input[name="${field}"]:checked`)) {
+            flags.set('valid', false);
+            flags.set('field', `pickup-location: ${field}`);
+          }
+        }
+      })
+      return flags
     }
+
     //--- focus
     // Push focus to correct element
-    focus() {
-      const times = this.#_sR.querySelector('#pu-times');
-      if (times.style.display) {
-        this.#_sR.querySelector('#fs-pickup').focus();
-      }
-      else {
-        this.#_sR.querySelector('#fs-time').focus();
-      }
+    focus(field) {
+      if (field.replace(/^pickup-location: /,'') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+      else this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
     }
   }
 );
