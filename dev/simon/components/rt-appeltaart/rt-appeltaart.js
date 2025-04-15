@@ -56,6 +56,8 @@ customElements.define(
         #dispatchOrder(e) {
             // Catch order and prevent further bubbling
             if (e instanceof Event) e.stopPropagation();
+            console.log(e);
+            return
             // Process order
             if (e.detail) {
                 // Define API request parameters

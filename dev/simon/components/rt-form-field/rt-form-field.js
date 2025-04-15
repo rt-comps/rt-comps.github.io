@@ -88,7 +88,12 @@ customElements.define(compName,
         //get validity() { return this.#_internals.validity; }
 
         // Check validity of value provided
-        checkValidity() { return this.#_input.checkValidity(); }
+        checkValidity() {
+            return new Map([
+                ['valid', this.#_input.checkValidity()],
+                ['field', this.name]
+            ])
+        }
         //reportValidity() { return this.#_internals.reportValidity(); }
         // When focus is pushed to component then push focus to input field
         focus() { this.#_input.focus() };
