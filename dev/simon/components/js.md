@@ -1,5 +1,5 @@
 [< Back](README.md)
-sdfds
+
 # elementName.js
 This is the actual definition of your component.
 
