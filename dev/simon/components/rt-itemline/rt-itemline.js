@@ -71,9 +71,9 @@ customElements.define(compName,
                 // Get current cart contents in JSON 
                 const currentCart = JSON.stringify(this.#_menuNode._cartExposed)
                 // Is prodid already in cart?
-                const inCart = currentCart.indexOf(this.$attr('prodid')) > -1;
+                const inCart = currentCart.includes(this.$attr('prodid'));
                 // Is prodid in cart with matching count
-                const objMatch = currentCart.indexOf(JSON.stringify({ prodID: this.$attr('prodid'), count: newCount })) > -1;
+                const objMatch = currentCart.includes(JSON.stringify({ prodID: this.$attr('prodid'), count: newCount }));
                 // Determine when an entry has been updated
                 switch (true) {
                     case (newCount > 0 && !inCart):

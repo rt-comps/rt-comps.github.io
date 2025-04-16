@@ -2,7 +2,7 @@
 // === rt-orderform class definition
 
 // Recover component name from URL
-const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
+const [compName, basePath] = rtlib.parseCompURL(import.meta.url);
 
 // Define the component
 customElements.define(compName,
@@ -496,7 +496,7 @@ customElements.define(compName,
       }
 
       // Add 'X' image to details dialog
-      this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
+      this.#_sR.querySelector('#product-details-close img').src = `${basePath}/components/${compName}/img/close-blk.png`;
       // Ensure menu items are visible
       this.#_menu.querySelector('#menu').style.display = '';
 
@@ -583,7 +583,8 @@ customElements.define(compName,
             break;
         }
         const frag = document.createRange().createContextualFragment(output);
-        this.appendChild(frag);
+        this.#_sR.querySelector('#menu-items-container').appendChild(frag);
+        this.style.display='';
         return false
       }
     }
