@@ -47,7 +47,7 @@ customElements.define(compName,
                 // Get all <dp-date> nodes
                 const dateNodes = this.#_sR.querySelectorAll('dp-date');
                 // Set all invalid days, allowing for display of more than 1 week in picker
-                dateNodes.forEach(node => { if (invalidDays.indexOf((node.getAttribute('day')) % 7) > -1) { node.setAttribute('invalid', ''); } });
+                dateNodes.forEach(node => { if (invalidDays.includes((node.getAttribute('day')) % 7)) { node.setAttribute('invalid', ''); } });
             }
         }
 
@@ -138,9 +138,15 @@ customElements.define(compName,
         //get validity() { return this.#_internals.validity; }
 
         // Check validity of value provided
-        checkValidity() { return this.#_value ? true : false }
+        checkValidity() {
+            return new Map([
+                ['valid', this.#_value ? true : false],
+                ['field', 'datepicker']
+            ])
+        }
+
         //reportValidity() { return this.#_internals.reportValidity(); }
-        focus() { this.#_sR.querySelector('#container').focus() };
+        focus() { this.#_sR.querySelector('#container').focus({ focusVisible: true }) };
 
     }
 );

@@ -2,7 +2,7 @@
 // === rt-orderform class definition
 
 // Recover component name from URL
-const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
+const [compName, basePath] = rtlib.parseCompURL(import.meta.url);
 
 // Define the component
 customElements.define(compName,
@@ -76,6 +76,7 @@ customElements.define(compName,
       this.#_sR.querySelector('#cancel-but').addEventListener('click', () => {
         this.#formShow(false);
         this.#_sR.querySelector('div#cart').style.display = '';
+        this.#_form.reset();
       });
     }
 
@@ -368,30 +369,30 @@ customElements.define(compName,
     //--- #formValidate
     // Determine if the form has been completed as required
     #formValidate() {
-      console.log('validating...')
       // Declare flag
-      let firstFail = false;
-      console.log(this.#_form)
+      const flags = new Map([
+        ['failed', false]
+      ])
       // Continue if form found
       if (this.#_form) {
         // Collect all possible field types
-        const nodes = this.#_form.querySelectorAll('form-field, pickup-locations, date-picker');
-        console.log(nodes.length)
+        const nodes = this.#_form.querySelectorAll('rt-form-field[required], rt-pickup-locations, rt-datepicker');
         // Check validity of each field type and set focus to first field to fail check
         for (const el of nodes) {
-          console.log(el)
-          if (!el.checkValidity()) {
-            if (!firstFail) {
-              el.focus();
-              firstFail = true;
-            }
+          // Run checkValidity() for element
+          const result = el.checkValidity();
+          // Stop on first failure and set focus to failed element
+          if (!result.get('valid')) {
+            const field=result.get('field');
+            el.focus(field);
+            flags.set('failed', true);
+            flags.set('field', field);
+            break;
           }
-          console.log(firstFail)
         }
-      } else firstFail = false;
-
+      }
       // Return validity status
-      return !firstFail;
+      return flags
     }
 
     //--- #orderContinue
@@ -419,7 +420,8 @@ customElements.define(compName,
     // Catch the form submit event
     #orderDispatch() {
       // Disptach order if all checks pass
-      if (this.#formValidate()) {
+      const valid = this.#formValidate();
+      if (!valid.get('failed')) {
         //### Dispatch order and reset form
         // Collect the current form data
         const formValues = new FormData(this.#_form);
@@ -431,7 +433,7 @@ customElements.define(compName,
             order: this.#_cartContents
           }
         });
-      } else console.warn('Form submission not valid');
+      } else console.warn(`Form submission not valid - ${valid.get('field')}`);
     }
 
     //--- #orderInitialise
@@ -494,7 +496,7 @@ customElements.define(compName,
       }
 
       // Add 'X' image to details dialog
-      this.#_sR.querySelector('#product-details-close img').src = `${compPath}/img/close-blk.png`;
+      this.#_sR.querySelector('#product-details-close img').src = `${basePath}/components/${compName}/img/close-blk.png`;
       // Ensure menu items are visible
       this.#_menu.querySelector('#menu').style.display = '';
 
@@ -581,7 +583,8 @@ customElements.define(compName,
             break;
         }
         const frag = document.createRange().createContextualFragment(output);
-        this.appendChild(frag);
+        this.#_sR.querySelector('#menu-items-container').appendChild(frag);
+        this.style.display='';
         return false
       }
     }

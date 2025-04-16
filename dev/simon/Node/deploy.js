@@ -90,7 +90,7 @@ try {
     //  Get current working directory
     const workingDir = process.cwd();
     //  Ensure script has been called from within project directory
-    if (workingDir.indexOf('github.io') < 0) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
+    if (!workingDir.includes('github.io')) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
     //  Files are output to 'docs' directory of project
     const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs`;
     //  Get the path of this executable
@@ -104,7 +104,7 @@ try {
     //  If no component is specified then deploy all files in 'components' and 'modules' directories
     if (paramList.length === 0) paramList = [...pathList];
     //  Convert parameter list to relative paths
-    const compList = paramList.map(param => `${pathList.indexOf(param) > -1 ? '' : 'components/'}${param}`);
+    const compList = paramList.map(param => `${pathList.includes(param) ? '' : 'components/'}${param}`);
 
     // ### Pre-flight checks
     // Check if a previous attempt failed
@@ -131,7 +131,7 @@ try {
                     // Get original file contents <string>
                     let contents = fs.readFileSync(`${devPath}/${file}`, 'utf8');
                     // Check if any required substitions are present
-                    if (contents.indexOf('ForProd:') > -1) contents = constSub(contents);
+                    if (contents.includes('ForProd:')) contents = constSub(contents);
                     // Minify and save to staging
                     fs.writeFileSync(`${stgPath}/${file}`, uglify(contents).code);
                     break;

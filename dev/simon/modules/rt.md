@@ -13,7 +13,9 @@ This file contains the following functions
 | :--- | --- | --- | :--- |
 |*url*|{String}|-|URL of component file|
 
-Parse the URL of a component file to return the component name and base path.
+This function is primarily intended to work with loadComponent().
+
+This function returns the name and URL of the enclosing directory of the file specified in the URL.
 
 ---
 ### loadTemplate(url)
@@ -24,7 +26,7 @@ Parse the URL of a component file to return the component name and base path.
 Load the specified template file in to the document HEAD.
 
 ---
-### loadComponent(url, version = false)
+### loadComponent(url, version)
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*url*|{String}|-|URL of template file|
@@ -33,11 +35,11 @@ Load the specified template file in to the document HEAD.
 Load the component code.
 
 ---
-### loadMods(basePath, addModules = [])
+### loadMods(basePath, addModules)
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*basePath*|{String}|-|URL of directory that contains the  *modules* directory|
-|*addModules*|{Array}|-|Any modules that should be loaded in addition to the base modules|
+|*addModules*|{Array}|-|Any modules that should be loaded in addition to the base modules (Default: empty array)|
 
 Load any modules needed for the correct operation of a component into the global namespace.
 
@@ -48,14 +50,14 @@ Load any modules needed for the correct operation of a component into the global
     file: moduleFileName
 }
 ```
-Object values are treated as String
+All Object values are treated as **String**
 
 ---
-### init(module, deps = [], mods = [])
+### init(module, deps, mods)
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*module*|{String}|-|URL of component file|
-|*deps*|{Array}|-|List of components needed by this component|
-|*mods*|{Array}|-|List of additional modules needed by this component|
+|*deps*|{Array}|-|List of components needed by this component (Default: empty array)|
+|*mods*|{Array}|-|List of additional modules needed by this component (Default: empty array)|
 
 Initialise a new component and load any dependencies (components and/or modules)
