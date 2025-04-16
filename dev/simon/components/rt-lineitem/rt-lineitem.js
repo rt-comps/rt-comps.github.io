@@ -1,6 +1,6 @@
 // ================================================================
 // === line-item (displayed in cart)
-const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
+const [compName, basePath] = rtlib.parseCompURL(import.meta.url);
 
 customElements.define(
     compName,
@@ -56,7 +56,7 @@ customElements.define(
             this.#_sR.querySelector('#unit').innerHTML = `${(this.$euro(unit / 100))}`;
             this.#_sR.querySelector('#count').innerHTML = `${count}`;
             this.#_sR.querySelector('#total').innerHTML = `${(this.$euro((count * unit) / 100))}`;
-            this.#_sR.querySelector('img').src = `${compPath}/imgs/trashcan.jpeg`;
+            this.#_sR.querySelector('img').src = `${basePath}/components/${compName}/imgs/trashcan.jpeg`;
         }
 
         //--- #update
