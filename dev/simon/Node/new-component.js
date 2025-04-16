@@ -5,7 +5,7 @@ try {
     //  Get current working directory of this executable
     const workingDir = process.argv[1].slice(0, process.argv[1].lastIndexOf('/'));
     //  Ensure script has been called from within project directory else throw error
-    if (workingDir.indexOf('github.io') < 0) throw new Error('No project directory found.  Ensure script is run from within project directory structure', { cause: 'custom' });
+    if (!workingDir.includes('github.io')) throw new Error('No project directory found.  Ensure script is run from within project directory structure', { cause: 'custom' });
     //  Files are placed in 'components' dev directory
     const dstPath = workingDir.replace('/Node', '/components');
     //  Recover name of new component
@@ -29,7 +29,7 @@ try {
         // Read template file contents
         let contents = fs.readFileSync(`${workingDir}/templates/${filename}`, 'utf8');
         // Replace <compName> with component name in HTML file 
-        if (filename.indexOf('.html') > -1) contents = contents.replace('<compName>',compName.toUpperCase());
+        if (filename.includes('.html')) contents = contents.replace('<compName>',compName.toUpperCase());
         // Write contents to new file
         fs.writeFileSync(`${newDir}/${filename.replace('comp', compName)}`, contents, 'utf8');
     })

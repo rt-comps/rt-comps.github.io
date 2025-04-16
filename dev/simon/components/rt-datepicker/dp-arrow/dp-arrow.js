@@ -4,8 +4,8 @@
 // Recover component name from URL
 const [compName] = rtlib.parseCompURL(import.meta.url);
 
-
-customElements.define(compName,
+// Remove enclosing component from compName
+customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
     class extends rtBC.RTBaseClass {
         //+++ Lifecycle Events
         //--- constructor
