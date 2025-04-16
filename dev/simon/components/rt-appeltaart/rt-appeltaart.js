@@ -4,7 +4,7 @@
 // This is a container for an order form
 // It provides code to load the menu HTML and respond to a new order being placed
 // 
-const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
+const [compName, basePath] = rtlib.parseCompURL(import.meta.url);
 
 customElements.define(
     compName,
@@ -39,7 +39,7 @@ customElements.define(
                 //  Set regex to determine if path is absolute or relative
                 const regex = /^http[s]?:\/\//;
                 //  If path is relative then assume file is in this component's directory
-                const url = dataFile.match(regex) ? `${dataFile}` : `${compPath}/${dataFile}`;
+                const url = dataFile.match(regex) ? `${dataFile}` : `${basePath}/components/${compName}/${dataFile}`;
                 // Initiate loading of the menu data
                 this.#_sR.querySelector('rt-orderform').loadMenu(url);
             } else {
