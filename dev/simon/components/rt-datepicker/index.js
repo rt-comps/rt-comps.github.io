@@ -1,26 +1,26 @@
 // ===== Import all required modules and components
 
-async function initialise(comp, options = {}) {
-  try {
-    // Load base module if not already loaded
-    if (typeof rtlib === 'undefined') window.rtlib = await import(`${comp.split('/').slice(0, -3).join('/')}/modules/rt.mjs`)
-    // Initialise component
-    rtlib.init(comp, options);
-  } catch (e) {
-    console.warn(e);
-  }
-}
+// async function initialise(comp, options = {}) {
+// }
 
 //--- MAIN
 // Determine extra URL for unique dependencies
-const compUrl = import.meta.url;
-const startStr = 'components/';
-const url = compUrl.slice(compUrl.indexOf(startStr) + startStr.length, compUrl.indexOf('index.js'));
+const compUrlArray = import.meta.url.split('/');
+const comp = compUrlArray[compUrlArray.length - 2];
 
 const options = {
   dependencies: [
-    `${url}dp-arrow`,
-    `${url}dp-date`
+    [comp, 'dp-arrow'],
+    [comp, 'dp-date']
   ]
 }
-initialise(compUrl, options);
+//initialise(compUrl, options);
+try {
+  // Load base module if not already loaded
+  if (typeof rtlib === 'undefined') window.rtlib = await import(`${compUrlArray.slice(0, -3).join('/')}/modules/rt.mjs`)
+  // Initialise component
+  rtlib.init(import.meta.url, options);
+} catch (e) {
+  console.error(e);
+  throw e
+}
