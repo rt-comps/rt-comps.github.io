@@ -153,8 +153,8 @@ customElements.define(
     //--- focus
     // Push focus to correct element
     focus(field) {
-      if (field.replace(/^pickup-location: /,'') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
-      else this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
+      if (field.replace(/^pickup-location: /, '') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+      else setTimeout(() => this.#_sR.querySelector('#fs-time').focus({ focusVisible: true }), 0);
     }
   }
 );
