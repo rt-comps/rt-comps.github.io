@@ -325,7 +325,8 @@ customElements.define(compName,
           item.$dispatch({ name: 'updatecountline', detail: { change: '0', replace: true } })
         }
       });
-
+      // Ensure button is disabled when dialog opens (no updates should have been made)
+      this.#detailsButtonDisplay();
       // Display the dialog
       this.#_details.showModal();
     }
