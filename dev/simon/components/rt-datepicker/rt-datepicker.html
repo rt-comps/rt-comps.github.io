@@ -22,6 +22,11 @@
             flex: none;
         }
 
+        fieldset {
+            border:none;
+            width:fit-content;
+        }
+
 
         #container {
             display: grid;
@@ -36,15 +41,18 @@
     </style>
 
     <!-- Layout Definition -->
-    <div id="container" tabindex="0 ">
-        <dp-arrow id="al"></dp-arrow>
-        <dp-date day="0"></dp-date>
-        <dp-date day="1"></dp-date>
-        <dp-date day="2"></dp-date>
-        <dp-date day="3"></dp-date>
-        <dp-date day="4"></dp-date>
-        <dp-date day="5"></dp-date>
-        <dp-date day="6"></dp-date>
-        <dp-arrow id="ar"></dp-arrow>
-    </div>
+    <fieldset>
+        <legend>Kies een dag</legend>
+        <div id="container" tabindex="0 ">
+            <dp-arrow id="al"></dp-arrow>
+            <dp-date day="0"></dp-date>
+            <dp-date day="1"></dp-date>
+            <dp-date day="2"></dp-date>
+            <dp-date day="3"></dp-date>
+            <dp-date day="4"></dp-date>
+            <dp-date day="5"></dp-date>
+            <dp-date day="6"></dp-date>
+            <dp-arrow id="ar"></dp-arrow>
+        </div>
+    </fieldset>
 </template>
