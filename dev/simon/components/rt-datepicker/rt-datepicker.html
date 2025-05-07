@@ -26,7 +26,21 @@
             border:none;
             width:fit-content;
         }
+        .arrowbox {
+            justify-content: center;
+            align-items: center;
+            padding: 0 5px 0 5px;
+            font-size: 50%;
+        }
 
+        .disabled {
+            color: #CCCCCC;
+        }
+
+        #al {
+            border-right: 1px solid black;
+            padding-right: 4px;
+        }
 
         #container {
             display: grid;
@@ -44,7 +58,7 @@
     <fieldset>
         <legend>Kies een dag</legend>
         <div id="container" tabindex="0 ">
-            <dp-arrow id="al"></dp-arrow>
+            <div id="al" class="arrowbox">&lt;</div>
             <dp-date day="0"></dp-date>
             <dp-date day="1"></dp-date>
             <dp-date day="2"></dp-date>
@@ -52,7 +66,7 @@
             <dp-date day="4"></dp-date>
             <dp-date day="5"></dp-date>
             <dp-date day="6"></dp-date>
-            <dp-arrow id="ar"></dp-arrow>
+            <div id="ar" class="arrowbox">&gt;</div>
         </div>
     </fieldset>
 </template>

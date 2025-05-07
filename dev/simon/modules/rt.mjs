@@ -67,6 +67,7 @@ async function loadComponent(url, version = false) {
     await loadTemplate(`${baseFile}.html`);
     await import(`${baseFile}.js`);
   } catch (e) {
+    console.log(e)
     throw e
   }
 }

@@ -11,9 +11,10 @@ customElements.define(compName,
         static formAssociated = true;
         // Private class fields
         #_sR;           // ShadowRoot
+        #_aL;
+        #_aR;           
         #_internals;    // Internals (Form)
         #_eventBus;     // Where events are dispatched/listened
-        #_maxWeek;
         #_value;        // Value used by Form
 
         //+++ Lifecycle Events
@@ -24,20 +25,22 @@ customElements.define(compName,
             // Make shadowRoot accessible via private class field
             this.#_sR = this.attachShadow({ mode: "open" })
             this.#_sR.append(this.$getTemplate());
+            this.#_aL=this.#_sR.querySelector('#al');
+            this.#_aR=this.#_sR.querySelector('#ar');
 
             // Allow form participation
             this.#_internals = this.attachInternals();
 
             // Initialise other private class fields
             this.#_eventBus = this.#_sR.querySelector('#container')
-            this.#_maxWeek = this.hasAttribute('maxweek') ? parseInt(this.getAttribute('maxweek')) - 1 : undefined;
+            this.#_eventBus._maxWeek = this.hasAttribute('maxweek') ? parseInt(this.getAttribute('maxweek')) - 1 : undefined;
             // Initialise property that can be accessed by children via the parentNode property
             this.#_eventBus._week = 0;
             this.#_eventBus._locale = this.getAttribute('locale') || undefined;
 
             //### Event Listners
-            this.#_sR.querySelector('#al').addEventListener('click', () => this.#arrowRespond(-1));
-            this.#_sR.querySelector('#ar').addEventListener('click', () => this.#arrowRespond(1));
+            this.#_aL.addEventListener('click', () => this.#arrowRespond(-1));
+            this.#_aR.addEventListener('click', () => this.#arrowRespond(1));
             // this.addEventListener('datepicked', (e) => this.#dpRespond(e));
             this.addEventListener('datepicked', this.#dpRespond);
             
@@ -47,7 +50,7 @@ customElements.define(compName,
                 const invalidDays = this.getAttribute('invalid').split(',').map(Number);
                 // Get all <dp-date> nodes
                 const dateNodes = this.#_sR.querySelectorAll('dp-date');
-                // Set all invalid days, allowing for display of more than 1 week in picker
+                // Set all invalid days. MOD allows for display of more than 1 week in picker
                 dateNodes.forEach(node => { if (invalidDays.includes((node.getAttribute('day')) % 7)) { node.setAttribute('invalid', ''); } });
             }
         }
@@ -70,7 +73,7 @@ customElements.define(compName,
         //--- formResetCallback
         // respond to the enclosing form being reset
         formResetCallback() {
-            this.clearChosen();
+            this.#clearChosen();
             // Reset week and inform all <dp-date> components of the change
             this.#_eventBus._week = 0;
             this.$dispatch({
@@ -86,13 +89,14 @@ customElements.define(compName,
         // Clear highlighting and change week
         #arrowRespond(change) {
             // Reset any chosen value
-            this.clearChosen();
+            this.#clearChosen();
             // Apply change to _week
             this.#_eventBus._week += change;
             // Limit lowest value to zero
             if (this.#_eventBus._week < 0) this.#_eventBus._week = 0;
             // Adhere to upper limit - if set
-            if (this.#_maxWeek && (this.#_eventBus._week > this.#_maxWeek)) this.#_eventBus._week = this.#_maxWeek;
+            if (this.#_eventBus._maxWeek && (this.#_eventBus._week > this.#_eventBus._maxWeek)) this.#_eventBus._week = this.#_eventBus._maxWeek;
+
             // Let child <dp-date> components know that _week has changed
             this.$dispatch({
                 name: 'changeWeek',
@@ -101,32 +105,32 @@ customElements.define(compName,
             });
         }
 
+        //--- #clearChosen
+        // Tell all <dp-date> components to clear any highlight and clear form value
+        #clearChosen() {
+            // '-1' should not match a <dp-date> component
+            this.#dispatchChoice('-1');
+            // Clear the form value
+            this.#_value = null;
+        }
+        
+        //--- #dispatchChoice
+        // Tell all <dp-date> components to clear highlight if not chosen
+        #dispatchChoice(day) {
+            this.$dispatch({
+                name: 'choiceMade',
+                detail: { day },
+                eventbus: this.#_eventBus
+            })
+        }
+        
         //--- #dpRespond
         // Respond to a date being chosen
         #dpRespond(e) {
             // Store chosen value
             this.#_value = this.$localeDate(e.detail.date, this.#_eventBus._locale, { weekday: 'short', month: 'short', year: 'numeric', day: 'numeric' });
             // Inform all <dp-date> about choice
-            this.dispatchChoice(e.detail.day);
-        }
-
-        //--- clearChosen
-        // Tell all <dp-date> components to clear any highlight
-        clearChosen() {
-            // '-1' should not match a <dp-date> component
-            this.dispatchChoice('-1');
-            // Clear the form value
-            this.#_value = null;
-        }
-
-        //--- dispatchChoice
-        // Tell all <dp-date> components to clear highlight if not chosen
-        dispatchChoice(day) {
-            this.$dispatch({
-                name: 'choiceMade',
-                detail: { day },
-                eventbus: this.#_eventBus
-            })
+            this.#dispatchChoice(e.detail.day);
         }
 
         //+++ Expose some standard form element properties and methods
