@@ -4,6 +4,24 @@
 
 class RTBaseClass extends HTMLElement {
 
+  //--- $attr
+  // Return the value of an attribute if it exists.  
+  //  If the named attribute does not exist then return a specified default value or empty string
+  $attr(name, defaultValue = "") {
+    return this.getAttribute(name) || defaultValue;
+  }
+
+  //--- $attr2NumArray
+  // Convert a comma delimited text string of numbers into an array
+  $attr2NumArray(attr, delimiter = ',') {
+    // e.g. String "1,2,3" => Array [1,2,3]
+    return this.$attr(attr)
+      .split(delimiter)
+      .map(
+        x => Number(x) || console.error(attr, "contains illegal number", x)
+      );
+  }
+
   //--- $createElement
   // Wrapper for document.createElement()
   $createElement(
@@ -39,51 +57,6 @@ class RTBaseClass extends HTMLElement {
     return Object.assign(newEl, props)
   }
 
-  //--- $attr
-  // Return the value of an attribute if it exists.  
-  //  If the named attribute does not exist then return a specified default value or empty string
-  $attr(name, defaultValue = "") {
-    return this.getAttribute(name) || defaultValue;
-  }
-
-  //--- $attr2NumArray
-  // Convert a comma delimited text string of numbers into an array
-  $attr2NumArray(attr) {
-    // String "250,200,200" to Array [250,200,200]
-    return this.$attr(attr)
-      .split(",")
-      .map(
-        (x) => Number(x) || console.error(attr, "contains illegal number", x)
-      );
-  }
-
-  //--- $euro
-  // format value as Euro NL currency string
-  $euro(value) {
-    return Intl.NumberFormat("nl-NL", {
-      style: "currency",
-      currency: "eur",
-    }).format(value);
-  }
-
-  //--- $nlDate
-  // Formate a date object to locale (default NL)  string
-  $localeDate(date, locale = 'nl-NL', options = {}) {
-    return Intl.DateTimeFormat(locale, options).format(date);
-  }
-
-  //--- $getTemplate
-  // Returns an HTML node based on the contents of a named <template> section in the document.head
-  // NB: Assumes that the <template> element was created previously using rt.loadComponent()!
-  $getTemplate(template_id = this.nodeName) {
-    let template = document.getElementById(template_id);
-    if (template) return template.content.cloneNode(true);
-    else {
-      console.warn("Template not found:", template_id);
-      return document.createElement("span");
-    }
-  }
-
   //--- $dispatch
   // Simplified event dispatch with options provided as an object
   $dispatch({
@@ -106,6 +79,33 @@ class RTBaseClass extends HTMLElement {
   }) {
     //console.warn("%c EventName:", "background:yellow", name, [detail]);
     eventbus.dispatchEvent(new CustomEvent(name, options));//, once );
+  }
+
+  //--- $euro
+  // format number as Euro (NL) currency string
+  $euro(value, locale = 'nl-NL') {
+    return Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "eur",
+    }).format(value);
+  }
+
+  //--- $getTemplate
+  // Returns an HTML node based on the contents of a named <template> section in the document.head
+  // NB: Assumes that the <template> element was created previously using loadComponent()!
+  $getTemplate(template_id = this.nodeName) {
+    let template = document.getElementById(template_id);
+    if (template) return template.content.cloneNode(true);
+    else {
+      console.warn("Template not found:", template_id);
+      return document.createElement("span");
+    }
+  }
+
+  //--- $localeDate
+  // Formate a date object to locale (default NL)  string
+  $localeDate(date, locale = 'nl-NL', options = {}) {
+    return Intl.DateTimeFormat(locale, options).format(date);
   }
 }
 
