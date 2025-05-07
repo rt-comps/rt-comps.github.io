@@ -10,11 +10,11 @@ customElements.define(compName,
         // Allow this component to participate in forms
         static formAssociated = true;
         // Private class fields
-        #_sR;
-        #_internals;
-        #_eventBus;
+        #_sR;           // ShadowRoot
+        #_internals;    // Internals (Form)
+        #_eventBus;     // Where events are dispatched/listened
         #_maxWeek;
-        #_value;
+        #_value;        // Value used by Form
 
         //+++ Lifecycle Events
         //--- constructor
@@ -36,10 +36,11 @@ customElements.define(compName,
             this.#_eventBus._locale = this.getAttribute('locale') || undefined;
 
             //### Event Listners
-            this.#_sR.querySelector('#al').addEventListener('click', () => this.arrowRespond(-1));
-            this.#_sR.querySelector('#ar').addEventListener('click', () => this.arrowRespond(1));
-            this.addEventListener('datepicked', (e) => this.dpRespond(e));
-
+            this.#_sR.querySelector('#al').addEventListener('click', () => this.#arrowRespond(-1));
+            this.#_sR.querySelector('#ar').addEventListener('click', () => this.#arrowRespond(1));
+            // this.addEventListener('datepicked', (e) => this.#dpRespond(e));
+            this.addEventListener('datepicked', this.#dpRespond);
+            
             // Disable any days that are define by the 'invalid' attribute
             if (this.hasAttribute('invalid')) {
                 // Convert 'invalid' parameter value to array of integers
@@ -81,9 +82,9 @@ customElements.define(compName,
         }
         //+++ End of Lifecycle Events
 
-        //--- arrowRespond
+        //--- #arrowRespond
         // Clear highlighting and change week
-        arrowRespond(change) {
+        #arrowRespond(change) {
             // Reset any chosen value
             this.clearChosen();
             // Apply change to _week
@@ -100,9 +101,9 @@ customElements.define(compName,
             });
         }
 
-        //--- dpRespond
+        //--- #dpRespond
         // Respond to a date being chosen
-        dpRespond(e) {
+        #dpRespond(e) {
             // Store chosen value
             this.#_value = this.$localeDate(e.detail.date, this.#_eventBus._locale, { weekday: 'short', month: 'short', year: 'numeric', day: 'numeric' });
             // Inform all <dp-date> about choice
@@ -124,12 +125,11 @@ customElements.define(compName,
             this.$dispatch({
                 name: 'choiceMade',
                 detail: { day },
-                composed: false,
                 eventbus: this.#_eventBus
             })
         }
 
-        // Expose some standard form element properties and methods
+        //+++ Expose some standard form element properties and methods
         get value() { return this.#_value; }
         //set value(v) { this.#_input.value = v; }
 
