@@ -24,14 +24,15 @@ customElements.define(
       this.#_internals = this.attachInternals();
 
       // Useful node
-      this.#_times = this.#_sR.querySelector('#pu-times');
+      this.#_times = this.#_sR.querySelector('#fs-time');
 
       // Render Shadow DOM elements based on provided HTML
       this.#render();
 
       //###### Event Listeners
       // Update times when location selected
-      this.#_sR.querySelector('#pickup').addEventListener('change', (e) => this.#updateLoc(e));
+      this.#_sR.querySelector('#container').addEventListener('change', (e) => this.#updateLoc(e));
+//      this.
     }
 
     //--- connectedCallBack
@@ -60,7 +61,8 @@ customElements.define(
     formResetCallback() {
       const checked = [...this.#_sR.querySelectorAll('input:checked')];
       checked.forEach(el => el.checked = false);
-      this.#_times.style.display = 'none';
+      this.#_times.hidden = true;
+      // this.#_times.style.display = 'none';
     }
     //+++++ End of Lifecycle Events
 
@@ -118,8 +120,12 @@ customElements.define(
     //--- #updateLoc
     // Update pickup times when user selects location
     #updateLoc(e) {
+      console.log(e)
+      // Unhide date picker
+      const _datepicker = this.#_sR.querySelector('rt-datepicker');
+      if (_datepicker && _datepicker.hidden === true) _datepicker.hidden = false;
       // Unhide 'times' on the first time a location is chosen
-      if (this.#_times.style.display === 'none') this.#_times.style.display = '';
+      if (this.#_times.hidden === true) this.#_times.hidden = false;
       // Cycle through possible child nodes, unhide the correct one and hide all the others
       const allNodes = [...this.shadowRoot.querySelectorAll('fieldset div')];
       allNodes.forEach(element => {
@@ -153,7 +159,7 @@ customElements.define(
     //--- focus
     // Push focus to correct element
     focus(field) {
-      if (field.replace(/^pickup-location: /,'') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+      if (field.replace(/^pickup-location: /, '') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
       else this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
     }
   }
