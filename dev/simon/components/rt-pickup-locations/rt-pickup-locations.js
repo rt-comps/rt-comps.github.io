@@ -69,7 +69,7 @@ customElements.define(
       const checked = [...this.#_sR.querySelectorAll('input:checked')];
       checked.forEach(el => el.checked = false);
       this.#_times.hidden = true;
-      // this.#_times.style.display = 'none';
+      this.#_sR.querySelector('rt-datepicker').hidden = true;
     }
     //+++++ End of Lifecycle Events
 
@@ -121,6 +121,27 @@ customElements.define(
           // Return complete node to map function
           return newEl;
         }));
+
+        // Add date picker if specified by 'pu-dates' element
+        const datePicker = this.querySelector('pu-dates');
+        if (datePicker) {
+          // Initialise attributes object
+          const attrs = { id: 'pu-date' };
+          // Convert 'pu-dates' attributes to an object for $createElement
+          const newaAttrs = Array.from(datePicker.attributes).reduce((acc, cur) => {
+            const newObj = new Object();
+            newObj[cur.name] = cur.value;
+            Object.assign(acc, newObj)
+            return acc
+          }, {})
+          // Finalise new element attributes
+          Object.assign(attrs, newaAttrs, { hidden: '' })
+          // Add the new element to the Shadow DOM
+          this.#_sR.querySelector('#container').append(this.$createElement({
+            tag: 'rt-datepicker',
+            attrs
+          }))
+        }
       }
     }
 
@@ -156,6 +177,7 @@ customElements.define(
         ['valid', true]
       ]);
 
+      // Check radio buttons have been selected
       ['location', 'time-slot'].forEach(field => {
         if (flags.get('valid')) {
           if (!this.#_sR.querySelector(`input[name="${field}"]:checked`)) {
@@ -164,14 +186,31 @@ customElements.define(
           }
         }
       })
-      return flags
+
+      // Check a date has been chosen
+      if (flags.get('valid')) return this.#_sR.querySelector('rt-datepicker').checkValidity();
+      // If this point is reached then all good :-)
+      else return flags
     }
 
     //--- focus
     // Push focus to correct element
     focus(field) {
-      if (field.replace(/^pickup-location: /, '') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
-      else this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
+      // Strip prefix
+      const fieldName = field.replace(/^pickup-location: /, '');
+      // Choose focus
+      switch (fieldName) {
+        case 'location':
+          this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+          break;
+        case 'time-slot':
+          this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
+          break;
+        default:
+          this.#_sR.querySelector('#pu-date').focus();
+      }
+      // if (field.replace(/^pickup-location: /, '') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+      // else this.#_sR.querySelector('#pu-date').focus();
     }
   }
 );
