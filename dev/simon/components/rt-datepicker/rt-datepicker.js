@@ -12,7 +12,7 @@ customElements.define(compName,
         // Private class fields
         #_sR;           // ShadowRoot
         #_aL;
-        #_aR;           
+        #_aR;
         #_internals;    // Internals (Form)
         #_eventBus;     // Where events are dispatched/listened
         #_value;        // Value used by Form
@@ -25,8 +25,8 @@ customElements.define(compName,
             // Make shadowRoot accessible via private class field
             this.#_sR = this.attachShadow({ mode: "open" })
             this.#_sR.append(this.$getTemplate());
-            this.#_aL=this.#_sR.querySelector('#al');
-            this.#_aR=this.#_sR.querySelector('#ar');
+            this.#_aL = this.#_sR.querySelector('#al');
+            this.#_aR = this.#_sR.querySelector('#ar');
 
             // Allow form participation
             this.#_internals = this.attachInternals();
@@ -43,16 +43,19 @@ customElements.define(compName,
             this.#_aR.addEventListener('click', () => this.#arrowRespond(1));
             // this.addEventListener('datepicked', (e) => this.#dpRespond(e));
             this.addEventListener('datepicked', this.#dpRespond);
-            
-            // Disable any days that are define by the 'invalid' attribute
+
+            // Mark invalid days
+            let invalidDays = [0, 6]; // Default - Sat & Sun
+            // Overwrite default if attribute specified
             if (this.hasAttribute('invalid')) {
                 // Convert 'invalid' parameter value to array of integers
-                const invalidDays = this.getAttribute('invalid').split(',').map(Number);
-                // Get all <dp-date> nodes
-                const dateNodes = this.#_sR.querySelectorAll('dp-date');
-                // Set all invalid days. MOD allows for display of more than 1 week in picker
-                dateNodes.forEach(node => { if (invalidDays.includes((node.getAttribute('day')) % 7)) { node.setAttribute('invalid', ''); } });
+                invalidDays = this.getAttribute('invalid').split(',').map(Number);
             }
+            // Get all <dp-date> nodes
+            const dateNodes = this.#_sR.querySelectorAll('dp-date');
+            // Set all invalid days. MOD allows for display of more than 1 week in picker
+            dateNodes.forEach(node => { if (invalidDays.includes((node.getAttribute('day')) % 7)) { node.setAttribute('invalid', ''); } });
+
         }
 
         connectedCallback() {
@@ -85,7 +88,7 @@ customElements.define(compName,
         }
         //+++ End of Lifecycle Events
 
-        //--- #arrowRespond
+        //--- arrowRespond
         // Clear highlighting and change week
         #arrowRespond(change) {
             // Reset any chosen value
@@ -113,17 +116,18 @@ customElements.define(compName,
             // Clear the form value
             this.#_value = null;
         }
-        
+
         //--- #dispatchChoice
         // Tell all <dp-date> components to clear highlight if not chosen
         #dispatchChoice(day) {
             this.$dispatch({
                 name: 'choiceMade',
                 detail: { day },
+                composed: false,
                 eventbus: this.#_eventBus
             })
         }
-        
+
         //--- #dpRespond
         // Respond to a date being chosen
         #dpRespond(e) {
