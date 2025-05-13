@@ -24,14 +24,22 @@ customElements.define(
       this.#_internals = this.attachInternals();
 
       // Useful node
-      this.#_times = this.#_sR.querySelector('#pu-times');
+      this.#_times = this.#_sR.querySelector('#fs-time');
 
       // Render Shadow DOM elements based on provided HTML
       this.#render();
 
       //###### Event Listeners
-      // Update times when location selected
-      this.#_sR.querySelector('#pickup').addEventListener('change', (e) => this.#updateLoc(e));
+      // Update 'times' when a 'location' is selected.
+      // By using an object as the Listener we get two benefits
+      //  - The current context of 'this' can be transferred, like using an arrow function
+      //  - The object can be used to remove the listener, not possible with an arrow function 
+      const changeFunc = {
+        handleEvent: this.#updateLoc,
+        datePick: this
+      }
+      this.#_sR.querySelector('#container').addEventListener('change', changeFunc);
+      // this.#_sR.querySelector('#container').addEventListener('change',(e) => this.#updateLoc(e));
     }
 
     //--- connectedCallBack
@@ -48,8 +56,8 @@ customElements.define(
         // Attach a listener to update the form values for this component when form is submitted
         this.#_internals.form.addEventListener('formdata', (e) => {
           const location = this.#_sR.querySelector('input[name="location"]:checked');
-          const time = this.#_sR.querySelector('input[name="time-slot"]:checked');
           e.formData.append(`pickup-location`, location ? location.value : '');
+          const time = this.#_sR.querySelector('input[name="time-slot"]:checked');
           e.formData.append(`pickup-time`, time ? time.value : '');
         });
       }
@@ -60,7 +68,8 @@ customElements.define(
     formResetCallback() {
       const checked = [...this.#_sR.querySelectorAll('input:checked')];
       checked.forEach(el => el.checked = false);
-      this.#_times.style.display = 'none';
+      this.#_times.hidden = true;
+      this.#_sR.querySelector('rt-datepicker').hidden = true;
     }
     //+++++ End of Lifecycle Events
 
@@ -112,22 +121,51 @@ customElements.define(
           // Return complete node to map function
           return newEl;
         }));
+
+        // Add date picker if specified by 'pu-dates' element
+        const datePicker = this.querySelector('pu-dates');
+        if (datePicker) {
+          // Initialise attributes object
+          const attrs = { id: 'pu-date' };
+          // Convert 'pu-dates' attributes to an object for $createElement
+          const newaAttrs = Array.from(datePicker.attributes).reduce((acc, cur) => {
+            const newObj = new Object();
+            newObj[cur.name] = cur.value;
+            Object.assign(acc, newObj)
+            return acc
+          }, {})
+          // Finalise new element attributes
+          Object.assign(attrs, newaAttrs, { hidden: '' })
+          // Add the new element to the Shadow DOM
+          this.#_sR.querySelector('#container').append(this.$createElement({
+            tag: 'rt-datepicker',
+            attrs
+          }))
+        }
       }
     }
 
     //--- #updateLoc
     // Update pickup times when user selects location
+    // Expected that Listener is added with object
     #updateLoc(e) {
+      // Ignore changes made to other input values
+      if (e.srcElement.getAttribute('name') !== 'location') return;
+      // Store element where event was targeted
+      const _target = e.currentTarget;
+      // Unhide date picker
+      const _datepicker = _target.querySelector('rt-datepicker');
+      if (_datepicker && _datepicker.hidden === true) _datepicker.hidden = false;
       // Unhide 'times' on the first time a location is chosen
-      if (this.#_times.style.display === 'none') this.#_times.style.display = '';
+      if (this.datePick.#_times.hidden === true) this.datePick.#_times.hidden = false;
       // Cycle through possible child nodes, unhide the correct one and hide all the others
-      const allNodes = [...this.shadowRoot.querySelectorAll('fieldset div')];
+      const allNodes = [..._target.querySelectorAll('fieldset div')];
       allNodes.forEach(element => {
         if (element.id === `rad-${e.target.value}`) element.hidden = false;
         else element.hidden = true;
       })
       // uncheck any previously checked radio buttons
-      const isChecked = this.shadowRoot.querySelector('input[name="time-slot"]:checked')
+      const isChecked = _target.querySelector('input[name="time-slot"]:checked')
       if (isChecked) isChecked.checked = false;
     }
 
@@ -139,6 +177,7 @@ customElements.define(
         ['valid', true]
       ]);
 
+      // Check radio buttons have been selected
       ['location', 'time-slot'].forEach(field => {
         if (flags.get('valid')) {
           if (!this.#_sR.querySelector(`input[name="${field}"]:checked`)) {
@@ -147,14 +186,31 @@ customElements.define(
           }
         }
       })
-      return flags
+
+      // Check a date has been chosen
+      if (flags.get('valid')) return this.#_sR.querySelector('rt-datepicker').checkValidity();
+      // If this point is reached then all good :-)
+      else return flags
     }
 
     //--- focus
     // Push focus to correct element
     focus(field) {
-      if (field.replace(/^pickup-location: /,'') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
-      else this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
+      // Strip prefix
+      const fieldName = field.replace(/^pickup-location: /, '');
+      // Choose focus
+      switch (fieldName) {
+        case 'location':
+          this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+          break;
+        case 'time-slot':
+          this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
+          break;
+        default:
+          this.#_sR.querySelector('#pu-date').focus();
+      }
+      // if (field.replace(/^pickup-location: /, '') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+      // else this.#_sR.querySelector('#pu-date').focus();
     }
   }
 );
