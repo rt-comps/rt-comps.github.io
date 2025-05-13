@@ -1,29 +1,22 @@
-# Component: *plus-minus* #
----
+# Component: *plus-minus*
+
 A component that provides +/- button count functionality
 
-When using, any elements placed within the element in its Light DOM will be slotted relative to the buttons based on the value of *--OF-PM-POS* (if specified)
+Anything placed in the component's LightDOM will be placed with the buttons, with exact placement being controlled by the CSS variable *--OF-PM-POS*.
 
-
+**Note**: The component does not store the count value but dispatches and event to allow the enclosing component to handle the change
 
 ---
+#### Component Dependencies:  
+- None
 
-Attributes:
+---
+#### Attributes:
 - Required: None
 - Optional: None
 
 ---
-
-Style Modifiers:
-- **--OF-PM-POS**  
-Change the position of the quantity relative to + & - buttons.  
-'left': Quantity appears to left of arrows  
-'right': Quantity appears to right of arrows  
-Default: Quantity appears between arrows   
-
----
-
-Events:
+#### Events:
 - Dispatched: 
     - "updatecount"
     \- Send a value to adjust a listening component's count
@@ -35,21 +28,14 @@ Events:
         \- Dispatch "updatecount" with a value of -1
 
 ---
-
-Component Dependencies:  
-- None
-
----
-
-File Dependecies:  
+#### File Dependecies:  
 - rt_baseclass.js  
 - rt.js  
 - rt_form.js (only required to enable external style overrride)
 
 ---
-
-Style Defaults:  
-
+#### Style Defaults:  
+```css
     div {
         display: flex;
         align-items: center;
@@ -71,20 +57,20 @@ Style Defaults:
         background-color: white;
         text-align: center;
     }
+```
+#### Style Variables:
+- **--OF-PM-POS**  
+Change the position of the **slot** relative to + & - buttons during inital rendering   
+  - 'left': Quantity appears to left of arrows  
+  - 'right': Quantity appears to right of arrows  
+  - Default: Quantity appears between arrows   
 
 ---
-
-Template:  
-
+#### Template:  
+```html
     <div id="container">
         <span id="plus">+</span>
         <slot></slot>
         <span id="minus">-</span>
     </div>
-
-
----
-
-Notes:  
-Any styles in the Shadow DOM can be overridden by providing a `<style id="component-name-lowercase"></style>` element further up the flattened DOM tree.  
-`rt-form.js` is a required depedency for this functionality.
+```
