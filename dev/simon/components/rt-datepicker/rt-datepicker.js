@@ -32,11 +32,12 @@ customElements.define(compName,
             this.#_internals = this.attachInternals();
 
             // Initialise other private class fields
-            this.#_eventBus = this.#_sR.querySelector('#container')
-            this.#_eventBus._maxWeek = this.hasAttribute('maxweek') ? parseInt(this.getAttribute('maxweek')) - 1 : undefined;
+            this.#_eventBus = this.#_sR.querySelector('#container');
+            const maxWeek = this.$attr('maxweek');
+            this.#_eventBus._maxWeek =  maxWeek !== null ? parseInt(maxWeek) - 1 : undefined;
             // Initialise property that can be accessed by children via the parentNode property
             this.#_eventBus._week = 0;
-            this.#_eventBus._locale = this.getAttribute('locale') || undefined;
+            this.#_eventBus._locale = this.$attr('locale') || undefined;
 
             //### Event Listners
             this.#_aL.addEventListener('click', () => this.#arrowRespond(-1));
@@ -44,12 +45,12 @@ customElements.define(compName,
             // this.addEventListener('datepicked', (e) => this.#dpRespond(e));
             this.addEventListener('datepicked', this.#dpRespond);
 
-            // Mark invalid days
+            // Mark days to always disable
             let invalidDays = [0, 6]; // Default - Sat & Sun
             // Overwrite default if attribute specified
-            if (this.hasAttribute('invalid')) {
+            if (this.$attr('invalid')) {
                 // Convert 'invalid' parameter value to array of integers
-                invalidDays = this.getAttribute('invalid').split(',').map(Number);
+                invalidDays = this.$attr2NumArray('invalid');
             }
             // Get all <dp-date> nodes
             const dateNodes = this.#_sR.querySelectorAll('dp-date');
@@ -141,7 +142,7 @@ customElements.define(compName,
         get value() { return this.#_value; }
         //set value(v) { this.#_input.value = v; }
 
-        get name() { return this.getAttribute('name'); }
+        get name() { return this.$attr('name'); }
         //get form() { return this.#_internals.form; }
         //get validity() { return this.#_internals.validity; }
 

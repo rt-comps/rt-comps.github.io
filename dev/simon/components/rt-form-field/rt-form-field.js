@@ -28,15 +28,14 @@ customElements.define(compName,
 
             // Useful Nodes
             this.#_input = _sR.querySelector('input');
-
             // Handle 'required' fields
-            if (this.hasAttribute('required')) {
+            if (this.$attr('required') !== null) {
                 this.#_input.setAttribute('required', '');
                 _sR.querySelector('span').innerHTML = '&nbsp*';
             }
 
             // Set input contraints if one of these type specified
-            const inputType = this.getAttribute('type');
+            const inputType = this.$attr('type');
             switch (inputType) {
                 case 'tel':
                     // constrain phone number to exactly 10 digits starting with zero(0)
@@ -51,7 +50,7 @@ customElements.define(compName,
             }
 
             // Use 'label' attribute for field label
-            _sR.querySelector('label').insertAdjacentHTML('afterbegin', `${this.getAttribute('label') || 'Name Missing'}&nbsp;`);
+            _sR.querySelector('label').insertAdjacentHTML('afterbegin', `${this.$attr('label') || 'Name Missing'}&nbsp;`);
             // Needed for Safari
             this.addEventListener('focus', () => this.focus());
         }
@@ -83,7 +82,7 @@ customElements.define(compName,
         get value() { return this.#_input.value; }
         set value(v) { this.#_input.value = v; }
 
-        get name() { return this.getAttribute('name'); }
+        get name() { return this.$attr('name'); }
         //get form() { return this.#_internals.form; }
         //get validity() { return this.#_internals.validity; }
 
