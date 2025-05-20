@@ -9,20 +9,29 @@ This file provides methods that extend the HTMLElement class to provide some hel
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*name*|{String}|-|The name of attribute|
-|*defaultValue*|{Anything}|-|What to return if attribute not found|
+|*newValue*|{String}|-|The new value for the atribute|
 
-Return the value of this element's attribute that matches the name.  defaultValue is returned of the element does not have that value
+Either reads the value of attribute *name* or, if *newValue* is provided, changes the attribute value to *newValue* 
+
+**Returns**  
+**undefined** - if a *newValue* is specified, the attribute value is also updated.  
+**null** - if attribute does not exist.   
+**String** - the value of this element's attribute.
 
 ---
-###  $attr2NumArray(attr, delimiter = ',') {
-|Param|Type||Use|
-| :--- | --- | --- | :--- |
-|*attr*|{String}|-|The value to convert|
-|*delimiter*|{String}|-|Value separater|
+###  $attr2NumArray(attr, delimiter = ',')
+|Param|Type|Default||Use|
+| :--- | --- | --- | --- | :--- |
+|*attr*|{String}|undefined|-|The value to convert|
+|*delimiter*|{String}|','|-|Value separater|
 
 Returns an array of numbers from a string with the provided delimiter.  
-E.g. "1,2,3" => [1,2,3]
-
+E.g.
+```js
+this.$attr('test','1,2,3')
+console.log(this.$attr2NumArray('test'))
+// Output: [1,2,3]
+```
 ---
 ###  $createElement(options)
 |Param|Type||Use|
@@ -32,7 +41,7 @@ E.g. "1,2,3" => [1,2,3]
 Extends ```document.create()``` to allow all aspects of the new element to be defined in one go.
 
 
-Returns a new element according to the provided *options*
+Returns a new element according to the provided *options* from the table below
 |Property|Type|Default||Description|
 | :--- | --- | --- | --- | :--- |
 |*tag*|{String}|'div'|-|Tag name|
@@ -61,7 +70,7 @@ A wrapper for *dispatchEvent()* that uses and object to define custom event beha
 |*bubbles*|{Boolean}|True|-|Can event travel up DOM tree|
 |*composed*|{Boolean}|True|-|Can event traverse ShadowRoot|
 |*cencelable*|{Boolean}|True|-|Can event be cancelled|
-|*options*|{Object}|Above defaults|-|Define *details*,*bubbles*,*composed* & *cencelable* in one parameter|
+|*options*|{Object}|Above defaults|-|Define *details*,*bubbles*,*composed* & *cancelable* in one parameter|
 |*eventbus*|{Element}|this|-|Element where the event is dispatched|
 
 ---
