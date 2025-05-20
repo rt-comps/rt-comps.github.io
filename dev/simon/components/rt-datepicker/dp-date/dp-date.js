@@ -20,7 +20,7 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
             this.#_sR.append(this.$getTemplate());
 
             // Get value of 'locale' attribute and leave undefined if getAttribute() returns null
-            this.#_locale = this.getAttribute('locale') || undefined;
+            this.#_locale = this.$attr('locale') || undefined;
 
             //--- Respond to 'click' event
             this.#_sR.querySelector('#container').addEventListener('click', () => this.pickDate());
@@ -58,7 +58,7 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
                 // Start by determining today's date
                 const today = new Date();
                 // A useful value
-                const dateId = parseInt(this.getAttribute('day'));
+                const dateId = parseInt(this.$attr('day'));
                 const currentWeek = this.parentNode._week || 0;
 
                 // Disable date if calculated as in the past or labelled as invalid - color used as enable/disable flag
@@ -95,7 +95,7 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
                     name: 'datepicked',
                     detail: {
                         date: this.#_date,
-                        day: this.getAttribute('day')
+                        day: this.$attr('day')
                     }
                 });
             }
@@ -104,7 +104,7 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
         // Reset chosen CSS if this is not the chosen element
         reset(e) {
             if (!this.hasAttribute('invalid')) {
-                if (this.getAttribute('day') !== e.detail.day) this.#_sR.querySelector('#container').classList.remove('chosen');
+                if (this.$attr('day') !== e.detail.day) this.#_sR.querySelector('#container').classList.remove('chosen');
             }
         }
     }

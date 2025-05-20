@@ -29,7 +29,7 @@ customElements.define(
             this.#_sR.querySelector('#text').innerHTML = `${this.$attr('value')}${this.hasAttribute('desc') ? ' ' + this.$attr('desc') : ''}`;
 
             // Respond to user click to toggle variety items display - does not leave parent's Shadow DOM
-            this.#_sR.querySelector('#title').addEventListener('click', () => this.$dispatch({ name: 'variety-toggle', detail: { value: this.getAttribute('value') }, composed: false }));
+            this.#_sR.querySelector('#title').addEventListener('click', () => this.$dispatch({ name: 'variety-toggle', detail: { value: this.$attr('value') }, composed: false }));
             // Listen to above dispatched event
             this.parentNode.addEventListener('variety-toggle', (e) => this.#toggleItems(e.detail.value));
         }
@@ -54,7 +54,7 @@ customElements.define(
             // Only bother initialising display if this <item-data> chosen
             if (e.detail.id === this.parentNode.id) {
                 // Set 'hidden' to correct value and set correct caret
-                this.#toggleItems(this.hasAttribute('default') ? this.getAttribute('value') : '');
+                this.#toggleItems(this.hasAttribute('default') ? this.$attr('value') : '');
             }
         }
 
@@ -62,7 +62,7 @@ customElements.define(
         // Determine if this variety should be displayed
         #toggleItems(newValue) {
             // Set 'hidden' to false if this is the chosen variety
-            this.#_lines.hidden = (newValue !== this.getAttribute('value'))
+            this.#_lines.hidden = (newValue !== this.$attr('value'))
             // Select the correct caret based in the vlaue of 'hidden' 
             this.#_caret.innerHTML = this.#_lines.hidden ? '&#9656' : '&#9662';
             // this.$dispatch({

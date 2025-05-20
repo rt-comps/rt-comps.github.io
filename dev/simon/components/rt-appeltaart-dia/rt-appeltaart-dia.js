@@ -41,26 +41,23 @@ customElements.define(
         //--- getMenu
         // Retrieve the menu from file specified in the datafile attribute.
         // The file (currently) needs to hosted in the <ati-form> element directory
-        getMenu() {
+        async getMenu() {
             let appendRoot = this.#_sR.querySelector('dialog');
             // Check that the datafile attribute has been provided
-            if (this.hasAttribute('datafile') && this.getAttribute('datafile')) {
+            const gotData = this.$attr('datafile');
+            if (gotData !== null && gotData !== '') {
                 // Determing the path to the menu data file
-                const url = `${compPath}/${this.getAttribute('datafile')}`;
+                const url = `${compPath}/${gotData}`;
                 try {
-                    fetch(url)
-                        // Wait for the response
-                        .then((response) => {
-                            // Once response has been received, check for error
-                            if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
-                            return response.text()
-                        })
-                        //Wait for the text to be available
-                        .then((htmlText) => {
-                            // Create a fragment and then append to shadow DOM
-                            const frag = document.createRange().createContextualFragment(htmlText);
-                            appendRoot.appendChild(frag);
-                        });
+                    // Wait for fetch 
+                    const response = await fetch(url)
+                    // Once response has been received, check for error
+                    if (!response.ok) throw `Failed to load ${url} with status ${response.status}`;
+                    //Wait for the text to be available
+                    const htmlText= await response.text()
+                    // Create a fragment and then append to shadow DOM
+                    const frag = document.createRange().createContextualFragment(htmlText);
+                    appendRoot.appendChild(frag);
                 } catch (e) {
                     console.warn(e);
                 }
