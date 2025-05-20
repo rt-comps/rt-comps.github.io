@@ -5,21 +5,24 @@
 class RTBaseClass extends HTMLElement {
 
   //--- $attr
-  // Return the value of an attribute if it exists.  
-  //  If the named attribute does not exist then return a specified default value or empty string
-  $attr(name, defaultValue = "") {
-    return this.getAttribute(name) || defaultValue;
+  // Wrapper to manipulate an element's attribute.  
+  $attr(name, newValue) {
+    // If 'newValue' not defined then attempt to return attribute value
+    if (newValue === undefined) return this.getAttribute(name);
+    return this.setAttribute(name, newValue);
   }
 
   //--- $attr2NumArray
   // Convert a comma delimited text string of numbers into an array
   $attr2NumArray(attr, delimiter = ',') {
     // e.g. String "1,2,3" => Array [1,2,3]
-    return this.$attr(attr)
-      .split(delimiter)
-      .map(
-        x => Number(x) || console.error(attr, "contains illegal number", x)
-      );
+    if (this.$attr !== null ) {
+      return this.$attr(attr)
+        .split(delimiter)
+        .map(
+          x => Number(x) || console.error(attr, "contains illegal number", x)
+        );
+    } else console.error('$attr2NumArray(): ',attr, 'does not exist')
   }
 
   //--- $createElement
