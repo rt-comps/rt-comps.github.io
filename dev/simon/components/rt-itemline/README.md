@@ -1,23 +1,74 @@
-A component that displays the data for one type of a product variety and allows a quantity to be chosen
+# Component: *itemline*
+A component that displays the data for one line of a product variety in the product data dialog.
 
-Enclosed elements provide the content for the RHS of the element
+The value initially mirrors that in cart.  The valueis alterable but any changes will not be saved to the cart until the 'Aanpassen' button is clicked.  If the dialog is closed using the 'X' then any changes will be discarded.
 
-Attributes:
-- Required: 
-    - prijs
-        - The price, in cents, for the given product type
-- Optional: None
+If this item has a *count* > 0 then text is displayed in **BOLD**.
 
-Events:
-- Dispatched: none
-- Listened:
-    - "updatecount"
-        - Respond to event from plus/minus button press
-
-Component Dependancies:
+---
+### Component Dependancies:
 - plus-minus
 
-Notes:
-This component is similar to <line-item> but the description is simpler as product and variety are implied by location of the element in the DOM
+---
+### Attributes:
+- Required: 
 
-The text changes to BOLD when count != 0
+|Attribute| | Description|
+| :--- | --- | :--- |  
+|*prijs*|-|The unit price for the given product type in cents|
+- Optional: *None*
+
+---
+### Events:
+- Dispatched: *None*
+
+- Listened:
+
+|Name||Description|
+| :--- | --- | :--- |
+|*updatecount*|-|Respond to event from plus/minus button press|
+---
+### File Dependecies:  
+- rt_baseclass.js  
+- rt.js  
+- rt_form.js (optional - required to enable external style overrride)
+
+---
+### Style Defaults:  
+```css        
+#container {
+    display: grid;
+    grid-template-columns: 70px 60px auto;
+    column-gap: 5px;
+    padding: 5px;
+}
+
+span {
+    align-self: center;
+}
+
+span#prijs {
+    text-align: right;
+}
+
+span#count {
+    flex-basis: 100%;
+    text-align: center;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+```
+---
+### Template:  
+```html
+<div id="container">
+    <rt-plusminus>
+            <span id="count">0</span>
+    </rt-plusminus>
+    <span id="prijs"></span>
+    <span>
+        <slot></slot>
+    </span>
+</div>
+```

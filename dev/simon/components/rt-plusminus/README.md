@@ -7,16 +7,16 @@ Anything placed in the component's LightDOM will be placed with the buttons, wit
 **Note**: The component does not store the count value but dispatches and event to allow the enclosing component to handle the change
 
 ---
-#### Component Dependencies:  
+### Component Dependencies:  
 - None
 
 ---
-#### Attributes:
+### Attributes:
 - Required: None
 - Optional: None
 
 ---
-#### Events:
+### Events:
 - Dispatched: 
     - "updatecount"
     \- Send a value to adjust a listening component's count
@@ -28,13 +28,13 @@ Anything placed in the component's LightDOM will be placed with the buttons, wit
         \- Dispatch "updatecount" with a value of -1
 
 ---
-#### File Dependecies:  
+### File Dependecies:  
 - rt_baseclass.js  
 - rt.js  
-- rt_form.js (only required to enable external style overrride)
+- rt_form.js (optional - required to enable external style overrride)
 
 ---
-#### Style Defaults:  
+### Style Defaults:  
 ```css
     div {
         display: flex;
@@ -58,7 +58,7 @@ Anything placed in the component's LightDOM will be placed with the buttons, wit
         text-align: center;
     }
 ```
-#### Style Variables:
+#### CSS Variables:
 - **--OF-PM-POS**  
 Change the position of the **slot** relative to + & - buttons during inital rendering   
   - 'left': Quantity appears to left of arrows  
@@ -66,7 +66,7 @@ Change the position of the **slot** relative to + & - buttons during inital rend
   - Default: Quantity appears between arrows   
 
 ---
-#### Template:  
+### Template:  
 ```html
     <div id="container">
         <span id="plus">+</span>
