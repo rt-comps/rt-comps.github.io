@@ -1,9 +1,9 @@
 # Component: *line-item*
 A component that is designed for displaying a row of data in the cart.
 
-The quantity value is alterable and any changes will be reflected in both the cart and the stored cart contents.
+The quantity value is alterable within the cart and any changes will be reflected stored cart contents immediately.
 
-The element can remove itself from the DOM.  This will also cause the item to be removed from the stored cart content.
+The element can remove itself from the DOM.  This will also cause the item to be removed from the stored cart contents.
 
 ---
 ### Component Dependancies: 
@@ -15,7 +15,7 @@ The element can remove itself from the DOM.  This will also cause the item to be
 
 |Attribute| | Description|
 | :--- | --- | :--- |  
-|unit|-|The unit price of the type in cents|
+|unit|-|The unit price of the item in cents|
 |count|-|The initial number of items chosen. This is reflected to the ShadowDOM|
 - Optional: *None*
 
@@ -33,7 +33,7 @@ The element can remove itself from the DOM.  This will also cause the item to be
 ### File Dependecies:  
 - rt_baseclass.js  
 - rt.js  
-- rt_form.js (only required to enable external style overrride)
+- rt_form.js (optional - required to enable external style override)
 
 ---
 ### Style Defaults:  
