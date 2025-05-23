@@ -7,7 +7,7 @@ If this item has a *count* > 0 then text is displayed in **BOLD**.
 
 ---
 ### Component Dependancies:
-- plus-minus
+- rt-plusminus
 
 ---
 ### Attributes:

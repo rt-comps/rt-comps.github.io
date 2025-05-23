@@ -7,7 +7,7 @@ The element can remove itself from the DOM.  This will also cause the item to be
 
 ---
 ### Component Dependancies: 
-- plus-minus
+- rt-plusminus
 
 ---
 ### Attributes:
