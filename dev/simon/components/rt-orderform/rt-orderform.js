@@ -45,8 +45,8 @@ customElements.define(compName,
       this.addEventListener('initmenu', (e) => this.#detailsInitItemValues(e));
 
       /// Responding to +/- clicks
-      //___ updatecount - Determine button appearance based on changes made to itemLines
-      this.#_menu.addEventListener('updatecount', (e) => {
+      //___ updatecountitem - Determine button appearance based on changes made to itemLines
+      this.#_menu.addEventListener('updatecountitem', (e) => {
         e.stopPropagation();
         this.#detailsButtonDisplay()
       });
@@ -107,7 +107,6 @@ customElements.define(compName,
         value.style.display = 'none'
       }
 
-      console.log()
       // initialise as local global
       let newBut;
       // Is the cart empty?
@@ -134,13 +133,6 @@ customElements.define(compName,
     // The current order information is stored in this.#_cartContents as an array of objects and is also mirrored as a JSON string in a local Storage object ('currentOrder')
     // When a change is made to the order then this.#_cartContents is updated, the Storage object is rewritten and the cart rebuilt from the Storage object.
     #cartCurOrderStorUpdate(item) {
-      /* 
-      parameter 'itemObj' is expected in the form
-        {
-          prodID: <String>,   - The product to update
-          count:  <Number>    - The new count
-        }
-       */
       /*
       parameter 'item is expect to be a Map of structure
         [
@@ -159,7 +151,6 @@ customElements.define(compName,
         ['updated', false],
         ['found', false]
       ]);
-
       // Check if there is a need to search the current cart
       if (this.#_cartContents.length > 0) {
         // If this.#_cartContents is not an empty array then search for existing cart entries for a match
@@ -181,7 +172,6 @@ customElements.define(compName,
           }
         }
       }
-
       // No match found so, if count > 0, add new item to cart
       if (!flags.get('found') && item.get('count') > 0) {
         // Add the modified object to the array
@@ -234,12 +224,16 @@ customElements.define(compName,
             attrs: {
               slot: 'cart',
               prodid: lineData.prodID,
-              count: lineData.count,
+              // count: lineData.count,
               unit: unitPrice
             }
           });
         }
         ));
+        this.#_cartContents.forEach((item) => {
+          this.querySelector(`rt-lineitem[prodid="${item.prodID}"]`).count = item.count;
+
+        });
       };
 
       // Display new order total
@@ -255,6 +249,14 @@ customElements.define(compName,
       const classes = this.#_cart.classList;
       if (classes.contains('mini')) classes.remove('mini');
       else classes.add('mini');
+    }
+
+    #cartTotal() {
+      let cartTotal=0;
+      this.querySelectorAll('rt-lineitem').forEach((node)=>{
+        cartTotal += parseInt(node.$attr('unit')) * parseInt(node.count);
+      });
+      this.#_sR.querySelector('#order-total-amount').innerHTML = this.$euro(cartTotal / 100);
     }
 
     //--- #detailsButtonDisplay
@@ -281,7 +283,7 @@ customElements.define(compName,
     // Display #product-details dialog with requested data.
     // Close dialog if called manually with no parameter
     #detailsInitItemValues(e) {
-      // Declare in local global scope
+      // Declare in function global scope
       let newItem;
       // Handle event if present
       if (e instanceof Event) {
@@ -293,7 +295,7 @@ customElements.define(compName,
         element.removeAttribute('slot');
       });
 
-      // If ni ID is provided then the fucntion can clean up and stop here
+      // If no ID is provided then the function can clean up and stop here
       if (!newItem) {
         // Close the dialog if Event has no value for details.id
         this.#_details.close();
@@ -317,21 +319,17 @@ customElements.define(compName,
       newData.querySelectorAll('rt-itemline').forEach((item) => {
         // Search for item in the cart?
         const itemIndex = cartItems[0].indexOf(item.$attr('prodid'));
-        // If found then update displayed value
-        if (itemIndex > -1) {
-          item.$dispatch({ name: 'updatecountline', detail: { change: cartItems[1][itemIndex], replace: true } });
-          // If not found and displayed value > 0 then reset to 0
-        } else if (item.$attr('count') > 0) {
-          item.$dispatch({ name: 'updatecountline', detail: { change: '0', replace: true } })
-        }
+        // Update displayed value to value found
+        item.count = (itemIndex > -1) ? cartItems[1][itemIndex] : '0';
       });
+      this.#detailsButtonDisplay()
 
       // Display the dialog
       this.#_details.showModal();
     }
 
     //--- #detailsUpdateCart
-    // Update values in cart for all itemLine elements of the product currently slotted as active
+    // Check for itemLine elements of the currently active product that have changed and update cart as appropriate
     #detailsUpdateCart() {
       // Get any updated lines (should be > 0)
       const updatedLines = this.querySelectorAll('[slot="active-data"] rt-itemline[updated]');
@@ -383,7 +381,7 @@ customElements.define(compName,
           const result = el.checkValidity();
           // Stop on first failure and set focus to failed element
           if (!result.get('valid')) {
-            const field=result.get('field');
+            const field = result.get('field');
             el.focus(field);
             flags.set('failed', true);
             flags.set('field', field);
@@ -508,7 +506,15 @@ customElements.define(compName,
     // Catch event and send details on for cart modification
     #orderModifyCurrent(e) {
       e.stopPropagation();
-      this.#cartCurOrderStorUpdate(e.detail);
+      this.#cartCurOrderStorUpdate(new Map([
+        ['prodID', e.detail.prodID],
+        ['count', e.detail.count]
+      ]));
+      // Save the current order data to local Storage object
+      if (this.#_cartContents.length > 0) localStorage.setItem('currentOrder', JSON.stringify(this.#_cartContents));
+      // If this.#_cartContents is empty then delete Storage object
+      else localStorage.removeItem('currentOrder');
+      this.#cartTotal();
     }
 
     //--- #orderRecover
@@ -584,7 +590,7 @@ customElements.define(compName,
         }
         const frag = document.createRange().createContextualFragment(output);
         this.#_sR.querySelector('#menu-items-container').appendChild(frag);
-        this.style.display='';
+        this.style.display = '';
         return false
       }
     }
