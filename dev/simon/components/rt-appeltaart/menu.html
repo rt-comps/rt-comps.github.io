@@ -12,11 +12,12 @@
     :host {
         /*
         Define CSS variables here to over-ride form defaults, eg
-
+        
         --rt-orderform-DETAILS-BACKGROUND: cornflowerblue; 
         */
         --rt-orderform-DETAILS-BACKGROUND: cornflowerblue;
         --rt-orderform-CART-WIDTH: 350px;
+        --rt-plusminus-MAX-COUNT: 5;
     }
 
     rt-orderform {
@@ -131,6 +132,7 @@
     <rt-itemvariety value="mini kruimeltaartje" default>
     </rt-itemvariety>
 </rt-itemdata>
+<!-- Checkout form starts here -->
 <div id="user-details" slot="user-form">
     <style>
         #user-details {
