@@ -6,6 +6,8 @@ customElements.define(
     compName,
     class extends rtBC.RTBaseClass {
         #_sR
+        #_counter
+
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {
@@ -14,13 +16,12 @@ customElements.define(
             this.#_sR = this.attachShadow({ mode: "open" });
             this.#_sR.append(this.$getTemplate());
 
-            this.maxCount = 10;
-
+            this.#_counter = this.#_sR.querySelector('rt-plusminus');
             //### Event Listeners
             // Remove this item when 'delete' button pressed
             this.#_sR.querySelector('#delete').addEventListener('click', () => this.#deleteMe());
             // Respond to +/- button press
-            this.#_sR.querySelector('#container').addEventListener('updatecountline', (e) => this.#update(e));
+            this.addEventListener('updatecount', this.#update);
         }
 
         //--- connectedCallback
@@ -29,7 +30,7 @@ customElements.define(
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
 
             // update total price on count change
-            this.#render();
+            setTimeout(() => { this.#render() }, 0);
         }
         //+++ End OF Lifecycle Events
 
@@ -51,10 +52,9 @@ customElements.define(
         // Initialise
         #render() {
             const unit = parseInt(this.$attr('unit'));
-            const count = parseInt(this.$attr('count'));
+            const count = parseInt(this.count);
 
             this.#_sR.querySelector('#unit').innerHTML = `${(this.$euro(unit / 100))}`;
-            this.#_sR.querySelector('#count').innerHTML = `${count}`;
             this.#_sR.querySelector('#total').innerHTML = `${(this.$euro((count * unit) / 100))}`;
             this.#_sR.querySelector('img').src = `${basePath}/components/${compName}/imgs/trashcan.jpeg`;
         }
@@ -63,29 +63,38 @@ customElements.define(
         #update(e) {
             // When called from an event then update the count
             if (e instanceof Event) {
+                // Don't let event bubble any further
                 e.stopImmediatePropagation();
+                // // Get current value of count
+                // let count = parseInt(this.count);
+                // // Apply change
+                // count += e.detail.change;
+                // // Check boundaries
+                // switch (true) {
+                //     case (count > this.maxCount):
+                //         count = this.maxCount;
+                //         break;
+                //     case (count < 0):
+                //         count = 0;
+                // }
 
-                // Get current value of count
-                let count = parseInt(this.$attr('count'));
-                // Apply change
-                count += e.detail.change;
-                // Check boundaries
-                switch (true) {
-                    case (count > this.maxCount):
-                        count = this.maxCount;
-                        break;
-                    case (count < 0):
-                        count = 0;
-                }
                 // Dispatch event to update #_cartContents
-                this.$dispatch({
-                    name: 'cartmod',
-                    detail: {
-                        prodID: this.$attr('prodid'),
-                        count: count
-                    }
-                });
+                if (this.count > 0) {
+                    this.$dispatch({
+                        name: 'cartmod',
+                        detail: {
+                            prodID: this.$attr('prodid'),
+                            count: parseInt(this.count)
+                        }
+                    });
+                    this.#render();
+                } else this.#deleteMe();
+
             }
         }
-    }
-);
+
+        //+++ Getters/Setters
+        get count() { return this.#_counter.$attr('count') }
+        set count(c) { this.#_counter.$attr('count', c) }
+
+    });
