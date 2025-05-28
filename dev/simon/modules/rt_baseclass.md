@@ -5,7 +5,7 @@
 This file provides methods that extend the HTMLElement class to provide some helpful functionality for web components
 
 ---
-###  $attr(name, defaultValue = "")
+###  $attr(name, newValue)
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*name*|{String}|-|The name of attribute|
