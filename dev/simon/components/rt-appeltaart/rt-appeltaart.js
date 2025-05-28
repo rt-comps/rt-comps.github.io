@@ -33,9 +33,9 @@ customElements.define(
         #getMenu(e) {
             if (e instanceof Event) e.stopPropagation();
             // Get the menu file - if a non-NULL value has been provided
-            if (this.getAttribute('datafile')) {
-                // Determing the path to the menu data file
-                const dataFile = this.getAttribute('datafile');
+            // Determing the path to the menu data file
+            const dataFile = this.$attr('datafile');
+            if (dataFile) {
                 //  Set regex to determine if path is absolute or relative
                 const regex = /^http[s]?:\/\//;
                 //  If path is relative then assume file is in this component's directory
