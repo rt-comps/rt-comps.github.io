@@ -1,0 +1,4 @@
+#!/bin/zsh
+# Wrapper for deploy.js
+
+node "${0}.js" "$*"
