@@ -56,7 +56,7 @@ customElements.define(compName,
       /// Button Actions
       ///- Product Details
       //___ close dialog
-      this.#_sR.querySelector('#product-details-close').addEventListener('click', this.#detailsInitItemValues);
+      this.#_sR.querySelector('#product-details-close').addEventListener('click', (e) => this.#detailsInitItemValues(e));
       //___ add-items_click - Add the currently selected items to the cart
       this.#_sR.querySelector('#prod-add-but').addEventListener('click', this.#detailsButtonClick);
       ///- Cart
@@ -293,6 +293,8 @@ customElements.define(compName,
     // Display #product-details dialog with requested data.
     // Close dialog if called manually with no parameter
     #detailsInitItemValues(e) {
+      console.log(e)
+      console.log(this)
       // Declare in function global scope
       let newItem;
       // Handle event if present
