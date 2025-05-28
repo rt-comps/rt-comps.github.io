@@ -34,8 +34,9 @@ customElements.define(
                 _div.style.backgroundColor = custBgCol || '';
             }
 
-            // Look out further attribute changes (currently only one of interest)
-            new MutationObserver(this.#outsideChange).observe(this, { attributes: true, attributeFilter: ['count'] });
+            // Look out for changes to 'count' attribute
+            new MutationObserver(this.#countChange).observe(this, { attributes: true, attributeFilter: ['count'] });
+
             // Initialise 'count' attribute
             if (!this.$attr('count')) this.$attr('count', '0');
 
@@ -43,7 +44,7 @@ customElements.define(
             this.#_sR.querySelector('#plus').addEventListener('click', () => this.#buttonPressed(1));
             this.#_sR.querySelector('#minus').addEventListener('click', () => this.#buttonPressed(-1));
         }
-
+        
         connectedCallback() {
             // Look for and pull in external style definition
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
@@ -77,17 +78,19 @@ customElements.define(
                 case newCount < 0:
                     newCount = 0;
             }
+
+            // Will be true unless boundary hit
             if (newCount !== oldCount) {
-                // Update count attribute
+                // Update count attribute (via MutationObserver)
                 this.$attr('count', String(newCount));
-                // Let parent know if count changed
+                // Let parent know count has changed
                 this.$dispatch({ name: 'updatecount' });
 
             }
         }
 
         // Update displayed text when 'count' attribute changes
-        #outsideChange(record) {
+        #countChange(record) {
             // 'this' is the MutationRecords Array so need to get the target node
             const node = record[0].target
             node.#_sR.querySelector('#count').textContent = node.$attr(record[0].attributeName);
