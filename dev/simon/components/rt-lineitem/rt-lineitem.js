@@ -19,7 +19,7 @@ customElements.define(
             this.#_counter = this.#_sR.querySelector('rt-plusminus');
             //### Event Listeners
             // Remove this item when 'delete' button pressed
-            this.#_sR.querySelector('#delete').addEventListener('click', () => this.#deleteMe());
+            this.#_sR.querySelector('#delete').addEventListener('click', this.#deleteMe);
             // Respond to +/- button press
             this.addEventListener('updatecount', this.#update);
         }
@@ -35,17 +35,12 @@ customElements.define(
         //+++ End OF Lifecycle Events
 
         //--- #deleteMe
+        // Respond to click on delete icon
         #deleteMe() {
-            // Remove item from #_cartContents
-            this.$dispatch({
-                name: 'cartmod',
-                detail: {
-                    prodID: this.$attr('prodid'),
-                    count: 0
-                }
-            });
-            // Destroy this instance
-            this.remove();
+            // Set count to zero
+            this.count = 0;
+            // Signal that value has changed
+            this.#update();
         }
 
         //--- #render
@@ -61,39 +56,22 @@ customElements.define(
 
         //--- #update
         #update(e) {
-            // When called from an event then update the count
-            if (e instanceof Event) {
-                // Don't let event bubble any further
-                e.stopImmediatePropagation();
-                // // Get current value of count
-                // let count = parseInt(this.count);
-                // // Apply change
-                // count += e.detail.change;
-                // // Check boundaries
-                // switch (true) {
-                //     case (count > this.maxCount):
-                //         count = this.maxCount;
-                //         break;
-                //     case (count < 0):
-                //         count = 0;
-                // }
-
-                // Dispatch event to update #_cartContents
-                if (this.count > 0) {
-                    this.$dispatch({
-                        name: 'cartmod',
-                        detail: {
-                            prodID: this.$attr('prodid'),
-                            count: parseInt(this.count)
-                        }
-                    });
-                    this.#render();
-                } else this.#deleteMe();
-
-            }
+            // When called from an event then stop bubbling
+            if (e instanceof Event) e.stopImmediatePropagation();
+            // Recalculate line values
+            this.#render();
+            // Dispatch event to update #_cartContents
+            this.$dispatch({
+                name: 'cartmod',
+                detail: {
+                    prodID: this.$attr('prodid'),
+                    count: parseInt(this.count)
+                }
+            });
         }
 
         //+++ Getters/Setters
+        // Modify 'count' attribute of plus-minus component
         get count() { return this.#_counter.$attr('count') }
         set count(c) { this.#_counter.$attr('count', c) }
 
