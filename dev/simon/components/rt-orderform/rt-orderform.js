@@ -56,15 +56,11 @@ customElements.define(compName,
       /// Button Actions
       ///- Product Details
       //___ close dialog
-      this.#_sR.querySelector('#product-details-close').addEventListener('click', () => this.#detailsInitItemValues());
+      this.#_sR.querySelector('#product-details-close').addEventListener('click', this.#detailsInitItemValues);
       //___ add-items_click - Add the currently selected items to the cart
-      this.#_sR.querySelector('#prod-add-but').addEventListener('click', (e) => {
-        // Check that button is enabled before calling #detailsUpdateCart
-        if (e.composedPath()[0].classList.contains('button-dis')) return
-        this.#detailsUpdateCart()
-      });
+      this.#_sR.querySelector('#prod-add-but').addEventListener('click', this.#detailsButtonClick);
       ///- Cart
-      //___ place-order_click - Send completed order to out of form
+      //___ place-order_click - Dispatch completed order to enclosing code
       this.#_sR.querySelector('#further-but').addEventListener('click', () => this.#orderContinue());
       //___ recover-order_click - Fill cart with the items from the last order
       this.#_sR.querySelector('#recover-but').addEventListener('click', () => this.#orderRecover());
@@ -110,7 +106,8 @@ customElements.define(compName,
       // initialise as local global
       let newBut;
       // Is the cart empty?
-      const cartEmpty = this.querySelectorAll('rt-lineitem[slot="cart"][count]').length === 0;
+      const cartEmpty = this.querySelectorAll('rt-lineitem').length === 0;
+
       // Determine correct button to show
       switch (true) {
         // Is cart empty and previous order stored?
@@ -252,11 +249,24 @@ customElements.define(compName,
     }
 
     #cartTotal() {
-      let cartTotal=0;
-      this.querySelectorAll('rt-lineitem').forEach((node)=>{
+      let cartTotal = 0;
+      this.querySelectorAll('rt-lineitem').forEach((node) => {
         cartTotal += parseInt(node.$attr('unit')) * parseInt(node.count);
       });
       this.#_sR.querySelector('#order-total-amount').innerHTML = this.$euro(cartTotal / 100);
+    }
+
+    //--- #detailsButtonClicked()
+    #detailsButtonClick(e) {
+      if (e) {
+        // Node of interest should be 1st item in array
+        const node = e.composedPath()[0];
+        // Check we got expected node
+        if (node.id === 'prod-add-but') {
+          // Apply all new values to cart if button enabled
+          if (!node.classList.contains('button-dis')) this.#detailsUpdateCart()
+        }
+      }
     }
 
     //--- #detailsButtonDisplay
