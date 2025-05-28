@@ -4,32 +4,31 @@
 
 This file contains the following functions
 
-### findStyle(startNode, targetNodeName, startNodeName)
+### findNode(startNode, targetNodeName)
 
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*startNode*|{DOMNode}|-|Node that search starts from|
-|*targetNodeName*|{String}|-|The name of the node to look for|
-|*startNodeName*|{String}|-|The name of the initial node (Default: startNode.nodeName)| 
+|*targetNodeName*|{String}|-|The name of the node to look for (Default: 'rt-orderform')|
 
-Recursively search up the DOM tree to find the specified target **node**.
+Recursively search up the DOM tree to find the **Node** with the specified name.
 
 Recursion terminates when once of the conditions is met
- - The **node** is found
- - *startNode* === *targetNode*
- - The current Root Node is not a Shadow Root. 
+ - The **Node** is found
+ - The current Root Node is not a **ShadowRoot**. 
 
-Returns the STYLE **node** found within the FORM-CONFIG **node** of the target **node** (if found) else **null**
+Returns the matching **Node** else **Null**
 
-
-**NOTE**: Currently not exported so only used by other functions in this module.
-
-### getStyle(node,topNode)
+---
+### getStyle(node,menuNode)
 
 |Param|Type||Use|
 | :--- | --- | --- | :--- |
 |*node*|{DOMNode}|-|Component node|
-|*topNode*|{String}|-|Target node name (Default: 'rt-orderform')|
+|*menuNode*|{String}|-|Target node name (Default: 'rt-orderform')|
 
-If additional style has been defined in the FORM_CONFIG **node** of *topNode* in the datafile, ie a STYLE **node** with an ID corresponding to the specified component's name, then copy that STYLE **node** into the component's ShadowDOM as the last STYLE **node** so that it overrides any default value for the specified style
+Looks for a STYLE **Node** with an *ID* matching the component type in the 
+FORM_CONFIG **Node** of the datafile.
+
+If found then it is appended to the **ShadowDOM** of the component to override any component default.
 

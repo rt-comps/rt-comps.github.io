@@ -1,4 +1,21 @@
-A component that displays of data for all product types (<item-line>s) of a given product variety
+# Component: *item-variety*
+
+A component that collects and displays data for all available types of a given product variety.
+
+---
+### Component Dependancies: 
+- rt-itemline
+
+---
+### Attributes:
+- Required: 
+
+|Attribute| | Description|
+| :--- | --- | :--- |  
+|*prijs*|-|The unit price for the given product type in cents|
+- Optional: *None*
+
+---
 
 Attributes:
 - Required: 
