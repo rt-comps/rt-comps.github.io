@@ -21,12 +21,11 @@ import * as fs from 'fs';
 //const fs = require('fs');
 // Minifiers
 import {minify as uglify} from 'uglify-js';
-import {minify as mini} from 'html-minifier';
+import {minify as mini} from 'html-minifier-terser';
 //const uglify = require('uglify-js').minify;
 //const mini = require('html-minifier').minify;
 
 // ### Define constants
-
 //  Where files are expected to be found in devPath
 const pathList = [
     'components',
