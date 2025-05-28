@@ -46,8 +46,8 @@ customElements.define(compName,
         #updateCount(e) {
             if (e instanceof Event) {
                 e.stopImmediatePropagation();
-                // Get new value of count from source element of event
-                const newCount=parseInt(this.#_counter.$attr('count'));
+                // Get new value of count from plus-minus component
+                const newCount=parseInt(this.count);
 
                 /// Check if newCount matches value in the cart
                 // Get current cart contents in JSON 
@@ -56,7 +56,7 @@ customElements.define(compName,
                 const inCart = currentCart.includes(this.$attr('prodid'));
                 // Is prodid in cart with matching count
                 const objMatch = currentCart.includes(JSON.stringify({ prodID: this.$attr('prodid'), count: newCount }));
-                // Determine when an entry has been updated
+                // Determine if an entry has been updated
                 switch (true) {
                     case (newCount > 0 && !inCart):
                     case (inCart && !objMatch):
@@ -84,6 +84,7 @@ customElements.define(compName,
         //--- End of updateCount
 
         //+++ Getters/Setters
+        // Access value of count maintained by plus-minus component
         get count() { return this.#_counter.$attr('count') }
         set count(c) { this.#_counter.$attr('count', c)}
 
