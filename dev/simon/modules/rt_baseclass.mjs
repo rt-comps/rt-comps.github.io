@@ -19,9 +19,7 @@ class RTBaseClass extends HTMLElement {
     if (this.$attr !== null ) {
       return this.$attr(attr)
         .split(delimiter)
-        .map(
-          x => Number(x) || console.error(attr, "contains illegal number", x)
-        );
+        .map(x => Number(x));
     } else console.error('$attr2NumArray(): ',attr, 'does not exist')
   }
 
