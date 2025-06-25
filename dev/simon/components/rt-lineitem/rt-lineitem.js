@@ -17,29 +17,32 @@ customElements.define(
             this.#_sR.append(this.$getTemplate());
 
             this.#_counter = this.#_sR.querySelector('rt-plusminus');
+            
             //### Event Listeners
             // Remove this item when 'delete' button pressed
             this.#_sR.querySelector('#delete').addEventListener('click', this.#deleteMe);
             // Respond to +/- button press
             this.addEventListener('updatecount', this.#update);
         }
-
+        
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
-
-            // update total price on count change
-            setTimeout(() => { this.#render() }, 0);
+            
+            // Initialise count from #_cartContents and render
+            setTimeout(() => {
+                if (this.parentNode._cartExposed) this.count = this.parentNode._cartExposed.filter(item => item.prodID === this.$attr('prodid'))[0].count
+                this.#render();
+            }, 0);
         }
         //+++ End OF Lifecycle Events
 
         //--- #deleteMe
         // Respond to click on delete icon
+        // Set count to zero & signal that value has changed
         #deleteMe() {
-            // Set count to zero
             this.count = 0;
-            // Signal that value has changed
             this.#update();
         }
 
@@ -71,8 +74,9 @@ customElements.define(
         }
 
         //+++ Getters/Setters
-        // Modify 'count' attribute of plus-minus component
+        // Current value of 'count' attribute in plus-minus component
         get count() { return this.#_counter.$attr('count') }
+        // Modify 'count' attribute of plus-minus component
         set count(c) { this.#_counter.$attr('count', c) }
 
     });
