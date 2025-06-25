@@ -56,21 +56,21 @@ customElements.define(compName,
             const dateNodes = this.#_sR.querySelectorAll('dp-date');
             // Set all invalid days. MOD allows for display of more than 1 week in picker
             dateNodes.forEach(node => { if (invalidDays.includes((node.getAttribute('day')) % 7)) { node.setAttribute('invalid', ''); } });
-
+            
         }
-
+        
         connectedCallback() {
             // Once appended in to form, look for and pull in external style definition
             if (typeof rtForm !== 'undefined' && rtForm.findNode(this, 'form')) rtForm.getStyle(this, rtForm.findNode(this));
         }
-
+        
         //--- formAssociatedCallback
         // triggered when component is associated with (or dissociated from) a form
-        formAssociatedCallback() {
+        formAssociatedCallback(form) {
             // If this is an association then add listener for formData request
-            if (this.#_internals.form) {
+            if (form) {
                 // Set form values when the FormData() contructor is invoked (via submit or new)
-                this.#_internals.form.addEventListener('formdata', (e) => e.formData.set('picked-date', this.#_value));
+                form.addEventListener('formdata', (e) => e.formData.set('picked-date', this.#_value));
             }
         }
 
@@ -119,7 +119,7 @@ customElements.define(compName,
         }
 
         //--- #dispatchChoice
-        // Tell all <dp-date> components to clear highlight if not chosen
+        // Tell all <dp-date> components to highlight if chosen
         #dispatchChoice(day) {
             this.$dispatch({
                 name: 'choiceMade',
