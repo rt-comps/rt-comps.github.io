@@ -44,10 +44,10 @@ customElements.define(
                 this.#_sR.querySelector('rt-orderform').loadMenu(url);
             } else {
                 // Make it obvious that something critical is missing 
-                const frag = document.createRange().createContextualFragment('<h1 style="color: white; background-color: red; text-align: center">datafile attribute not provided</h1>');
+                const frag = document.createRange().createContextualFragment('<h1 style="color: white; background-color: red; text-align: center">"datafile" attribute not provided</h1>');
                 this.#_sR.appendChild(frag);
                 // Add the message to the console log too
-                console.error('Datafile attribute value is missing or is an empty string')
+                console.error('"datafile" attribute value must exist and cannot be an empty string')
             }
         }
 
