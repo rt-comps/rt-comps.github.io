@@ -41,8 +41,8 @@ customElements.define(compName,
       this._cartExposed = this.#_cartContents;
 
       //-- Event Listeners
-      //___ initmenu - Display product information when product chosen
-      this.addEventListener('initmenu', (e) => this.#detailsInitItemValues(e));
+      //___ initdetails - Display product information when product chosen
+      this.addEventListener('initdetails', (e) => this.#detailsInitItemValues(e));
 
       /// Responding to +/- clicks
       //___ updatecountitem - Determine button appearance based on changes made to itemLines
@@ -227,10 +227,6 @@ customElements.define(compName,
           });
         }
         ));
-        this.#_cartContents.forEach((item) => {
-          this.querySelector(`rt-lineitem[prodid="${item.prodID}"]`).count = item.count;
-
-        });
       };
 
       // Display new order total
@@ -576,19 +572,18 @@ customElements.define(compName,
       // Check datafile 
       try {
         if (typeof url === 'undefined') throw new Error('No Datafile', { cause: 'nofile' })
-        else {
-          const response = await fetch(url)
-          // Do not attempt to parse file if server resonse is not 200
-          if (!response.ok) throw new Error("Datafile URL is not valid", { cause: 'invalid' });
-          const htmlText = await response.text();
-          // Create document fragment from file text
-          const frag = document.createRange().createContextualFragment(htmlText);
-          // Append fragment to lightDOM 
-          this.appendChild(frag);
-          // Build order form from data in lightDOM and in local storage
-          this.#orderInitialise();
-          this.style.display = 'inline-block';
-        }
+
+        const response = await fetch(url)
+        // Do not attempt to parse file if server resonse is not 200
+        if (!response.ok) throw new Error("Datafile URL is not valid", { cause: 'invalid' });
+
+        const htmlText = await response.text();
+        // Create document fragment from file text
+        const frag = document.createRange().createContextualFragment(htmlText);
+        // Append fragment to lightDOM 
+        this.appendChild(frag);
+        // Build order form from data in lightDOM and in local storage
+        this.#orderInitialise();
       } catch (e) {
         console.error(e);
         let output;
@@ -597,14 +592,14 @@ customElements.define(compName,
             output = '<h1 style="color: red;">Datafile URL not provided</h1>';
             break;
           case 'invalid':
-            output = '<h1 style="color: red;">Datafile URL not found</h1>';
+            output = '<h1 style="color: red;">Datafile URL is not valid</h1>';
             break;
         }
         const frag = document.createRange().createContextualFragment(output);
         this.#_sR.querySelector('#menu-items-container').appendChild(frag);
-        this.style.display = '';
-        return false
       }
+      // Unhide the menu
+      this.style.display = 'inline-block';
     }
   }
 );
