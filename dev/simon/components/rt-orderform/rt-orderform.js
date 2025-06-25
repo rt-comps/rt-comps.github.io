@@ -27,6 +27,7 @@ customElements.define(compName,
       // Attach contents of template placed in document.head by LoadComponent()
       this.#_sR.append(this.$getTemplate());
 
+      const _this = this;
       // Set this component as the 'eventbus' - used for handling event communications between components
       this.id = 'eventBus';
 
@@ -258,9 +259,11 @@ customElements.define(compName,
         // Node of interest should be 1st item in array
         const node = e.composedPath()[0];
         // Check we got expected node
-        if (node.id === 'prod-add-but') {
+        if (e.target.id === 'prod-add-but') {
+          // Ensure this works whether called as handler or via arrow function
+          const orderNode = this.nodeName.toLowerCase() === compName ? this : this.getRootNode().host;
           // Apply all new values to cart if button enabled
-          if (!node.classList.contains('button-dis')) this.#detailsUpdateCart()
+          if (!node.classList.contains('button-dis')) orderNode.#detailsUpdateCart()
         }
       }
     }
@@ -289,8 +292,6 @@ customElements.define(compName,
     // Display #product-details dialog with requested data.
     // Close dialog if called manually with no parameter
     #detailsInitItemValues(e) {
-      console.log(e)
-      console.log(this)
       // Declare in function global scope
       let newItem;
       // Handle event if present
