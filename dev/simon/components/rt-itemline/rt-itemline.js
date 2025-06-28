@@ -8,8 +8,8 @@ const [compName] = rtlib.parseCompURL(import.meta.url);
 customElements.define(compName,
     class extends rtBC.RTBaseClass {
         /// ### PRIVATE CLASS FIELDS
-        #_sR;       // Shadow Root node
-        #_menuNode  // Top level node
+        #_sR;       // ShadowRoot node
+        #_orderNode  // Top level node
         #_counter   // rt-plusminus component
 
         //+++ Lifecycle Events
@@ -22,7 +22,7 @@ customElements.define(compName,
             // Attach contents of template - placed in document.head by LoadComponent()
             this.#_sR.append(this.$getTemplate());
 
-            this.#_counter=this.#_sR.querySelector('rt-plusminus');
+            this.#_counter = this.#_sR.querySelector('rt-plusminus');
 
             //### Event Listeners
             // Respond to change in count
@@ -32,10 +32,8 @@ customElements.define(compName,
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
-            if (typeof rtForm !== 'undefined') {
-                this.#_menuNode = rtForm.findNode(this);
-                rtForm.getStyle(this, this.#_menuNode);
-            }
+            this.#_orderNode = rtForm.findNode(this);
+            rtForm.getStyle(this, this.#_orderNode);
             // Display price in Euro
             this.#_sR.querySelector('#prijs').innerHTML = `${this.$euro((parseInt(this.$attr('prijs')) / 100))}`;
         }
@@ -46,47 +44,47 @@ customElements.define(compName,
         #updateCount(e) {
             if (e instanceof Event) {
                 e.stopImmediatePropagation();
+
                 // Get new value of count from plus-minus component
-                const newCount=parseInt(this.count);
+                const newCount = parseInt(this.count);
 
                 /// Check if newCount matches value in the cart
-                // Get current cart contents in JSON 
-                const currentCart = JSON.stringify(this.#_menuNode._cartExposed)
                 // Is prodid already in cart?
-                const inCart = currentCart.includes(this.$attr('prodid'));
+                const inCart = this.#_orderNode._cartExposed.has(this.$attr('prodid'));
                 // Is prodid in cart with matching count
-                const objMatch = currentCart.includes(JSON.stringify({ prodID: this.$attr('prodid'), count: newCount }));
+                const itemMatch = inCart && (this.#_orderNode._cartExposed.get(this.$attr('prodid')) === newCount);
                 // Determine if an entry has been updated
                 switch (true) {
                     case (newCount > 0 && !inCart):
-                    case (inCart && !objMatch):
+                    case (inCart && !itemMatch):
                     case (newCount === 0 && inCart):
                         this.$attr('updated', '');
                         break;
                     default:
                         this.removeAttribute('updated');
                 }
-
-                // Handle style change and count attribute for zero/non-zero values
-                if (newCount > 0) {
-                    // Highlight line and make count available in LightDOM
-                    this.#_sR.querySelector('#container').style.fontWeight = 'bold';
-                    this.$attr('count', `${newCount}`);
-                } else {
-                    // Undo above
-                    this.#_sR.querySelector('#container').style.fontWeight = '';
-                    this.removeAttribute('count');
-                }
-                // Ask order-form to determine whether 'Update' button in dialog should be visible
+                this.render()
+                // Tell order-form to redetermine whether 'Update' button in dialog should be visible
                 this.$dispatch({ name: 'updatecountitem' })
             }
         }
-        //--- End of updateCount
+
+        //--- render
+        // Set highlighting if necessary
+        render() {
+            // Highlight line if count > 0
+            if (parseInt(this.count) > 0) {
+                this.#_sR.querySelector('#container').style.fontWeight = 'bold';
+            } else {
+                this.#_sR.querySelector('#container').style.fontWeight = '';
+            }
+
+        }
 
         //+++ Getters/Setters
         // Access value of count maintained by plus-minus component
         get count() { return this.#_counter.$attr('count') }
-        set count(c) { this.#_counter.$attr('count', c)}
+        set count(c) { this.#_counter.$attr('count', c) }
 
     }
 );
