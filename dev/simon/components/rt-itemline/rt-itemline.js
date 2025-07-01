@@ -50,9 +50,9 @@ customElements.define(compName,
 
                 /// Check if newCount matches value in the cart
                 // Is prodid already in cart?
-                const inCart = this.#_orderNode._cartExposed.has(this.$attr('prodid'));
+                const inCart = this.#_orderNode.cartContents.has(this.$attr('prodid'));
                 // Is prodid in cart with matching count
-                const itemMatch = inCart && (this.#_orderNode._cartExposed.get(this.$attr('prodid')) === newCount);
+                const itemMatch = inCart && (this.#_orderNode.cartContents.get(this.$attr('prodid')) === newCount);
                 // Determine if an entry has been updated
                 switch (true) {
                     case (newCount > 0 && !inCart):

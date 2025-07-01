@@ -32,7 +32,7 @@ customElements.define(
             
             // Initialise count from #_cartContents and render
             setTimeout(() => {
-                if (this.parentNode._cartExposed) this.count = this.parentNode._cartExposed.filter(item => item.prodID === this.$attr('prodid'))[0].count
+                this.count = this.parentNode.cartContents.get(this.$attr('prodid'));
                 this.#render();
             }, 0);
         }
