@@ -34,7 +34,7 @@ customElements.define(compName,
             // Initialise other private class fields
             this.#_eventBus = this.#_sR.querySelector('#container');
             const maxWeek = this.$attr('maxweek');
-            this.#_eventBus._maxWeek =  maxWeek !== null ? parseInt(maxWeek) - 1 : undefined;
+            this.#_eventBus._maxWeek = maxWeek !== null ? parseInt(maxWeek) - 1 : undefined;
             // Initialise property that can be accessed by children via the parentNode property
             this.#_eventBus._week = 0;
             this.#_eventBus._locale = this.$attr('locale') || undefined;
@@ -42,8 +42,13 @@ customElements.define(compName,
             //### Event Listners
             this.#_aL.addEventListener('click', () => this.#arrowRespond(-1));
             this.#_aR.addEventListener('click', () => this.#arrowRespond(1));
-            // this.addEventListener('datepicked', (e) => this.#dpRespond(e));
-            this.addEventListener('datepicked', this.#dpRespond);
+            // this.addEventListener('datepicked', (e) => this.#choiceRespond(e));
+            // Create event object 
+            const datePickFunc = {
+                handleEvent: this.#choiceRespond,
+                pickerNode: this
+            }
+            this.addEventListener('datepicked', datePickFunc);
 
             // Mark days to always disable
             let invalidDays = [0, 6]; // Default - Sat & Sun
@@ -56,14 +61,16 @@ customElements.define(compName,
             const dateNodes = this.#_sR.querySelectorAll('dp-date');
             // Set all invalid days. MOD allows for display of more than 1 week in picker
             dateNodes.forEach(node => { if (invalidDays.includes((node.getAttribute('day')) % 7)) { node.setAttribute('invalid', ''); } });
-            
+
         }
-        
+
         connectedCallback() {
             // Once appended in to form, look for and pull in external style definition
             if (typeof rtForm !== 'undefined' && rtForm.findNode(this, 'form')) rtForm.getStyle(this, rtForm.findNode(this));
+            // Picker hidden by default
+            this.hidden = true;
         }
-        
+
         //--- formAssociatedCallback
         // triggered when component is associated with (or dissociated from) a form
         formAssociatedCallback(form) {
@@ -78,6 +85,7 @@ customElements.define(compName,
         // respond to the enclosing form being reset
         formResetCallback() {
             this.#clearChosen();
+            this.hidden = true;
             // Reset week and inform all <dp-date> components of the change
             this.#_eventBus._week = 0;
             this.$dispatch({
@@ -109,6 +117,15 @@ customElements.define(compName,
             });
         }
 
+        //--- #choiceRespond
+        // Respond to a date being chosen
+        #choiceRespond(e) {
+            // Store chosen value
+            this.pickerNode.#_value = this.pickerNode.$localeDate(e.detail.date, this.pickerNode.#_eventBus._locale, { weekday: 'short', month: 'short', year: 'numeric', day: 'numeric' });
+            // Inform all <dp-date> about choice
+            this.pickerNode.#dispatchChoice(e.detail.day);
+        }
+
         //--- #clearChosen
         // Tell all <dp-date> components to clear any highlight and clear form value
         #clearChosen() {
@@ -116,7 +133,7 @@ customElements.define(compName,
             this.#dispatchChoice('-1');
             // Clear the form value
             this.#_value = null;
-        }
+        }    
 
         //--- #dispatchChoice
         // Tell all <dp-date> components to highlight if chosen
@@ -126,17 +143,8 @@ customElements.define(compName,
                 detail: { day },
                 composed: false,
                 eventbus: this.#_eventBus
-            })
-        }
-
-        //--- #dpRespond
-        // Respond to a date being chosen
-        #dpRespond(e) {
-            // Store chosen value
-            this.#_value = this.$localeDate(e.detail.date, this.#_eventBus._locale, { weekday: 'short', month: 'short', year: 'numeric', day: 'numeric' });
-            // Inform all <dp-date> about choice
-            this.#dispatchChoice(e.detail.day);
-        }
+            })    
+        }    
 
         //+++ Expose some standard form element properties and methods
         get value() { return this.#_value; }
@@ -156,6 +164,9 @@ customElements.define(compName,
 
         //reportValidity() { return this.#_internals.reportValidity(); }
         focus() { this.#_sR.querySelector('#container').focus({ focusVisible: true }) };
+
+        // Allow the component to be manually reset
+        reset() { this.formResetCallback() };
 
     }
 );
