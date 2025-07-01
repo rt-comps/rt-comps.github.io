@@ -57,6 +57,7 @@ customElements.define(
             // Catch order and prevent further bubbling
             if (e instanceof Event) e.stopPropagation();
             console.log(e);
+            this.#_sR.querySelector('rt-orderform').accepted();
             return
             // Process order
             if (e.detail) {
