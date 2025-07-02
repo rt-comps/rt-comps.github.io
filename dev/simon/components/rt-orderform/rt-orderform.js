@@ -13,7 +13,7 @@ customElements.define(compName,
     #_details;      // Product Details node
     #_form;         // Form node
     #_cart;         // Cart node
-    #_cartContents; // Object with current contents of the cart
+    #_cartContents; // Map with current contents of the cart
 
     // +++ Lifecycle Events
     //--- constructor
@@ -40,7 +40,11 @@ customElements.define(compName,
       // Store cart in private field
       this.#_cartContents = new Map(Object.entries(cartContents));
 
-      //-- Event Listeners
+
+      // this.addEventListener('initdetails', () => console.log('Event happened'))
+
+
+      //##### Event Listeners
       //___ initdetails - Display product information when product chosen
       // Use event object to pass 'this' node 
       const initDeetsFunc = {
@@ -305,42 +309,41 @@ customElements.define(compName,
     // Display #product-details dialog with requested data.
     // Close dialog if called manually with no parameter
     #detailsInitItemValues(e) {
-      // Declare in function global scope
-      // let newItem;
-      let orderNode = this;
       // If called from event then initialise and display else close 
       if (e instanceof Event) {
         // Stop event propagation and reset value of orderNode
         e.stopPropagation();
-        // If called from event then event object should provide node of rt-orderform
-        orderNode = this.orderNode;
+        // 'this' will be the event Object and should contain the node for the order form
+        const orderNode = this.orderNode;
 
-        // Initialise and display dialog if ID is sent
-        if (e.detail.id) {
-          const newItem = e.detail.id;
-
-          // Clear any previous slot settings
-          orderNode.querySelectorAll('rt-itemdata').forEach(el => el.removeAttribute('slot'));
-
-          // Get node for selected data
-          const newData = orderNode.querySelector(`rt-itemdata#${newItem}`)
-          // Slot new data
-          newData.setAttribute('slot', 'active-data');
-          // Get all item lines for this product
-          newData.querySelectorAll('rt-itemline').forEach(item => {
-            // Search for item in the cart, if found then use found count else set to zero then render any highlighting
-            item.count = orderNode.#_cartContents.has(item.$attr('prodid')) ? orderNode.#_cartContents.get(item.$attr('prodid')) : 0;
-            item.render();
-          });
-          // Set details button to disabled
-          orderNode.#detailsButtonDisplay();
-          // Display the dialog
-          orderNode.#_details.showModal();
-          return
+        if (orderNode) {
+          // Initialise and display dialog if ID is sent
+          if (e.detail.id) {
+            const newItem = e.detail.id;
+  
+            // Clear any previous slot settings
+            orderNode.querySelectorAll('rt-itemdata').forEach(el => el.removeAttribute('slot'));
+  
+            // Get node for selected data
+            const newData = orderNode.querySelector(`rt-itemdata#${newItem}`)
+            // Slot new data
+            newData.setAttribute('slot', 'active-data');
+            // Get all item lines for this product
+            newData.querySelectorAll('rt-itemline').forEach(item => {
+              // Search for item in the cart, if found then use found count else set to zero.
+              item.count = orderNode.#_cartContents.has(item.$attr('prodid')) ? orderNode.#_cartContents.get(item.$attr('prodid')) : 0;
+              // Setting highlighting based on line count
+              item.render();
+            });
+            // Set details button to disabled
+            orderNode.#detailsButtonDisplay();
+            // Display the dialog
+            orderNode.#_details.showModal();
+          } else orderNode.#_details.close();
         }
       }
+      // console.log(this)
       // Close the dialog if function called manually or Event has no value for ID
-      orderNode.#_details.close();
     }
 
     //--- #detailsUpdateCart
