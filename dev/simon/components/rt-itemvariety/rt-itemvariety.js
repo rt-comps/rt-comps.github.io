@@ -73,7 +73,6 @@ customElements.define(
         //--- #initialiseDisplay
         // Ensure 'default' variety attribute is respected every time this menu item is chosen
         #initialiseDisplay(e) {
-            console.log('initialising')
             // Only bother initialising display if this <item-data> chosen
             if (e.detail.id === this.varNode.parentNode.id) {
                 // Set 'hidden' to correct value and set correct caret
