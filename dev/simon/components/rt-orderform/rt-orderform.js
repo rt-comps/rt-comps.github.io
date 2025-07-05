@@ -444,9 +444,6 @@ customElements.define(compName,
         //### Dispatch order and reset form
         // Collect the current form data
         const formValues = new FormData(this.#_form);
-
-        console.log(this.#_cartContents)
-
         // Bubble a composed event containing the order details
         this.$dispatch({
           name: 'neworder',
@@ -564,26 +561,32 @@ customElements.define(compName,
     accepted() {
       // Set last order on the user's local storage to current order
       localStorage.setItem('lastOrder', localStorage.getItem('currentOrder'));
+
       // Clear the cart
       localStorage.removeItem('currentOrder');
       this.#_cartContents.clear();
       this.#cartRebuild();
-      // Reset display
-      this.#formShow(false);
-      // Save user details if chosen
+
+      /// Reset form
+      // Is save details checked?
       const saveFields = this.#_sR.querySelector('#savefields');
-      // If yes then put details in object and store as JSON string
       if (saveFields && saveFields.checked) {
+        // If yes then...
         // Collect field nodes
         const fields = [...this.#_sR.querySelectorAll(`#formfields :is(rt-form-field, textarea)`)];
         // Create Map of values from array of nodes
         const output = fields.reduce((acc, el) => acc.set(el.name, el.value), new Map());
-        // JSON can't store a Map so store as object 
+        // JSON can't store a Map so convert to object 
         localStorage.setItem('user-details', JSON.stringify(Object.fromEntries(output)));
+        
         // If no then clear any existing data
       } else localStorage.removeItem('user-details');
+      
       // Reset the form elements
       this.#_form.reset();
+      // Reset display
+      this.#formShow(false);
+
       //DEBUG
       console.log('Form Submitted!');
     }
