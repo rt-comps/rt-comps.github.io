@@ -320,10 +320,10 @@ customElements.define(compName,
           // Initialise and display dialog if ID is sent
           if (e.detail.id) {
             const newItem = e.detail.id;
-  
+
             // Clear any previous slot settings
             orderNode.querySelectorAll('rt-itemdata').forEach(el => el.removeAttribute('slot'));
-  
+
             // Get node for selected data
             const newData = orderNode.querySelector(`rt-itemdata#${newItem}`)
             // Slot new data
@@ -444,12 +444,15 @@ customElements.define(compName,
         //### Dispatch order and reset form
         // Collect the current form data
         const formValues = new FormData(this.#_form);
+
+        console.log(this.#_cartContents)
+
         // Bubble a composed event containing the order details
         this.$dispatch({
           name: 'neworder',
           detail: {
             person: Object.fromEntries(formValues.entries()),
-            order: this.#_cartContents
+            order: Object.fromEntries(this.#_cartContents)
           }
         });
       } else console.warn(`Form submission not valid - ${valid.get('field')}`);
@@ -542,7 +545,9 @@ customElements.define(compName,
     // Reload the last order dispatched
     #orderRecover() {
       // Fill the currentOrder storage item with the contents from lastOrder
-      if (localStorage.getItem('lastOrder')) localStorage.setItem('currentOrder', localStorage.getItem('lastOrder'))
+      if (localStorage.getItem('lastOrder')) localStorage.setItem('currentOrder', localStorage.getItem('lastOrder'));
+      // Store currentOrder in memory
+      this.#_cartContents = new Map(Object.entries(JSON.parse(localStorage.getItem('currentOrder'))))
       // Rebuild cart
       this.#cartRebuild();
     }
@@ -571,7 +576,6 @@ customElements.define(compName,
       if (saveFields && saveFields.checked) {
         // Collect field nodes
         const fields = [...this.#_sR.querySelectorAll(`#formfields :is(rt-form-field, textarea)`)];
-        console.log(fields)
         // Create Map of values from array of nodes
         const output = fields.reduce((acc, el) => acc.set(el.name, el.value), new Map());
         // JSON can't store a Map so store as object 
