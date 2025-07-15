@@ -100,12 +100,11 @@ try {
         // Create array of files to process, paths relative to devPath
         const files = walk(`${devPath}/${comp}`).map(el => el.slice(devPath.length + 1))
         // Process all files in array
-
         for (const file of files) {
             // Create required path in staging for this file, if it has not been previously created
             const filePath = `${dstPath}/${file.slice(0, file.lastIndexOf('/'))}`;
             if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
-            // Process file based on type (type == file extension)
+            // Do not process MarkDown files
             const fileType = file.slice(file.lastIndexOf('.') + 1);
             if (fileType === 'md') continue;
             fs.copyFileSync(`${devPath}/${file}`, `${dstPath}/${file}`);
