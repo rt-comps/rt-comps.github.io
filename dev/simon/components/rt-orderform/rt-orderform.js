@@ -339,11 +339,12 @@ customElements.define(compName,
             orderNode.#detailsButtonDisplay();
             // Display the dialog
             orderNode.#_details.showModal();
+          // Close the dialog if Event has no value for ID
           } else orderNode.#_details.close();
         }
-      }
+        // Close the dialog if function called manually
+      } else this.#_details.close();
       // console.log(this)
-      // Close the dialog if function called manually or Event has no value for ID
     }
 
     //--- #detailsUpdateCart
@@ -371,7 +372,7 @@ customElements.define(compName,
         // Has anything changed?
         if (flags.get('changed')) {
           // If cart not empty then convert the current order Map to a JSON-encoded object and store in local Storage object
-          if (this.#_cartContents.size > 0) localStorage.setItem('currentOrder', JSON.stringify(Object.fromEntries(this.#_cartContents)));
+          if (this.#_cartContents.size > 0) localStorage.setItem('currentOrder', this.$map2JSON(this.#_cartContents));
           // If cart empty then delete Storage object
           else localStorage.removeItem('currentOrder');
           // Rebuild cart using latest data
@@ -429,7 +430,7 @@ customElements.define(compName,
         // Set 'savefields' boolean
         this.#_form.querySelector('#savefields').checked = true;
         // Repopulate details in to form from stored details
-        new Map(Object.entries(JSON.parse(details))).forEach((value, key) => this.#_form.querySelector(`[name=${key}]`).value = value)
+        this.$JSON2map(details).forEach((value, key) => this.#_form.querySelector(`[name=${key}]`).value = value)
       }
       // Bring form to front
       this.#formShow(true);
@@ -532,7 +533,7 @@ customElements.define(compName,
         ['count', e.detail.count]
       ]));
       // Save the current order data to local Storage object
-      if (this.#_cartContents.size > 0) localStorage.setItem('currentOrder', JSON.stringify(Object.fromEntries(this.#_cartContents)));
+      if (this.#_cartContents.size > 0) localStorage.setItem('currentOrder', this.$map2JSON(this.#_cartContents));
       // If this.#_cartContents is empty then delete Storage object
       else localStorage.removeItem('currentOrder');
       this.#cartTotal();
@@ -544,7 +545,7 @@ customElements.define(compName,
       // Fill the currentOrder storage item with the contents from lastOrder
       if (localStorage.getItem('lastOrder')) localStorage.setItem('currentOrder', localStorage.getItem('lastOrder'));
       // Store currentOrder in memory
-      this.#_cartContents = new Map(Object.entries(JSON.parse(localStorage.getItem('currentOrder'))))
+      this.#_cartContents = this.$JSON2map(localStorage.getItem('currentOrder'))
       // Rebuild cart
       this.#cartRebuild();
     }
@@ -577,7 +578,7 @@ customElements.define(compName,
         // Create Map of values from array of nodes
         const output = fields.reduce((acc, el) => acc.set(el.name, el.value), new Map());
         // JSON can't store a Map so convert to object 
-        localStorage.setItem('user-details', JSON.stringify(Object.fromEntries(output)));
+        localStorage.setItem('user-details', this.$map2JSON(output));
         
         // If no then clear any existing data
       } else localStorage.removeItem('user-details');
