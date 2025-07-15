@@ -108,6 +108,14 @@ class RTBaseClass extends HTMLElement {
   $localeDate(date, locale = 'nl-NL', options = {}) {
     return Intl.DateTimeFormat(locale, options).format(date);
   }
+
+  $map2JSON(map){
+    return JSON.stringify(Object.fromEntries(map))
+  }
+
+  $JSON2map(string){
+    return new Map(Object.entries(JSON.parse(string)))
+  }
 }
 
 export { RTBaseClass };
