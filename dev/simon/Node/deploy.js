@@ -60,29 +60,6 @@ function walk(path, result = []) {
     return result;
 }
 
-// --- constSub
-// Make substitions of constants required when moving from dev to prod environments
-//  Substitutions are define in the source file as follows (JSON format)
-//      ForProd: { "<nameOfConstant": "<valueOfConstant", ... }
-//  "ForProd:" can be used multiple times in a file and each instance can define 1+ properties
-function constSub(contents) {
-    // Find all substitutions provided in file and merge in to single object
-    const subs = contents.match(/ForProd\:.*/g).reduce((acc, el) => {
-        // Merge extracted object into final object
-        return { ...acc, ...JSON.parse(el.slice(9)) };
-    }, {})
-    // Perform substitutions
-    for (const sub in subs) {
-        const strReplace = typeof subs[sub] === 'string' ? `'${subs[sub]}'` : subs[sub];
-        // Search for constant assignment statement
-        const strMatch = contents.match(new RegExp(`${sub} =.*`, 'g'));
-        // If found then 
-        if (strMatch) contents = contents.replace(strMatch[0], `${sub} = ${strReplace};`);
-        else console.warn(`Unable to find "${sub}" in content`);
-    }
-    return contents;
-}
-
 // ### Start work
 try {
     // ### Derive some constants
@@ -138,9 +115,6 @@ try {
                 case 'html':
                 case 'htm':
                     fs.writeFileSync(`${stgPath}/${file}`, mini(fs.readFileSync(`${devPath}/${file}`, 'utf8'), miniOpt));
-                    break;
-                // Ignore these file types
-                case 'md':
                     break;
                 // Copy all other file types
                 default:
