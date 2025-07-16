@@ -500,14 +500,15 @@ customElements.define(compName,
       // Additional initialisation for mobile client
       if (window.matchMedia("(max-width: 430px)").matches) {
         // Add cart toggle when cart-title clicked
-        this.#_cart.querySelector('#cart-title').addEventListener('click', () => this.#cartToggle());
+        const _cartTitle = this.#_cart.querySelector('#cart-title')
+        _cartTitle.addEventListener('click', () => this.#cartToggle());
         // 200ms delay to ensure cart title has rendered (yuck!)
         setTimeout(() => {
           // Determine padding and border sizes
           const cartStyle = getComputedStyle(this.#_cart);
           const cartMod = (parseInt(cartStyle.paddingTop) * 2) + (parseInt(cartStyle.borderLeftWidth) * 2);
           // Determine size of cart-title and add adjustment for padding and borders
-          const cartTitleSize = `${(parseFloat(cartTitle.getBoundingClientRect().height) + cartMod).toFixed(0)}px`;
+          const cartTitleSize = `${(parseFloat(_cartTitle.getBoundingClientRect().height) + cartMod).toFixed(0)}px`;
           // Set CSS variable for minimized cart size - will cause 'expanding' transition
           this.#_cart.style.setProperty('--MINIMIZED-CART', cartTitleSize);
           // Unhide the cart div to see transition
