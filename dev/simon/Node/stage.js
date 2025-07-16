@@ -49,26 +49,47 @@ function walk(path, result = []) {
 }
 
 // --- constSub
-// Make substitions of constants required when moving from dev to prod environments
+// Make substitions for constants when required for moving from dev to prod environments
 //  Substitutions are define in the source file as follows (JSON format)
 //      ForProd: { "<nameOfConstant": "<valueOfConstant", ... }
 //  "ForProd:" can be used multiple times in a file and each instance can define 1+ properties
 function constSub(contents) {
-    // Find all substitutions provided in file and merge in to single object
-    const subs = contents.match(/ForProd\:.*/g).reduce((acc, el) => {
-        // Merge extracted object into final object
-        return { ...acc, ...JSON.parse(el.slice(9)) };
-    }, {})
-    // Perform substitutions
-    for (const sub in subs) {
-        const strReplace = typeof subs[sub] === 'string' ? `'${subs[sub]}'` : subs[sub];
-        // Search for constant assignment statement
-        const strMatch = contents.match(new RegExp(`${sub} =.*`, 'g'));
-        // If found then 
-        if (strMatch) contents = contents.replace(strMatch[0], `${sub} = ${strReplace};`);
-        else console.warn(`Unable to find "${sub}" in content`);
+    let subs;
+    // Find all substitutions provided in file and merge in to a single object
+    const toSub = contents.match(/ForProd\:.*/g);
+    // Were any substitutions found?
+    if (toSub) {
+        // Collect all substitutions found in file into a Map
+        if (toSub.length > 1) {
+            // Reduce multiple Objects to single Map
+            subs = toSub.reduce((acc, line) => {
+                // convert JSON Object to Map
+                const map = new Map(Object.entries(JSON.parse(line.slice(line.indexOf('{')))))
+                // Merge newly extracted Map with the accumulator Map
+                return new Map([...acc, ...map])
+            }, new Map());
+        } else {
+            // reduce() will not run on a single entry array
+            const line = toSub[0];
+            subs = new Map(Object.entries(JSON.parse(line.slice(line.indexOf('{')))))
+        }
+
+        // Perform substitutions
+        subs.forEach((value, key) => {
+            // Search for parameter assignment to change (use RegExp to allow use of variable)
+            const strMatch = contents.match(new RegExp(`${key} =.*`,'g'));
+            // If parameter found then replace value for all instances 
+            if (strMatch) {
+                console.log(strMatch[0])
+                // Add quotes to any string value
+                const strReplace = typeof value === 'string' ? `'${value}'` : value;
+                console.log(`${key} = ${strReplace};`)
+                contents = contents.replaceAll(strMatch[0], `${key} = ${strReplace};`)
+            }
+        });
     }
-    return contents;
+    // Always return file contents
+    return contents
 }
 
 // ### Start work
@@ -96,18 +117,34 @@ try {
     compList.forEach(comp => { if (!fs.existsSync(`${devPath}/${comp}`)) throw new Error(`Component ${comp.split('/').pop().toUpperCase()} not found!\n\nPre-flight check failed!`, { cause: 'custom' }); });
 
     // ### Main Code - run for each component
+    // Cleanup any previous files
+    if (fs.existsSync(dstPath)) fs.rmSync(dstPath, {recursive: true});
+    
+    // Process all files for provided components/modules
     compList.forEach(comp => {
         // Create array of files to process, paths relative to devPath
         const files = walk(`${devPath}/${comp}`).map(el => el.slice(devPath.length + 1))
         // Process all files in array
         for (const file of files) {
+            const fileType = file.slice(file.lastIndexOf('.') + 1);
+            // Do not process MarkDown files
+            if (fileType === 'md') continue;
             // Create required path in staging for this file, if it has not been previously created
             const filePath = `${dstPath}/${file.slice(0, file.lastIndexOf('/'))}`;
             if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
-            // Do not process MarkDown files
-            const fileType = file.slice(file.lastIndexOf('.') + 1);
-            if (fileType === 'md') continue;
-            fs.copyFileSync(`${devPath}/${file}`, `${dstPath}/${file}`);
+            // Check if any required parameter substitions are present when moving from dev to stage
+            if (fileType === 'js' | fileType === 'mjs') {
+                // Get original file contents <string>
+                let contents = fs.readFileSync(`${devPath}/${file}`, 'utf8');
+                // If at least one substitution has been defined then carry out the sub
+                if (contents.includes('ForProd:')) contents = constSub(contents);
+                // Create the production version of the file in staging without minifying
+                fs.writeFileSync(`${dstPath}/${file}`, contents);
+            } else {
+                console.log(`${devPath}/${file}`)
+                console.log(`${dstPath}/${file}`)
+                fs.copyFileSync(`${devPath}/${file}`, `${dstPath}/${file}`);
+            }
         }
     })
 } catch (e) {
