@@ -32,9 +32,8 @@ customElements.define(
         // Tell form to retrieve the specified menu data file
         #getMenu(e) {
             if (e instanceof Event) e.stopPropagation();
+            const dataFile = this.getAttribute('datafile');
             // Get the menu file - if a non-NULL value has been provided
-            // Determing the path to the menu data file
-            const dataFile = this.$attr('datafile');
             if (dataFile) this.#_sR.querySelector('rt-orderform').loadMenu(dataFile);
             else {
                 // Make it obvious that something critical is missing 
