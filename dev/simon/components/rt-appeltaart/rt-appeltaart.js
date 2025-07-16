@@ -32,22 +32,15 @@ customElements.define(
         // Tell form to retrieve the specified menu data file
         #getMenu(e) {
             if (e instanceof Event) e.stopPropagation();
+            const dataFile = this.getAttribute('datafile');
             // Get the menu file - if a non-NULL value has been provided
-            if (this.getAttribute('datafile')) {
-                // Determing the path to the menu data file
-                const dataFile = this.getAttribute('datafile');
-                //  Set regex to determine if path is absolute or relative
-                const regex = /^http[s]?:\/\//;
-                //  If path is relative then assume file is in this component's directory
-                const url = dataFile.match(regex) ? `${dataFile}` : `${basePath}/components/${compName}/${dataFile}`;
-                // Initiate loading of the menu data
-                this.#_sR.querySelector('rt-orderform').loadMenu(url);
-            } else {
+            if (dataFile) this.#_sR.querySelector('rt-orderform').loadMenu(dataFile);
+            else {
                 // Make it obvious that something critical is missing 
-                const frag = document.createRange().createContextualFragment('<h1 style="color: white; background-color: red; text-align: center">datafile attribute not provided</h1>');
+                const frag = document.createRange().createContextualFragment('<h1 style="color: white; background-color: red; text-align: center">"datafile" attribute not provided</h1>');
                 this.#_sR.appendChild(frag);
                 // Add the message to the console log too
-                console.error('Datafile attribute value is missing or is an empty string')
+                console.error('"datafile" attribute value must exist and cannot be an empty string')
             }
         }
 
@@ -56,7 +49,10 @@ customElements.define(
         #dispatchOrder(e) {
             // Catch order and prevent further bubbling
             if (e instanceof Event) e.stopPropagation();
+            // Display order details in console log
             console.log(e);
+            // Reset order form
+            this.#_sR.querySelector('rt-orderform').accepted();
             return
             // Process order
             if (e.detail) {

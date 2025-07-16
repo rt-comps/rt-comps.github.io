@@ -18,12 +18,6 @@
 // ### Load modules 
 // Allow FileSystem access
 import * as fs from 'fs';
-//const fs = require('fs');
-// Minifiers
-import {minify as uglify} from 'uglify-js';
-import {minify as mini} from 'html-minifier-terser';
-//const uglify = require('uglify-js').minify;
-//const mini = require('html-minifier').minify;
 
 // ### Define constants
 //  Where files are expected to be found in devPath
@@ -31,12 +25,6 @@ const pathList = [
     'components',
     'modules'
 ]
-//  'html-minifier' options
-const miniOpt = {
-    collapseWhitespace: true,
-    removeComments: true,
-    minifyCSS: true
-}
 //  Options for removing directories
 const rmOpts = { recursive: true, force: true };
 
@@ -60,6 +48,50 @@ function walk(path, result = []) {
     return result;
 }
 
+// --- constSub
+// Make substitions for constants when required for moving from dev to prod environments
+//  Substitutions are define in the source file as follows (JSON format)
+//      ForProd: { "<nameOfConstant": "<valueOfConstant", ... }
+//  "ForProd:" can be used multiple times in a file and each instance can define 1+ properties
+function constSub(contents) {
+    let subs;
+    // Find all substitutions provided in file and merge in to a single object
+    const toSub = contents.match(/ForProd\:.*/g);
+    // Were any substitutions found?
+    if (toSub) {
+        // Collect all substitutions found in file into a Map
+        if (toSub.length > 1) {
+            // Reduce multiple Objects to single Map
+            subs = toSub.reduce((acc, line) => {
+                // convert JSON Object to Map
+                const map = new Map(Object.entries(JSON.parse(line.slice(line.indexOf('{')))))
+                // Merge newly extracted Map with the accumulator Map
+                return new Map([...acc, ...map])
+            }, new Map());
+        } else {
+            // reduce() will not run on a single entry array
+            const line = toSub[0];
+            subs = new Map(Object.entries(JSON.parse(line.slice(line.indexOf('{')))))
+        }
+
+        // Perform substitutions
+        subs.forEach((value, key) => {
+            // Search for parameter assignment to change (use RegExp to allow use of variable)
+            const strMatch = contents.match(new RegExp(`${key} =.*`,'g'));
+            // If parameter found then replace value for all instances 
+            if (strMatch) {
+                console.log(strMatch[0])
+                // Add quotes to any string value
+                const strReplace = typeof value === 'string' ? `'${value}'` : value;
+                console.log(`${key} = ${strReplace};`)
+                contents = contents.replaceAll(strMatch[0], `${key} = ${strReplace};`)
+            }
+        });
+    }
+    // Always return file contents
+    return contents
+}
+
 // ### Start work
 try {
     // ### Derive some constants
@@ -68,68 +100,53 @@ try {
     //  Ensure script has been called from within project directory
     if (!workingDir.includes('github.io')) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
     //  Files are output to 'docs' directory of project
-    const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs`;
+    const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs/stage`;
     //  Get the path of this executable
     const execPath = process.argv[1];
     //  Assume component directories are at same level as 'Node' directory (where this script is placed)
     const devPath = execPath.slice(0, execPath.indexOf('/Node'));
-    //  Determine source and staging dirs 
-    const stgPath = `${devPath}/tmp`;
     //  Read in any project name(s) provided
     let paramList = process.argv.slice(2);
     //  If no component is specified then deploy all files in 'components' and 'modules' directories
-    if (paramList.length === 0) paramList = [...pathList];
+    if (paramList.length === 0 || (paramList.length === 1 && !paramList[0])) paramList = [...pathList];
     //  Convert parameter list to relative paths
     const compList = paramList.map(param => `${pathList.includes(param) ? '' : 'components/'}${param}`);
 
     // ### Pre-flight checks
-    // Check if a previous attempt failed
-    if (fs.existsSync(stgPath)) throw new Error(`Staging DIR already exists!\nSomething must have gone wrong previously\n\nPre-flight check failed!`, { cause: 'custom' });
     // Before doing anything, check that the ALL specified components/directories can be found
     compList.forEach(comp => { if (!fs.existsSync(`${devPath}/${comp}`)) throw new Error(`Component ${comp.split('/').pop().toUpperCase()} not found!\n\nPre-flight check failed!`, { cause: 'custom' }); });
 
     // ### Main Code - run for each component
+    // Cleanup any previous files
+    if (fs.existsSync(dstPath)) fs.rmSync(dstPath, {recursive: true});
+    
+    // Process all files for provided components/modules
     compList.forEach(comp => {
         // Create array of files to process, paths relative to devPath
         const files = walk(`${devPath}/${comp}`).map(el => el.slice(devPath.length + 1))
         // Process all files in array
         for (const file of files) {
-            // Create required path in staging for this file, if it has not been previously created
-            const filePath = `${stgPath}/${file.slice(0, file.lastIndexOf('/'))}`;
-            if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
-            // Process file based on type (type == file extension)
             const fileType = file.slice(file.lastIndexOf('.') + 1);
-            switch (fileType) {
-                // Use uglify-js with default settings for JS
-                case 'js':
-                case 'mjs':
-                    // Find any required constant substitutions when moving dev to prod
-                    // Get original file contents <string>
-                    let contents = fs.readFileSync(`${devPath}/${file}`, 'utf8');
-                    // Check if any required substitions are present
-                    if (contents.includes('ForProd:')) contents = constSub(contents);
-                    // Minify and save to staging
-                    fs.writeFileSync(`${stgPath}/${file}`, uglify(contents).code);
-                    break;
-                // Use html-minifier for HTML
-                case 'html':
-                case 'htm':
-                    fs.writeFileSync(`${stgPath}/${file}`, mini(fs.readFileSync(`${devPath}/${file}`, 'utf8'), miniOpt));
-                    break;
-                // Copy all other file types
-                default:
-                    fs.copyFileSync(`${devPath}/${file}`, `${stgPath}/${file}`);
+            // Do not process MarkDown files
+            if (fileType === 'md') continue;
+            // Create required path in staging for this file, if it has not been previously created
+            const filePath = `${dstPath}/${file.slice(0, file.lastIndexOf('/'))}`;
+            if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
+            // Check if any required parameter substitions are present when moving from dev to stage
+            if (fileType === 'js' | fileType === 'mjs') {
+                // Get original file contents <string>
+                let contents = fs.readFileSync(`${devPath}/${file}`, 'utf8');
+                // If at least one substitution has been defined then carry out the sub
+                if (contents.includes('ForProd:')) contents = constSub(contents);
+                // Create the production version of the file in staging without minifying
+                fs.writeFileSync(`${dstPath}/${file}`, contents);
+            } else {
+                console.log(`${devPath}/${file}`)
+                console.log(`${dstPath}/${file}`)
+                fs.copyFileSync(`${devPath}/${file}`, `${dstPath}/${file}`);
             }
         }
-
-        // ### Replace files in production ('docs' folder)
-        // Remove existing files from 'docs' folder
-        fs.rmSync(`${dstPath}/${comp}`, rmOpts);
-        // Move new files to 'docs' folder
-        fs.renameSync(`${stgPath}/${comp}`, `${dstPath}/${comp}`);
     })
-    // Tidy up
-    fs.rmSync(stgPath, rmOpts);
 } catch (e) {
     console.log((e.cause && e.cause === 'custom') ? e.message : e);
 }
