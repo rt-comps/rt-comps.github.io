@@ -35,14 +35,8 @@ customElements.define(
             // Get the menu file - if a non-NULL value has been provided
             // Determing the path to the menu data file
             const dataFile = this.$attr('datafile');
-            if (dataFile) {
-                //  Set regex to determine if path is absolute or relative
-                const regex = /^http[s]?:\/\//;
-                //  If path is relative then assume file is in this component's directory
-                const url = dataFile.match(regex) ? `${dataFile}` : `${basePath}/components/${compName}/${dataFile}`;
-                // Initiate loading of the menu data
-                this.#_sR.querySelector('rt-orderform').loadMenu(url);
-            } else {
+            if (dataFile) this.#_sR.querySelector('rt-orderform').loadMenu(dataFile);
+            else {
                 // Make it obvious that something critical is missing 
                 const frag = document.createRange().createContextualFragment('<h1 style="color: white; background-color: red; text-align: center">"datafile" attribute not provided</h1>');
                 this.#_sR.appendChild(frag);
