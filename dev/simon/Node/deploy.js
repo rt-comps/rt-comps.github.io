@@ -92,6 +92,7 @@ try {
     compList.forEach(comp => { if (!fs.existsSync(`${srcPath}/${comp}`)) throw new Error(`\nComponent ${comp.split('/').pop().toUpperCase()} not found!${checkTxt}`, { cause: 'custom' }); });
 
     // ### Main Code - run for each component
+    // Collect promise state for all components/modules
     const waitForAll = compList.map(comp => {
         // Create array of files to process, paths relative to srcPath
         const files = walk(`${srcPath}/${comp}`).map(el => el.slice(srcPath.length + 1))
@@ -125,7 +126,7 @@ try {
         })
 
         // ### Replace files in production ('docs' folder)
-        // Ensure that all html minifier tasks have completed
+        // Ensure that all html minifier tasks have completed before attempting to replace existing files for this component/modules
         return Promise.all(waitForFinish)
             .then(() => {
                 // Remove existing files from 'docs' folder
@@ -136,7 +137,7 @@ try {
     })
 
     // ### Tidy up
-    // Wait for any async tasks to complete
+    // Remove 'stage' & 'tmp' directories once all components/modules have been processed
     Promise.all(waitForAll)
         .then(() => {
             // remove 'stage' & 'tmp' directories
