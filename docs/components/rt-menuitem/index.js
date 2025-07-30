@@ -1,1 +1,1 @@
-rtlib.loadComponent(import.meta.url);
+rtlib.init(import.meta.url);
