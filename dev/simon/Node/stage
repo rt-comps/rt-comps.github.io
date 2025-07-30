@@ -1,4 +1,8 @@
 #!/bin/zsh
-# Wrapper for deploy.js
+# Wrapper for stage.js
 
-node "${0}.js" "$*"
+if [[ $# -eq 0 ]]; then
+    node "${0}.js"
+else
+    node "${0}.js" "$*"
+fi

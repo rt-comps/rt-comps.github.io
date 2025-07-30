@@ -80,10 +80,8 @@ function constSub(contents) {
             const strMatch = contents.match(new RegExp(`${key} =.*`,'g'));
             // If parameter found then replace value for all instances 
             if (strMatch) {
-                console.log(strMatch[0])
                 // Add quotes to any string value
                 const strReplace = typeof value === 'string' ? `'${value}'` : value;
-                console.log(`${key} = ${strReplace};`)
                 contents = contents.replaceAll(strMatch[0], `${key} = ${strReplace};`)
             }
         });
@@ -141,8 +139,6 @@ try {
                 // Create the production version of the file in staging without minifying
                 fs.writeFileSync(`${dstPath}/${file}`, contents);
             } else {
-                console.log(`${devPath}/${file}`)
-                console.log(`${dstPath}/${file}`)
                 fs.copyFileSync(`${devPath}/${file}`, `${dstPath}/${file}`);
             }
         }

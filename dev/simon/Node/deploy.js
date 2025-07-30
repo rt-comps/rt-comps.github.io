@@ -3,16 +3,16 @@
 //
 // Usage: node <pathToScript>/deploy.js [componentName] [componentName]
 // 
-// Code is taken from the specified component (Default: all components & modules),
-// minified and component dir(s) in 'doc' directory over-written.
-// Specify 'modules' to deploy changes to files in modules directory
+// Code is taken from 'stage' for the specified component(s) (Default: all components & modules),
+// minified and then component dir(s) in 'doc' directory are over-written.
+// If any components are specified then 'modules' must also be passed to update module files (all or none) 
 //
 // After running this script, a commit must be done manually
 //
 // Dependencies:
 // - uglify-js
-// - html-minifier
-// > npm install --save uglify-js html-minifier
+// - html-minifier-next
+// > npm install --save uglify-js html-minifier-next
 // ----------------------------
 
 // ### Load modules 
@@ -20,13 +20,13 @@
 import * as fs from 'fs';
 //const fs = require('fs');
 // Minifiers
-import {minify as uglify} from 'uglify-js';
-import {minify as mini} from 'html-minifier-terser';
+import { minify as uglify } from 'uglify-js';
+import { minify as mini } from 'html-minifier-next';
 //const uglify = require('uglify-js').minify;
 //const mini = require('html-minifier').minify;
 
 // ### Define constants
-//  Where files are expected to be found in devPath
+//  Where files are expected to be found in srcPath
 const pathList = [
     'components',
     'modules'
@@ -65,16 +65,19 @@ try {
     // ### Derive some constants
     //  Get current working directory
     const workingDir = process.cwd();
+    const checkTxt='\n\nPre-flight check failed!\n';
     //  Ensure script has been called from within project directory
-    if (!workingDir.includes('github.io')) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
+    if (!workingDir.includes('github.io')) throw new Error('\nNo project directory not found.  Ensure script is run from within project directory structure\n', { cause: 'custom' });
     //  Files are output to 'docs' directory of project
     const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs`;
     //  Get the path of this executable
     const execPath = process.argv[1];
-    //  Assume component directories are at same level as 'Node' directory (where this script is placed)
-    const devPath = execPath.slice(0, execPath.indexOf('/Node'));
+    //  Components should exist in the '/docs/stage' directory
+    const srcPath = `${dstPath}/stage`;
+    // Check that source directory exists
+    if (!fs.existsSync(srcPath)) throw new Error(`\n"stage" directory not found\n Was staging task run?${checkTxt}`, {cause: 'custom'})
     //  Determine source and staging dirs 
-    const stgPath = `${devPath}/tmp`;
+    const tmpPath = `${execPath.slice(0, execPath.indexOf('/Node'))}/tmp`;
     //  Read in any project name(s) provided
     let paramList = process.argv.slice(2);
     //  If no component is specified then deploy all files in 'components' and 'modules' directories
@@ -84,52 +87,62 @@ try {
 
     // ### Pre-flight checks
     // Check if a previous attempt failed
-    if (fs.existsSync(stgPath)) throw new Error(`Staging DIR already exists!\nSomething must have gone wrong previously\n\nPre-flight check failed!`, { cause: 'custom' });
+    if (fs.existsSync(tmpPath)) throw new Error(`\nDeployment staging DIR already exists!\nSomething must have gone wrong previously${checkTxt}`, { cause: 'custom' });
     // Before doing anything, check that the ALL specified components/directories can be found
-    compList.forEach(comp => { if (!fs.existsSync(`${devPath}/${comp}`)) throw new Error(`Component ${comp.split('/').pop().toUpperCase()} not found!\n\nPre-flight check failed!`, { cause: 'custom' }); });
+    compList.forEach(comp => { if (!fs.existsSync(`${srcPath}/${comp}`)) throw new Error(`\nComponent ${comp.split('/').pop().toUpperCase()} not found!${checkTxt}`, { cause: 'custom' }); });
 
     // ### Main Code - run for each component
-    compList.forEach(comp => {
-        // Create array of files to process, paths relative to devPath
-        const files = walk(`${devPath}/${comp}`).map(el => el.slice(devPath.length + 1))
+    const waitForAll = compList.map(comp => {
+        // Create array of files to process, paths relative to srcPath
+        const files = walk(`${srcPath}/${comp}`).map(el => el.slice(srcPath.length + 1))
         // Process all files in array
-        for (const file of files) {
+        const waitForFinish = files.map(file => {
+            console.log(file)
             // Create required path in staging for this file, if it has not been previously created
-            const filePath = `${stgPath}/${file.slice(0, file.lastIndexOf('/'))}`;
+            const filePath = `${tmpPath}/${file.slice(0, file.lastIndexOf('/'))}`;
             if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
             // Process file based on type (type == file extension)
             const fileType = file.slice(file.lastIndexOf('.') + 1);
+            // process.exit()
             switch (fileType) {
                 // Use uglify-js with default settings for JS
                 case 'js':
                 case 'mjs':
-                    // Find any required constant substitutions when moving dev to prod
-                    // Get original file contents <string>
-                    let contents = fs.readFileSync(`${devPath}/${file}`, 'utf8');
-                    // Check if any required substitions are present
-                    if (contents.includes('ForProd:')) contents = constSub(contents);
                     // Minify and save to staging
-                    fs.writeFileSync(`${stgPath}/${file}`, uglify(contents).code);
+                    fs.writeFileSync(`${tmpPath}/${file}`, uglify(fs.readFileSync(`${srcPath}/${file}`, 'utf8')).code);
                     break;
                 // Use html-minifier for HTML
                 case 'html':
                 case 'htm':
-                    fs.writeFileSync(`${stgPath}/${file}`, mini(fs.readFileSync(`${devPath}/${file}`, 'utf8'), miniOpt));
-                    break;
+                    return mini(fs.readFileSync(`${srcPath}/${file}`, 'utf8'), miniOpt)
+                        .then(result => fs.writeFileSync(`${tmpPath}/${file}`, result));
+                // break;
                 // Copy all other file types
                 default:
-                    fs.copyFileSync(`${devPath}/${file}`, `${stgPath}/${file}`);
+                    fs.copyFileSync(`${srcPath}/${file}`, `${tmpPath}/${file}`);
             }
-        }
+            return
+        })
 
         // ### Replace files in production ('docs' folder)
-        // Remove existing files from 'docs' folder
-        fs.rmSync(`${dstPath}/${comp}`, rmOpts);
-        // Move new files to 'docs' folder
-        fs.renameSync(`${stgPath}/${comp}`, `${dstPath}/${comp}`);
+        // Ensure that all html minifier tasks have completed
+        return Promise.all(waitForFinish)
+            .then(() => {
+                // Remove existing files from 'docs' folder
+                fs.rmSync(`${dstPath}/${comp}`, rmOpts);
+                // Move new files to 'docs' folder
+                fs.renameSync(`${tmpPath}/${comp}`, `${dstPath}/${comp}`);
+            })
     })
-    // Tidy up
-    fs.rmSync(stgPath, rmOpts);
+
+    // ### Tidy up
+    // Wait for any async tasks to complete
+    Promise.all(waitForAll)
+        .then(() => {
+            // remove 'stage' & 'tmp' directories
+            fs.rmSync(tmpPath, rmOpts);
+            fs.rmSync(srcPath, rmOpts);
+        })
 } catch (e) {
     console.log((e.cause && e.cause === 'custom') ? e.message : e);
 }
