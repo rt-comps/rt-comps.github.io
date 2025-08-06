@@ -11,6 +11,7 @@ customElements.define(
     #_sR;
     #_internals;
     #_times;
+    #_dates;
 
     //+++++ Lifecycle Events
     //--- constructor
@@ -23,21 +24,30 @@ customElements.define(
       // Expose form elements to parent form
       this.#_internals = this.attachInternals();
 
-      // Useful node
-      this.#_times = this.#_sR.querySelector('#pu-times');
+      // Useful nodes
+      this.#_times = this.#_sR.querySelector('#fs-time');
+      // this.#_dates = this.parentNode.querySelector('rt-datepicker');
 
       // Render Shadow DOM elements based on provided HTML
       this.#render();
 
       //###### Event Listeners
-      // Update times when location selected
-      this.#_sR.querySelector('#pickup').addEventListener('change', (e) => this.#updateLoc(e));
+      // Update 'times' when a 'location' is selected.
+      // By using an object as the Listener we get two benefits
+      //  - The current context of 'this' can be transferred, like using an arrow function
+      //  - The object can be used to remove the listener, not possible with an arrow function 
+      const changeFunc = {
+        handleEvent: this.#updateRadio,
+        pickLoc: this
+      }
+      this.#_sR.querySelector('#container').addEventListener('change', changeFunc);
     }
 
     //--- connectedCallBack
     connectedCallBack() {
       // Look for and pull in external style definition only when component is connected to a form element
       if (typeof rtForm !== 'undefined' && rtForm.findNode(this, 'form')) rtForm.getStyle(this, rtForm.findNode(this));
+      this.#_dates = this.#_sR.querySelector('#container rt-datepicker')
     }
 
     //--- formAssociatedCallback
@@ -47,10 +57,14 @@ customElements.define(
       if (this.#_internals.form) {
         // Attach a listener to update the form values for this component when form is submitted
         this.#_internals.form.addEventListener('formdata', (e) => {
+          // Add location value
           const location = this.#_sR.querySelector('input[name="location"]:checked');
-          const time = this.#_sR.querySelector('input[name="time-slot"]:checked');
           e.formData.append(`pickup-location`, location ? location.value : '');
+          // Add time-slot value
+          const time = this.#_sR.querySelector('input[name="time-slot"]:checked');
           e.formData.append(`pickup-time`, time ? time.value : '');
+          // Add date value
+          e.formData.append('pickup-date', this.#_dates.value);
         });
       }
     }
@@ -58,9 +72,12 @@ customElements.define(
     //--- formResetCallback
     // respond to the enclosing form being reset
     formResetCallback() {
-      const checked = [...this.#_sR.querySelectorAll('input:checked')];
-      checked.forEach(el => el.checked = false);
-      this.#_times.style.display = 'none';
+      // Uncheck any radio button selections
+      [...this.#_sR.querySelectorAll('input:checked')].forEach(el => el.checked = false);
+      // Make time slots DIV hidden
+      this.#_times.hidden = true;
+      // Reset date picker
+      this.#_dates.reset();
     }
     //+++++ End of Lifecycle Events
 
@@ -70,7 +87,7 @@ customElements.define(
       // Find all location entries
       const nodes = [...this.querySelectorAll('pu-loc')];
       // Check there is something to do
-      if (nodes.length) {
+      if (nodes.length > 0) {
         const _createRadioLabel = (name, value) =>
           this.$createElement({
             tag: 'label',
@@ -112,22 +129,57 @@ customElements.define(
           // Return complete node to map function
           return newEl;
         }));
+
+        /// Initialise Date Picker
+        // Lokk for <pu-date> element
+        const puDate = this.querySelector('pu-date');
+        // If found the create an rt-datepicker component from the data provided
+        if (puDate) {
+          // Create object of attributes for new component
+          const attrs = {};
+          Array.from(puDate.attributes).forEach(attr => {
+            attrs[attr.name] = attr.value;
+          })
+          // Append newly created component after time-slot
+          this.#_sR.querySelector('#container').append(this.$createElement({
+            tag: 'rt-datepicker',
+            attrs
+          }))
+          this.#_dates = this.#_sR.querySelector('#container rt-datepicker')
+        }
       }
     }
 
-    //--- #updateLoc
+    //--- #updateRadio
     // Update pickup times when user selects location
-    #updateLoc(e) {
-      // Unhide 'times' on the first time a location is chosen
-      if (this.#_times.style.display === 'none') this.#_times.style.display = '';
-      // Cycle through possible child nodes, unhide the correct one and hide all the others
-      const allNodes = [...this.shadowRoot.querySelectorAll('fieldset div')];
-      allNodes.forEach(element => {
-        if (element.id === `rad-${e.target.value}`) element.hidden = false;
-        else element.hidden = true;
-      })
-      // uncheck any previously checked radio buttons
-      const isChecked = this.shadowRoot.querySelector('input[name="time-slot"]:checked')
+    // Expected that Listener is added with object
+    #updateRadio(e) {
+      let pickupLoc = this
+      if (e instanceof Event) {
+        e.stopPropagation();
+        pickupLoc = this.pickLoc;
+        // Was location chosen
+        if (e.target.getAttribute('name') === 'location') {
+          // Cycle through possible time-slot child nodes, unhide the correct one and hide all the others
+          const allNodes = [...e.currentTarget.querySelectorAll('fieldset div')];
+          allNodes.forEach(element => {
+            if (element.id === `rad-${e.target.value}`) element.hidden = false;
+            else element.hidden = true;
+          })
+
+          // Unhide DIV containing all 'times' on the first time a location is chosen
+          if (pickupLoc.#_times.hidden === true) pickupLoc.#_times.hidden = false;
+        }
+        // When time chosen then display date picker
+        if (e.target.getAttribute('name') === 'time-slot') {
+          // Unhide date picker on the first time a time-slot is chosen
+          if (pickupLoc.#_dates.hidden === true) pickupLoc.#_dates.hidden = false;
+        }
+        return
+      }
+
+      // When called manually, uncheck any previously checked radio buttons
+      const isChecked = pickupLoc.#_sR.querySelectorAll('#container input[name="time-slot"]:checked')
       if (isChecked) isChecked.checked = false;
     }
 
@@ -139,6 +191,7 @@ customElements.define(
         ['valid', true]
       ]);
 
+      // Check radio buttons have been selected
       ['location', 'time-slot'].forEach(field => {
         if (flags.get('valid')) {
           if (!this.#_sR.querySelector(`input[name="${field}"]:checked`)) {
@@ -147,14 +200,32 @@ customElements.define(
           }
         }
       })
-      return flags
+
+      // Check a date has been chosen
+      if (flags.get('valid')) return this.#_sR.querySelector('rt-datepicker').checkValidity();
+      // If this point is reached then all good :-)
+      else return flags
     }
 
     //--- focus
     // Push focus to correct element
     focus(field) {
-      if (field.replace(/^pickup-location: /,'') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
-      else this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
+      // Strip prefix
+      const fieldName = field.replace(/^pickup-location: /, '');
+      // Choose focus
+      switch (fieldName) {
+        case 'location':
+          this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+          break;
+        case 'time-slot':
+          this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
+          break;
+        default:
+          // this.#_sR.querySelector('#pu-date').focus();
+          this.#_dates.focus();
+      }
+      // if (field.replace(/^pickup-location: /, '') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
+      // else this.#_sR.querySelector('#pu-date').focus();
     }
   }
 );

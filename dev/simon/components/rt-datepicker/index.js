@@ -10,7 +10,6 @@ const comp = compUrlArray[compUrlArray.length - 2];
 
 const options = {
   dependencies: [
-    [comp, 'dp-arrow'],
     [comp, 'dp-date']
   ]
 }
