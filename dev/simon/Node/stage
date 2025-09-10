@@ -1,8 +1,4 @@
 #!/bin/zsh
 # Wrapper for stage.js
 
-if [[ $# -eq 0 ]]; then
-    node "${0}.js"
-else
-    node "${0}.js" "$*"
-fi
+node "${0}.js" $*
