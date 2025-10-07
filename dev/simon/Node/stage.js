@@ -1,5 +1,5 @@
 // ----------------------------
-// ### Node script to deploy a project to staging
+// ### Node script to deploy new/modified code from a project to its staging repo
 //
 // Usage: node <pathToScript>/stage.js [stagingType] [componentName] [componentName]
 // 
@@ -8,12 +8,12 @@
 // 1    -   Copy files "as is" to staging (default if not specified)
 // 2    -   Copy minified versions to staging
 // 3    -   Copy full files with production substitutions
-// 4    -   Full production version
+// 4    -   Full, minified, production version
 //
 // Specify 'modules' to deploy changes to files in modules directory.
 // All module files will be updated
 //
-// After running this script, a commit must be done manually - gonna automate!
+// Removing files from staging has to be done manually
 //
 // Dependencies:
 // - uglify-js
@@ -31,7 +31,7 @@ import {
     stat as fs_stat,
     writeFile as fs_writeFile
 } from 'fs/promises';
-// Allow external commands
+// Allow shell commands
 import { spawnSync as cp_spawn } from 'child_process';
 // Minifiers
 import { minify as uglify } from 'uglify-js';
@@ -47,12 +47,11 @@ const miniOpt = {
     removeComments: true,
     minifyCSS: true
 }
-//  Options for removing directories
-const rmOpts = { recursive: true, force: true };
 //  Default paths to search for components
 const pathList = [
     'components',
-    'modules'
+    'modules',
+    'static'
 ]
 //  Map to hold any process flags
 const flags = new Map();
@@ -166,11 +165,12 @@ try {
         // Throws an error if "dstPath" does not exist
         await fs_stat(dstPath)
     } catch {
+        // Attempt to make dir
         await fs_mkdir(dstPath);
     }
 
     // Asynchronously process all specified components/modules and collect promises
-    const waitForAll = compList.map(async comp => {
+    const waitForComps = compList.map(async comp => {
         // Recurse through component directy to generate an array of all directory entry objects
         const rawFileList = await fs_readdir(`${devPath}/${comp}`, { withFileTypes: true, recursive: true })
         // Filter out directory objects and convert remaining objects to relative file path strings
@@ -184,7 +184,7 @@ try {
 
 
         // Asynchronously process all entries in fileList array
-        const waitForFinish = fileList.map(async file => {
+        const waitForFiles = fileList.map(async file => {
             // Create required path in staging for file, if it has not been previously created
             const filePath = `${dstPath}/${file.slice(0, file.lastIndexOf('/'))}`;
             try {
@@ -202,48 +202,49 @@ try {
                 // Use uglify-js with default settings for JS
                 case 'js':
                 case 'mjs':
-                    if (flags.get(stgType) === 1) {
-                        // Straight copy 
-                        return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
-                    } else {
+                    {
                         // Get original file contents <string>
-                        let contents = await fs_readFile(`${devPath}/${file}`, 'utf8');
+                        const contents = await fs_readFile(`${devPath}/${file}`, 'utf8');
                         // If substitutions has been requested then carry out the sub
                         if (flags.get(stgType) > 2) contents = constSub(contents);
-                        // Create the production version of the file in staging without minifying
-                        return fs_writeFile(`${dstPath}/${file}`, uglify(contents, 'utf8').code);
+                        // Has minifing been requested?
+                        return fs_writeFile(`${dstPath}/${file}`, flags.get(stgType) % 2 === 0 ? uglify(contents, 'utf8').code : contents);
                     }
                 // Use html-minifier for HTML - options defined above
                 case 'html':
                 case 'htm':
-                    // Just copy file if stgType is odd
-                    if (flags.get(stgType) % 2 === 1) return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
-                    // html-minifier is async so need to handle promise
-                    const result = await mini(await fs_readFile(`${devPath}/${file}`, 'utf8'), miniOpt);
-                    return fs_writeFile(`${dstPath}/${file}`, result);
+                    {
+                        // Just copy file if stgType is odd
+                        if (flags.get(stgType) % 2 === 1) return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
+                        // html-minifier is async so need to handle promise
+                        const contents = await mini(await fs_readFile(`${devPath}/${file}`, 'utf8'), miniOpt);
+                        return fs_writeFile(`${dstPath}/${file}`, contents);
+                    }
                 // Copy all other file types
                 default:
                     return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
             }
         })
         // Return a promise that will be resolved once all files for this component have been processed
-        return Promise.all(waitForFinish)
+        return Promise.all(waitForFiles)
     })
     // Wait for all files of all specified components to be processed
-    await Promise.all(waitForAll)
+    await Promise.all(waitForComps)
     console.log('finished processing')
 
-    // ### Commit changes and push to GitHub
+    // ### Commit changes to staging and push to GitHub
     //   This code assumes you are working on a POSIX-compliant system with Git installed
+    console.log('Starting new push');
+    // Stage any changes in the staging repo
+    cp_spawn('sh', ['-c','git add -A'], spawnOpts)
     // Check for any untracked files and add them to Git
-    if (cp_spawn('sh', ['-c', 'git ls-files --other | wc -l'], spawnOpts).stdout > 0) cp_spawn('sh', ['-c', 'git add -A .'], spawnOpts);
 
     // Commit and push new/updated/deleted files
     if (cp_spawn('sh', ['-c', 'git diff --name-only --cached | wc -l'], spawnOpts).stdout > 0) {
         console.log('commiting')
         cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get(stgType)} ${new Date().toUTCString()}"`], spawnOpts)
         cp_spawn('sh', ['-c', 'git push'], spawnOpts)
-    }
+    } else console.log('Nothing new to push');
 
 } catch (e) {
     console.log((e.cause && e.cause === 'custom') ? e.message : e);
