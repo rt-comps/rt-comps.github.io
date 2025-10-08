@@ -18,7 +18,6 @@
 // ### Load modules 
 // Allow FileSystem access
 import * as fs from 'fs';
-//const fs = require('fs');
 // Minifiers
 import { minify as uglify } from 'uglify-js';
 import { minify as mini } from 'html-minifier-next';
@@ -115,6 +114,7 @@ try {
                 // Use html-minifier for HTML
                 case 'html':
                 case 'htm':
+                    // html-minifier is async so need to return promise
                     return mini(fs.readFileSync(`${srcPath}/${file}`, 'utf8'), miniOpt)
                         .then(result => fs.writeFileSync(`${tmpPath}/${file}`, result));
                 // break;
