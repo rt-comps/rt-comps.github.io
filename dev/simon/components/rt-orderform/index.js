@@ -6,7 +6,7 @@ const options = {
     'rt-menuitem',
     'rt-itemdata',
     'rt-lineitem',
-    'rt-pickup-locations',
+    'rt-pickuplocations',
     'rt-form-field'
   ]
 }
