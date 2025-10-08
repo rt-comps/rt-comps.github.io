@@ -402,7 +402,7 @@ customElements.define(compName,
       // Continue if form found
       if (this.#_form) {
         // Collect all possible field types
-        const nodes = this.#_form.querySelectorAll('rt-form-field[required], rt-pickup-locations');
+        const nodes = this.#_form.querySelectorAll('rt-form-field[required], rt-pickuplocations');
         // Check validity of each field type and set focus to first field to fail check
         for (const el of nodes) {
           // Run checkValidity() for element
