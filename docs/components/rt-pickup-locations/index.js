@@ -1,1 +1,1 @@
-rtlib.loadComponent(import.meta.url);
+let options={dependencies:["rt-datepicker"]};try{"undefined"==typeof rtlib&&(window.rtlib=await import(import.meta.url.split("/").slice(0,-3).join("/")+"/modules/rt.mjs")),rtlib.init(import.meta.url,options)}catch(t){console.warn(t)}

@@ -1,13 +1,19 @@
 // ----------------------------
-// ### Node script to deploy a project
+// ### Node script to deploy new/modified code from a project to its staging repo
 //
-// Usage: node <pathToScript>/deploy.js [componentName] [componentName]
+// Usage: node <pathToScript>/stage.js [stagingType] [componentName] [componentName]
 // 
-// Code is taken from the specified component (Default: all components & modules),
-// minified and component dir(s) in 'doc' directory over-written.
-// Specify 'modules' to deploy changes to files in modules directory
+// Code is taken from the specified component (Default: all components & modules) and moved to docs dir of staging repo
+// The "staging type" defines how files are presented on staging
+// 1    -   Copy files "as is" to staging (default if not specified)
+// 2    -   Copy minified versions to staging
+// 3    -   Copy full files with production substitutions
+// 4    -   Full, minified, production version
 //
-// After running this script, a commit must be done manually
+// Specify 'modules' to deploy changes to files in modules directory.
+// All module files will be updated
+//
+// Removing files from staging has to be done manually
 //
 // Dependencies:
 // - uglify-js
@@ -16,37 +22,43 @@
 // ----------------------------
 
 // ### Load modules 
-// Allow FileSystem access
-import * as fs from 'fs';
+// Get FileSystem access functions
+import {
+    copyFile as fs_copyFile,
+    mkdir as fs_mkdir,
+    readdir as fs_readdir,
+    readFile as fs_readFile,
+    stat as fs_stat,
+    writeFile as fs_writeFile
+} from 'fs/promises';
+// Allow shell commands
+import { spawnSync as cp_spawn } from 'child_process';
+// Minifiers
+import { minify as uglify } from 'uglify-js';
+import { minify as mini } from 'html-minifier-next';
 
 // ### Define constants
-//  Where files are expected to be found in devPath
+// Repo names
+const projName = 'rt-comps';
+const stageProj = `${projName}-stg`;
+//  'html-minifier' options
+const miniOpt = {
+    collapseWhitespace: true,
+    removeComments: true,
+    minifyCSS: true
+}
+//  Default paths to search for components
 const pathList = [
     'components',
-    'modules'
+    'modules',
+    'static'
 ]
-//  Options for removing directories
-const rmOpts = { recursive: true, force: true };
-
+//  Map to hold any process flags
+const flags = new Map();
+//  Flag names
+const stgType = 'stgType'
 
 // ### Local Functions
-
-// --- walk
-// Recursively find all the files in the given path
-// This is needed because the 'recursive' option of readdir() does not seem to work 
-function walk(path, result = []) {
-    // List all items in this path and respond as needed
-    fs.readdirSync(path, { withFileTypes: true })
-        .forEach(
-            (item) => {
-                // If item is directory then walk this new directory
-                if (item.isDirectory()) walk(`${path}/${item.name}`, result)
-                // If item is a file then add to list
-                else result.push(`${path}/${item.name}`)
-            }
-        );
-    return result;
-}
 
 // --- constSub
 // Make substitions for constants when required for moving from dev to prod environments
@@ -77,13 +89,11 @@ function constSub(contents) {
         // Perform substitutions
         subs.forEach((value, key) => {
             // Search for parameter assignment to change (use RegExp to allow use of variable)
-            const strMatch = contents.match(new RegExp(`${key} =.*`,'g'));
+            const strMatch = contents.match(new RegExp(`${key} =.*`, 'g'));
             // If parameter found then replace value for all instances 
             if (strMatch) {
-                console.log(strMatch[0])
                 // Add quotes to any string value
                 const strReplace = typeof value === 'string' ? `'${value}'` : value;
-                console.log(`${key} = ${strReplace};`)
                 contents = contents.replaceAll(strMatch[0], `${key} = ${strReplace};`)
             }
         });
@@ -94,59 +104,149 @@ function constSub(contents) {
 
 // ### Start work
 try {
-    // ### Derive some constants
-    //  Get current working directory
-    const workingDir = process.cwd();
-    //  Ensure script has been called from within project directory
-    if (!workingDir.includes('github.io')) throw new Error('No project directory not found.  Ensure script is run from within project directory structure', { cause: 'custom' });
-    //  Files are output to 'docs' directory of project
-    const dstPath = `${workingDir.slice(0, workingDir.indexOf('github.io') + 9)}/docs/stage`;
-    //  Get the path of this executable
-    const execPath = process.argv[1];
+    // ### Derive some more constants
+    //  Was script run from main repo directory?
+    const workingDir = process.cwd().split(`${projName}.github.io`);
+    if (!(workingDir.length > 1)) throw new Error('Script must be run from within production project directory structure', { cause: 'custom' });
+    //  Determine production repo dir
+    const prodRepoPath = `${workingDir[0]}${projName}.github.io`;
+    //  Determine staging repo dir
+    const stgRepoPath = `${workingDir[0]}${stageProj}.github.io`;
+    //  Options when spawning external commands
+    const spawnOpts = {
+        cwd: stgRepoPath,
+        encoding: 'utf8'
+    }
+
     //  Assume component directories are at same level as 'Node' directory (where this script is placed)
-    const devPath = execPath.slice(0, execPath.indexOf('/Node'));
-    //  Read in any project name(s) provided
+    const devPath = `${prodRepoPath}/dev/simon`;
+    //  Files are output to 'docs' directory of staging repo
+    const dstPath = `${stgRepoPath}/docs`;
+
+    //  Read in any parameters provided
     let paramList = process.argv.slice(2);
-    //  If no component is specified then deploy all files in 'components' and 'modules' directories
-    if (paramList.length === 0 || (paramList.length === 1 && !paramList[0])) paramList = [...pathList];
-    //  Convert parameter list to relative paths
-    const compList = paramList.map(param => `${pathList.includes(param) ? '' : 'components/'}${param}`);
+
+    // Check if "staging type" has been provided (first param) - default to type 1
+    switch (true) {
+        // If no parameters then set use dafault paths then fall through
+        case (paramList.length === 0):
+            paramList = pathList;
+        // If first param is NaN then set stage type to 1
+        case (isNaN(parseInt(paramList[0]))):
+            flags.set(stgType, 1);
+            break;
+        default:
+            // Set flag to first param
+            flags.set(stgType, parseInt(paramList[0]));
+            // Remove first param from array
+            paramList.shift();
+            // If only "stage type" value was passed then use default paths
+            if (paramList.length === 0) paramList = paramList.concat(pathList)
+    }
+
+    // Convert parameter list to component path list 
+    const compList = paramList.map(el => {
+        //Don't alter if in default pathList
+        if (pathList.indexOf(el) > -1) return el
+        else return (`components/${el}`)
+    })
 
     // ### Pre-flight checks
-    // Before doing anything, check that the ALL specified components/directories can be found
-    compList.forEach(comp => { if (!fs.existsSync(`${devPath}/${comp}`)) throw new Error(`Component ${comp.split('/').pop().toUpperCase()} not found!\n\nPre-flight check failed!`, { cause: 'custom' }); });
+    // Is "staging type" value sane?
+    if (flags.get(stgType) < 1 || flags.get(stgType) > 4) throw new Error('Unrecognised value for "staging type"\nMust be in range 1...4', { cause: 'custom' })
+    // Do all specified modules exist? Exit on first module dir not found
+    await Promise.all(compList.map(async comp => {
+        return fs_stat(`${devPath}/${comp}`).catch(() => { throw new Error(`Source directory for "${comp}" not found\nExiting...`, { cause: 'custom' }) })
+    }))
 
-    // ### Main Code - run for each component
-    // Cleanup any previous files
-    if (fs.existsSync(dstPath)) fs.rmSync(dstPath, {recursive: true});
-    
-    // Process all files for provided components/modules
-    compList.forEach(comp => {
-        // Create array of files to process, paths relative to devPath
-        const files = walk(`${devPath}/${comp}`).map(el => el.slice(devPath.length + 1))
-        // Process all files in array
-        for (const file of files) {
-            const fileType = file.slice(file.lastIndexOf('.') + 1);
-            // Do not process MarkDown files
-            if (fileType === 'md') continue;
-            // Create required path in staging for this file, if it has not been previously created
+    // ### Main Code
+    // Ensure "docs" dir exists in destination path
+    try {
+        // Throws an error if "dstPath" does not exist
+        await fs_stat(dstPath)
+    } catch {
+        // Attempt to make dir
+        await fs_mkdir(dstPath);
+    }
+
+    // Asynchronously process all specified components/modules and collect promises
+    const waitForComps = compList.map(async comp => {
+        // Recurse through component directy to generate an array of all directory entry objects
+        const rawFileList = await fs_readdir(`${devPath}/${comp}`, { withFileTypes: true, recursive: true })
+        // Filter out directory objects and convert remaining objects to relative file path strings
+        const fileList = rawFileList.map(el => {
+            if (!el.isDirectory()) return `${el.path}/${el.name}`
+        })
+            // Remove falsey entries (directories)
+            .filter(el => el)
+            // Convert absolute file paths to relative
+            .map(el => el.slice(devPath.length + 1))
+
+
+        // Asynchronously process all entries in fileList array
+        const waitForFiles = fileList.map(async file => {
+            // Create required path in staging for file, if it has not been previously created
             const filePath = `${dstPath}/${file.slice(0, file.lastIndexOf('/'))}`;
-            if (!fs.existsSync(filePath)) fs.mkdirSync(filePath, { recursive: true });
-            // Check if any required parameter substitions are present when moving from dev to stage
-            if (fileType === 'js' | fileType === 'mjs') {
-                // Get original file contents <string>
-                let contents = fs.readFileSync(`${devPath}/${file}`, 'utf8');
-                // If at least one substitution has been defined then carry out the sub
-                if (contents.includes('ForProd:')) contents = constSub(contents);
-                // Create the production version of the file in staging without minifying
-                fs.writeFileSync(`${dstPath}/${file}`, contents);
-            } else {
-                console.log(`${devPath}/${file}`)
-                console.log(`${dstPath}/${file}`)
-                fs.copyFileSync(`${devPath}/${file}`, `${dstPath}/${file}`);
+            try {
+                await fs_stat(filePath)
+            } catch {
+                await fs_mkdir(filePath, { recursive: true })
             }
-        }
+            // Process file based on extension
+            // Get extension for this file
+            const fileType = file.slice(file.lastIndexOf('.') + 1);
+            switch (fileType) {
+                // Ignore .md files
+                case 'md':
+                    break;
+                // Use uglify-js with default settings for JS
+                case 'js':
+                case 'mjs':
+                    {
+                        // Get original file contents <string>
+                        const contents = await fs_readFile(`${devPath}/${file}`, 'utf8');
+                        // If substitutions has been requested then carry out the sub
+                        if (flags.get(stgType) > 2) contents = constSub(contents);
+                        // Has minifing been requested?
+                        return fs_writeFile(`${dstPath}/${file}`, flags.get(stgType) % 2 === 0 ? uglify(contents, 'utf8').code : contents);
+                    }
+                // Use html-minifier for HTML - options defined above
+                case 'html':
+                case 'htm':
+                    {
+                        // Just copy file if stgType is odd
+                        if (flags.get(stgType) % 2 === 1) return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
+                        // html-minifier is async so need to handle promise
+                        const contents = await mini(await fs_readFile(`${devPath}/${file}`, 'utf8'), miniOpt);
+                        return fs_writeFile(`${dstPath}/${file}`, contents);
+                    }
+                // Copy all other file types
+                default:
+                    return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
+            }
+        })
+        // Return a promise that will be resolved once all files for this component have been processed
+        return Promise.all(waitForFiles)
     })
+    // Wait for all files of all specified components to be processed
+    await Promise.all(waitForComps)
+    console.log('finished processing')
+
+    // ### Commit changes to staging and push to GitHub
+    //   This code assumes you are working on a POSIX-compliant system with Git installed
+    console.log('Starting new push');
+    // Stage any changes in the staging repo
+    cp_spawn('sh', ['-c','git add -A'], spawnOpts)
+    // Check for any untracked files and add them to Git
+
+    // Commit and push new/updated/deleted files
+    if (cp_spawn('sh', ['-c', 'git diff --name-only --cached | wc -l'], spawnOpts).stdout > 0) {
+        console.log('commiting')
+        cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get(stgType)} ${new Date().toUTCString()}"`], spawnOpts)
+        cp_spawn('sh', ['-c', 'git push'], spawnOpts)
+    } else console.log('Nothing new to push');
+
 } catch (e) {
     console.log((e.cause && e.cause === 'custom') ? e.message : e);
 }
+

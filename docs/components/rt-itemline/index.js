@@ -1,1 +1,1 @@
-const moduleName=import.meta.url.split("/").slice(-2)[0],components=(console.time("loadModules for "+moduleName),["rt-plusminus"]);Promise.all(components.map(o=>import(`../${o}/index.js`))).then(()=>{console.timeEnd("loadModules for "+moduleName),rtlib.loadComponent(import.meta.url)});
+let options={dependencies:["rt-plusminus"],additionalModules:[{label:"rtform",file:"rt_form.mjs"}]};rtlib.init(import.meta.url,options);
