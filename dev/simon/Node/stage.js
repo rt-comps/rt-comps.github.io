@@ -208,7 +208,7 @@ try {
                         // If substitutions has been requested then carry out the sub
                         if (flags.get(stgType) > 2) contents = constSub(contents);
                         // Has minifing been requested?
-                        return fs_writeFile(`${dstPath}/${file}`, flags.get(stgType) % 2 === 0 ? uglify(contents, 'utf8').code : contents);
+                        return fs_writeFile(`${dstPath}/${file}`, flags.get(stgType) % 2 === 0 ? uglify(contents).code : contents);
                     }
                 // Use html-minifier for HTML - options defined above
                 case 'html':
@@ -234,13 +234,13 @@ try {
 
     // ### Commit changes to staging and push to GitHub
     //   This code assumes you are working on a POSIX-compliant system with Git installed
-    console.log('Starting new push');
     // Stage any changes in the staging repo
-    cp_spawn('sh', ['-c','git add -A'], spawnOpts)
+    cp_spawn('sh', ['-c','git add -Av'], spawnOpts)
     // Check for any untracked files and add them to Git
-
+    
     // Commit and push new/updated/deleted files
     if (cp_spawn('sh', ['-c', 'git diff --name-only --cached | wc -l'], spawnOpts).stdout > 0) {
+        console.log('Starting new push');
         console.log('commiting')
         cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get(stgType)} ${new Date().toUTCString()}"`], spawnOpts)
         cp_spawn('sh', ['-c', 'git push'], spawnOpts)
