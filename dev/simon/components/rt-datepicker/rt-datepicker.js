@@ -154,7 +154,7 @@ customElements.define(compName,
         //get form() { return this.#_internals.form; }
         //get validity() { return this.#_internals.validity; }
 
-        // Check validity of value provided
+        // Check validity - valid if value provided
         checkValidity() {
             return new Map([
                 ['valid', this.#_value ? true : false],
@@ -165,7 +165,7 @@ customElements.define(compName,
         //reportValidity() { return this.#_internals.reportValidity(); }
         focus() { this.#_sR.querySelector('#container').focus({ focusVisible: true }) };
 
-        // Allow the component to be manually reset
+        // Allow the component to be manually reset (needed if sub-component)
         reset() { this.formResetCallback() };
 
     }
