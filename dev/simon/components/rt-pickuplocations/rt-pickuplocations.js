@@ -26,7 +26,6 @@ customElements.define(
 
       // Useful nodes
       this.#_times = this.#_sR.querySelector('#fs-time');
-      // this.#_dates = this.parentNode.querySelector('rt-datepicker');
 
       // Render Shadow DOM elements based on provided HTML
       this.#render();
@@ -63,8 +62,8 @@ customElements.define(
           // Add time-slot value
           const time = this.#_sR.querySelector('input[name="time-slot"]:checked');
           e.formData.append(`pickup-time`, time ? time.value : '');
-          // Add date value
-          e.formData.append('pickup-date', this.#_dates.value);
+          // Add date value (if present)
+          if (this.#_dates) e.formData.append('pickup-date', this.#_dates.value);
         });
       }
     }
@@ -76,8 +75,8 @@ customElements.define(
       [...this.#_sR.querySelectorAll('input:checked')].forEach(el => el.checked = false);
       // Make time slots DIV hidden
       this.#_times.hidden = true;
-      // Reset date picker
-      this.#_dates.reset();
+      // Reset date picker (if present)
+      if (this.#_dates) this.#_dates.reset();
     }
     //+++++ End of Lifecycle Events
 
@@ -130,21 +129,24 @@ customElements.define(
           return newEl;
         }));
 
-        /// Initialise Date Picker
-        // Lokk for <pu-date> element
-        const puDate = this.querySelector('pu-date');
-        // If found the create an rt-datepicker component from the data provided
+        /// Add & initialise Date Picker if required
+        // Look for <pu-dates> element
+        const puDate = this.querySelector('pu-dates');
+        // If found create an rt-datepicker component from the provided attributesß
         if (puDate) {
-          // Create object of attributes for new component
+          // Create object for transfer of attributes to new element
           const attrs = {};
-          Array.from(puDate.attributes).forEach(attr => {
-            attrs[attr.name] = attr.value;
-          })
-          // Append newly created component after time-slot
+          const elAttrs = puDate.attributes;
+          for (let x = 0; x < elAttrs.length; x++) {
+            const elAttr = elAttrs.item(x);
+            attrs[elAttr.name] = elAttr.value;
+          }
+          // Append newly created component at end of container
           this.#_sR.querySelector('#container').append(this.$createElement({
             tag: 'rt-datepicker',
             attrs
           }))
+          // Assign new element to private field
           this.#_dates = this.#_sR.querySelector('#container rt-datepicker')
         }
       }
@@ -191,9 +193,11 @@ customElements.define(
         ['valid', true]
       ]);
 
-      // Check radio buttons have been selected
+      // Check radio buttons have been selected for both field sets
       ['location', 'time-slot'].forEach(field => {
+        // Did a previous field set fail?
         if (flags.get('valid')) {
+          // Fail if this field set doesn't have a checked value
           if (!this.#_sR.querySelector(`input[name="${field}"]:checked`)) {
             flags.set('valid', false);
             flags.set('field', `pickup-location: ${field}`);
@@ -201,14 +205,15 @@ customElements.define(
         }
       })
 
-      // Check a date has been chosen
-      if (flags.get('valid')) return this.#_sR.querySelector('rt-datepicker').checkValidity();
-      // If this point is reached then all good :-)
+      // If all good so far, check that a date had been chosen
+      if (flags.get('valid') && this.#_dates) return this.#_sR.querySelector('rt-datepicker').checkValidity();
+      // If this point is reached then location or time-slot not 
       else return flags
     }
 
     //--- focus
     // Push focus to correct element
+    //  Expected value of field is 'pickup-location: <inputName>'
     focus(field) {
       // Strip prefix
       const fieldName = field.replace(/^pickup-location: /, '');
@@ -221,11 +226,9 @@ customElements.define(
           this.#_sR.querySelector('#fs-time').focus({ focusVisible: true });
           break;
         default:
-          // this.#_sR.querySelector('#pu-date').focus();
+          // Shouldn't get here if rt-datepicker not present
           this.#_dates.focus();
       }
-      // if (field.replace(/^pickup-location: /, '') === 'location') this.#_sR.querySelector('#fs-pickup').focus({ focusVisible: true });
-      // else this.#_sR.querySelector('#pu-date').focus();
     }
   }
 );
