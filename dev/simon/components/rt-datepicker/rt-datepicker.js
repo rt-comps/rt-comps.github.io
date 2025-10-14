@@ -25,31 +25,28 @@ customElements.define(compName,
             // Make shadowRoot accessible via private class field
             this.#_sR = this.attachShadow({ mode: "open" })
             this.#_sR.append(this.$getTemplate());
-            this.#_aL = this.#_sR.querySelector('#al');
-            this.#_aR = this.#_sR.querySelector('#ar');
-
+            
             // Allow form participation
             this.#_internals = this.attachInternals();
-
+            
             // Initialise other private class fields
             this.#_eventBus = this.#_sR.querySelector('#container');
-            const maxWeek = this.$attr('maxweek');
-            this.#_eventBus._maxWeek = maxWeek !== null ? parseInt(maxWeek) - 1 : undefined;
+            this.#_aL = this.#_sR.querySelector('#al');
+            this.#_aR = this.#_sR.querySelector('#ar');
             // Initialise property that can be accessed by children via the parentNode property
             this.#_eventBus._week = 0;
-            this.#_eventBus._locale = this.$attr('locale') || undefined;
-
+            
+            
             //### Event Listners
             this.#_aL.addEventListener('click', () => this.#arrowRespond(-1));
             this.#_aR.addEventListener('click', () => this.#arrowRespond(1));
-            // this.addEventListener('datepicked', (e) => this.#choiceRespond(e));
             // Create event object 
             const datePickFunc = {
                 handleEvent: this.#choiceRespond,
                 pickerNode: this
             }
             this.addEventListener('datepicked', datePickFunc);
-
+            
             // Mark days to always disable
             let invalidDays = [0, 6]; // Default - Sat & Sun
             // Overwrite default if attribute specified
@@ -61,12 +58,15 @@ customElements.define(compName,
             const dateNodes = this.#_sR.querySelectorAll('dp-date');
             // Set all invalid days. MOD allows for display of more than 1 week in picker
             dateNodes.forEach(node => { if (invalidDays.includes((node.getAttribute('day')) % 7)) { node.setAttribute('invalid', ''); } });
-
+            
         }
-
+        
         connectedCallback() {
             // Once appended in to form, look for and pull in external style definition
             if (typeof rtForm !== 'undefined' && rtForm.findNode(this, 'form')) rtForm.getStyle(this, rtForm.findNode(this));
+            // Initialise private fields from properties
+            this.#_eventBus._maxWeek = this.$attr('maxweek') ? parseInt(this.$attr('maxweek')) - 1 : undefined;
+            this.#_eventBus._locale = this.$attr('locale') || undefined;
             // Picker hidden by default
             this.hidden = true;
         }

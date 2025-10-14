@@ -9,7 +9,7 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
     class extends rtBC.RTBaseClass {
         // Private class fields
         #_sR;                   // Holds shadowRoot node
-        #_locale;               // What locale to use for text display 
+        // #_locale;               // What locale to use for text display 
         #_date = new Date();    // Date object holding current date
 
         //+++ Lifecycle Events
@@ -18,9 +18,6 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
             super();
             this.#_sR = this.attachShadow({ mode: "open" })
             this.#_sR.append(this.$getTemplate());
-
-            // Get value of 'locale' attribute and leave undefined if getAttribute() returns null
-            this.#_locale = this.$attr('locale') || undefined;
 
             //--- Respond to 'click' event
             this.#_sR.querySelector('#container').addEventListener('click', () => this.pickDate());
@@ -34,8 +31,6 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
                     this.parentNode.addEventListener('changeWeek', () => this.render());
                     //--- Reset 'chosen' CSS when notified that a change in choice has been made
                     this.parentNode.addEventListener('choiceMade', (e) => this.reset(e));
-                    // Prefer locale of parent node if defined
-                    this.#_locale = this.parentNode._locale || this.#_locale;
                     // Calculate initial date text
                     this.render()
                 } else console.error(`${this.localName} - Could find parent`);
@@ -52,7 +47,8 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
         // Provide the correct
 
         //--- render
-        // Calculate the correct date text and state for this component
+        // Calculate the correct date text and state for this component.
+        // Only called if parentNode exists
         render() {
             if (this.hasAttribute('day')) {
                 // Start by determining today's date
@@ -72,9 +68,9 @@ customElements.define(compName.slice(compName.lastIndexOf('/') + 1),
 
                 /// Perform value rendering
                 // localised day name
-                this.#_sR.querySelector('#day').innerHTML = this.$localeDate(this.#_date, this.#_locale, { weekday: 'short' });
+                this.#_sR.querySelector('#day').innerHTML = this.$localeDate(this.#_date, this.parentNode._locale, { weekday: 'short' });
                 // localised date
-                this.#_sR.querySelector('#date').innerHTML = `${this.#_date.getDate()} ${this.$localeDate(this.#_date, this.#_locale, { month: 'short' })}`;
+                this.#_sR.querySelector('#date').innerHTML = `${this.#_date.getDate()} ${this.$localeDate(this.#_date, this.parentNode._locale, { month: 'short' })}`;
             } else {
                 // What do render when there is no 'day' attribute
                 this.#_sR.querySelector('#day').innerHTML = 'ERROR';
