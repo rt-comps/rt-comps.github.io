@@ -8,12 +8,13 @@ const [compName, basePath] = rtlib.parseCompURL(import.meta.url);
 customElements.define(compName,
   class extends rtBC.RTBaseClass {
     /// ### PRIVATE CLASS FIELDS
-    #_sR;           // shadowRoot node
-    #_menu;         // Menu node
-    #_details;      // Product Details node
-    #_form;         // Form node
-    #_cart;         // Cart node
-    #_cartContents; // Map with current contents of the cart
+    #_cart;         // Node - Cart
+    #_details;      // Node - Product Details
+    #_form;         // Node - Form
+    #_menu;         // Node - Menu
+    #_sR;           // Node - shadowRoot
+    #_cartContents; // Map - current contents of the cart
+    #_mobile        // Boolean - is client a mobile device (small screen)
 
     // +++ Lifecycle Events
     //--- constructor
@@ -35,13 +36,13 @@ customElements.define(compName,
       this.#_menu = this.#_sR.querySelector('#menu-items-container');
       this.#_cart = this.#_sR.querySelector('#cart');
 
-      // Load locally stored cart contents - '|| {}' catches any JSON.parse() error
+      // Load locally stored cart contents - '|| {}' catches a JSON.parse() error, eg 'currentOrder' doesn't exist
       const cartContents = JSON.parse(localStorage.getItem('currentOrder')) || {};
-      // Store cart in private field
+      // Initialise private field with current stored cart contents
       this.#_cartContents = new Map(Object.entries(cartContents));
 
-
-      // this.addEventListener('initdetails', () => console.log('Event happened'))
+      // Check for small screen (mobile device)
+      this.#_mobile = window.matchMedia("(max-width: 430px)").matches
 
 
       //##### Event Listeners
@@ -339,7 +340,7 @@ customElements.define(compName,
             orderNode.#detailsButtonDisplay();
             // Display the dialog
             orderNode.#_details.showModal();
-          // Close the dialog if Event has no value for ID
+            // Close the dialog if Event has no value for ID
           } else orderNode.#_details.close();
         }
         // Close the dialog if function called manually
@@ -434,6 +435,7 @@ customElements.define(compName,
       }
       // Bring form to front
       this.#formShow(true);
+      if (this.#_mobile) this.#cartToggle();
     }
 
     //--- #orderDispatch
@@ -498,7 +500,7 @@ customElements.define(compName,
 
       /// Only do this for smaller screens
       // Additional initialisation for mobile client
-      if (window.matchMedia("(max-width: 430px)").matches) {
+      if (this.#_mobile) {
         // Add cart toggle when cart-title clicked
         const _cartTitle = this.#_cart.querySelector('#cart-title')
         _cartTitle.addEventListener('click', () => this.#cartToggle());
@@ -554,6 +556,8 @@ customElements.define(compName,
     ///+++ Getters
     // Expose #_cartContents for reading
     get cartContents() { return this.#_cartContents }
+    // Expose #_mobile status
+    get isMobile() { return this.#_mobile }
 
     ///+++ PUBLIC METHODS
 
@@ -580,10 +584,10 @@ customElements.define(compName,
         const output = fields.reduce((acc, el) => acc.set(el.name, el.value), new Map());
         // JSON can't store a Map so convert to object 
         localStorage.setItem('user-details', this.$map2JSON(output));
-        
+
         // If no then clear any existing data
       } else localStorage.removeItem('user-details');
-      
+
       // Reset the form elements
       this.#_form.reset();
       // Reset display
