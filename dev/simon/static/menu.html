@@ -198,6 +198,18 @@
             font-size: medium;
             resize: none;
         }
+
+        /* For small screens convert rows of fields to columns to try and avoid width overflow */
+        @media only screen and (max-width: 430px) {
+            .flow-row {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 auto;
+                align-items: flex-end;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+        }
     </style>
     <h2>Oppakken</h2>
     <h5>
@@ -213,7 +225,7 @@
             <pu-dates maxweek="4" invalid="0,6" locale="nl-NL" />
         </rt-pickuplocations>
     </h5>
-    <h2>Uw gegevens</h2>
+    <h2>Uw Gegevens</h2>
     <label>Save Details <input id="savefields" type="checkbox"></label>
     <div id="formfields">
         <hr />
