@@ -1,7 +1,7 @@
 <template id="RT-ORDERFORM">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
-        /* === Element Defaults === */
+        /* ### Element Defaults ### */
 
         :host {
             /* Set some style variable defaults for order form */
@@ -23,7 +23,7 @@
 
             --CART-MIN-SIZE: minmax(var(--rt-orderform-CART-WIDTH, 0px), var(--CART-MIN-SIZE-DEFAULT));
 
-            /* Turn off selection/highlighting of text */
+            /* Turn off selection,highlighting of text */
             /* iOS Safari */
             -webkit-touch-callout: none;
             /* Safari */
@@ -32,9 +32,9 @@
             -khtml-user-select: none;
             /* Old versions of Firefox */
             -moz-user-select: none;
-            /* Internet Explorer/Edge */
+            /* Internet Explorer,Edge */
             -ms-user-select: none;
-            /* Non-prefixed version, currently supported by Chromium(-based) and Firefox */
+            /* Non-prefixed version, currently supported by Chromium-based and Firefox */
             user-select: none;
         }
 
@@ -235,7 +235,7 @@
             padding: 5px;
         }
 
-        /*### Adjustments for mobile screen ###*/
+        /* ### Adjustments for mobile screen ### */
         @media only screen and (max-width: 430px) {
             .mobile {
                 display: none;
@@ -316,9 +316,6 @@
             </dialog>
             <div id="form-container" style="display: none">
                 <form id="user-form">
-                    <!-- <slot name="user-form">
-                        <h5>No form provided in datafile</h5>
-                    </slot> -->
                     <!-- User form will be moved here during initialisation -->
                 </form>
                 <div id="form-buttons">
