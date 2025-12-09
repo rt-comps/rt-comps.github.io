@@ -1,1 +1,1 @@
-let options={dependencies:["rt-itemline"]};rtlib.init(import.meta.url,options);
+rtlib.init(import.meta.url,{dependencies:["rt-itemline"]});
