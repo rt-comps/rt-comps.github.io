@@ -74,7 +74,7 @@ const pathList = [
 //  Map to hold any process flags
 const flags = new Map();
 //  Flag names
-const stgType = 'stgType'
+//      stgType - What minifying and substitution to perform 
 
 // ### Local Functions
 
@@ -125,7 +125,6 @@ try {
     // ### Derive some more constants
     const execPath = process.argv[1];
     const workingDir = execPath.slice(0, execPath.indexOf(prodRepo));
-    const miniHOpt = flags.get(stgType) % 2 === 0 ? miniHOpt1 : miniHOpt2;
 
     // Set source and destination paths
     //  Assume component directories are at same level as 'Node' directory (where this script is placed)
@@ -142,17 +141,19 @@ try {
             paramList = pathList;
         // If first param is NaN then assume it is a component name and set stage type to 1
         case (isNaN(parseInt(paramList[0]))):
-            flags.set(stgType, 1);
+            flags.set('stgType', 1);
             break;
         // If we get here then stage type has been provided
         default:
             // Set flag to first param
-            flags.set(stgType, parseInt(paramList[0]));
+            flags.set('stgType', parseInt(paramList[0]));
             // Remove first param from array
             paramList.shift();
             // If only "stage type" value was passed then use default paths
             if (paramList.length === 0) paramList = paramList.concat(pathList)
     }
+    // Set HTML minifier options based on value of 'stgType'
+    const miniHOpt = flags.get('stgType') % 2 === 0 ? miniHOpt1 : miniHOpt2;
     //  Convert parameter list to component path list 
     const compList = paramList.map(comp => {
         // Don't alter component path if it is in default pathList
@@ -162,7 +163,7 @@ try {
 
     // ### Pre-flight checks
     // Is "staging type" value sane?
-    if (flags.get(stgType) < 1 || (flags.get(stgType) > 4 && flags.get(stgType) != 8)) throw new Error('Unrecognised value for "staging type"\nMust be in range 1...4', { cause: 'custom' })
+    if (flags.get('stgType') < 1 || (flags.get('stgType') > 4 && flags.get('stgType') != 8)) throw new Error('Unrecognised value for "staging type"\nMust be in range 1...4', { cause: 'custom' })
     // Do all specified modules exist? Exit on first module dir not found
     await Promise.all(compList.map(async comp => {
         return fs_stat(`${srcPath}/${comp}`).catch(() => { throw new Error(`Source directory for "${comp}" not found\nExiting...`, { cause: 'custom' }) })
@@ -216,9 +217,9 @@ try {
                         // Get original file contents <string>
                         let contents = await fs_readFile(`${srcPath}/${file}`, 'utf8');
                         // If substitutions has been requested then carry out the sub
-                        if (flags.get(stgType) > 2) contents = constSub(contents);
+                        if (flags.get('stgType') > 2) contents = constSub(contents);
                         // What type of minifing has been requested?
-                        contents = flags.get(stgType) % 2 === 0 ? await minify_t(contents, miniTOpt) : minify_u(contents, miniUOpt)
+                        contents = flags.get('stgType') % 2 === 0 ? await minify_t(contents, miniTOpt) : minify_u(contents, miniUOpt)
                         return fs_writeFile(`${dstPath}/${file}`, contents.code);
                     }
                 // Use html-minifier for HTML - options defined above
@@ -247,7 +248,7 @@ try {
     console.log('finished processing')
 
 
-    if (flags.get(stgType) == 8) {
+    if (flags.get('stgType') == 8) {
         // Stop here if called by deploy.js - Calling script will clean up
         process.exit(0)
     } else {
@@ -265,7 +266,7 @@ try {
         if (cp_spawn('sh', ['-c', 'git diff --name-only --cached | wc -l'], spawnOpts).stdout > 0) {
             console.log('Starting new push');
             console.log('commiting')
-            cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get(stgType)} ${new Date().toUTCString()}"`], spawnOpts)
+            cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get('stgType')} ${new Date().toUTCString()}"`], spawnOpts)
             cp_spawn('sh', ['-c', 'git push'], spawnOpts)
         } else console.log('Nothing new to push');
     }
