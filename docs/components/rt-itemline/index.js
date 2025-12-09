@@ -1,1 +1,1 @@
-let options={dependencies:["rt-plusminus"],additionalModules:[{label:"rtform",file:"rt_form.mjs"}]};rtlib.init(import.meta.url,options);
+rtlib.init(import.meta.url,{dependencies:["rt-plusminus"],additionalModules:[{label:"rtform",file:"rt_form.mjs"}]});

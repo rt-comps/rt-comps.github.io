@@ -1,1 +1,1 @@
-let options={dependencies:["rt-plusminus"]};rtlib.init(import.meta.url,options);
+rtlib.init(import.meta.url,{dependencies:["rt-plusminus"]});
