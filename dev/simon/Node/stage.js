@@ -9,6 +9,7 @@
 // 2    -   Copy minified versions to staging
 // 3    -   Copy full files with production substitutions
 // 4    -   Full, minified, production version
+// 8    -   Used when calling from deploy.js
 //
 // Specify 'modules' to deploy changes to files in modules directory.
 // All module files will be updated
@@ -18,7 +19,7 @@
 // Dependencies:
 // - uglify-js
 // - html-minifier
-// > npm install --save uglify-js html-minifier
+// > npm install --save uglify-js html-minifier-next terser
 // ----------------------------
 
 // ### Load modules 
@@ -32,20 +33,37 @@ import {
     writeFile as fs_writeFile
 } from 'fs/promises';
 // Allow shell commands
-import { spawnSync as cp_spawn } from 'child_process';
+import { spawnSync as cp_spawn, execSync as cp_exec } from 'child_process';
 // Minifiers
-import { minify as uglify } from 'uglify-js';
-import { minify as mini } from 'html-minifier-next';
+import { minify as minify_t } from 'terser';
+import { minify as minify_u } from 'uglify-js';
+import { minify as minify_h } from 'html-minifier-next';
 
 // ### Define constants
 // Repo names
-const projName = 'rt-comps';
-const stageProj = `${projName}-stg`;
-//  'html-minifier' options
-const miniOpt = {
+const prodRepo = 'rt-comps.github.io';
+const stageRepo = 'stage';
+// JS minifier options
+//  Full minify (via terser)
+const miniTOpt = {
+    module: true
+}
+//  Just remove comments (via uglify-js)
+const miniUOpt = {
+    compress: false,
+    mangle: false,
+    output: {
+        beautify: true
+    }
+}
+// 'html-minifier' options
+const miniHOpt1 = {
     collapseWhitespace: true,
     removeComments: true,
     minifyCSS: true
+}
+const miniHOpt2 = {
+    removeComments: true
 }
 //  Default paths to search for components
 const pathList = [
@@ -56,7 +74,7 @@ const pathList = [
 //  Map to hold any process flags
 const flags = new Map();
 //  Flag names
-const stgType = 'stgType'
+//      stgType - What minifying and substitution to perform 
 
 // ### Local Functions
 
@@ -105,58 +123,50 @@ function constSub(contents) {
 // ### Start work
 try {
     // ### Derive some more constants
-    //  Was script run from main repo directory?
-    const workingDir = process.cwd().split(`${projName}.github.io`);
-    if (!(workingDir.length > 1)) throw new Error('Script must be run from within production project directory structure', { cause: 'custom' });
-    //  Determine production repo dir
-    const prodRepoPath = `${workingDir[0]}${projName}.github.io`;
-    //  Determine staging repo dir
-    const stgRepoPath = `${workingDir[0]}${stageProj}.github.io`;
-    //  Options when spawning external commands
-    const spawnOpts = {
-        cwd: stgRepoPath,
-        encoding: 'utf8'
-    }
+    const execPath = process.argv[1];
+    const workingDir = execPath.slice(0, execPath.indexOf(prodRepo));
 
+    // Set source and destination paths
     //  Assume component directories are at same level as 'Node' directory (where this script is placed)
-    const devPath = `${prodRepoPath}/dev/simon`;
+    const srcPath = execPath.slice(0, execPath.indexOf('Node'));
     //  Files are output to 'docs' directory of staging repo
-    const dstPath = `${stgRepoPath}/docs`;
+    const dstPath = `${workingDir}${stageRepo}/docs`;
 
-    //  Read in any parameters provided
+    // ### Process any parameters provided
     let paramList = process.argv.slice(2);
-
-    // Check if "staging type" has been provided (first param) - default to type 1
+    //  Check if "staging type" has been provided (first param) - default to type 1
     switch (true) {
-        // If no parameters then set use dafault paths then fall through
+        // If no parameters then use dafault paths and set stage type to 1 via fall through
         case (paramList.length === 0):
             paramList = pathList;
-        // If first param is NaN then set stage type to 1
+        // If first param is NaN then assume it is a component name and set stage type to 1
         case (isNaN(parseInt(paramList[0]))):
-            flags.set(stgType, 1);
+            flags.set('stgType', 1);
             break;
+        // If we get here then stage type has been provided
         default:
             // Set flag to first param
-            flags.set(stgType, parseInt(paramList[0]));
+            flags.set('stgType', parseInt(paramList[0]));
             // Remove first param from array
             paramList.shift();
             // If only "stage type" value was passed then use default paths
             if (paramList.length === 0) paramList = paramList.concat(pathList)
     }
-
-    // Convert parameter list to component path list 
-    const compList = paramList.map(el => {
-        //Don't alter if in default pathList
-        if (pathList.indexOf(el) > -1) return el
-        else return (`components/${el}`)
+    // Set HTML minifier options based on value of 'stgType'
+    const miniHOpt = flags.get('stgType') % 2 === 0 ? miniHOpt1 : miniHOpt2;
+    //  Convert parameter list to component path list 
+    const compList = paramList.map(comp => {
+        // Don't alter component path if it is in default pathList
+        if (pathList.indexOf(comp) > -1) return comp
+        else return (`components/${comp}`)
     })
 
     // ### Pre-flight checks
     // Is "staging type" value sane?
-    if (flags.get(stgType) < 1 || flags.get(stgType) > 4) throw new Error('Unrecognised value for "staging type"\nMust be in range 1...4', { cause: 'custom' })
+    if (flags.get('stgType') < 1 || (flags.get('stgType') > 4 && flags.get('stgType') != 8)) throw new Error('Unrecognised value for "staging type"\nMust be in range 1...4', { cause: 'custom' })
     // Do all specified modules exist? Exit on first module dir not found
     await Promise.all(compList.map(async comp => {
-        return fs_stat(`${devPath}/${comp}`).catch(() => { throw new Error(`Source directory for "${comp}" not found\nExiting...`, { cause: 'custom' }) })
+        return fs_stat(`${srcPath}/${comp}`).catch(() => { throw new Error(`Source directory for "${comp}" not found\nExiting...`, { cause: 'custom' }) })
     }))
 
     // ### Main Code
@@ -171,17 +181,18 @@ try {
 
     // Asynchronously process all specified components/modules and collect promises
     const waitForComps = compList.map(async comp => {
-        // Recurse through component directy to generate an array of all directory entry objects
-        const rawFileList = await fs_readdir(`${devPath}/${comp}`, { withFileTypes: true, recursive: true })
+
+        // Recurse through component directory to generate an array of directory entry objects
+        const rawFileList = await fs_readdir(`${srcPath}${comp}`, { withFileTypes: true, recursive: true })
         // Filter out directory objects and convert remaining objects to relative file path strings
         const fileList = rawFileList.map(el => {
-            if (!el.isDirectory()) return `${el.path}/${el.name}`
+            // Convert directory  entries to 'undefined'
+            if (!el.isDirectory()) return `${el.parentPath}/${el.name}`
         })
-            // Remove falsey entries (directories)
+            // Remove 'undefined' elements from array
             .filter(el => el)
-            // Convert absolute file paths to relative
-            .map(el => el.slice(devPath.length + 1))
-
+            // Convert absolute paths to relative
+            .map(el => el.slice(srcPath.length))
 
         // Asynchronously process all entries in fileList array
         const waitForFiles = fileList.map(async file => {
@@ -204,25 +215,29 @@ try {
                 case 'mjs':
                     {
                         // Get original file contents <string>
-                        const contents = await fs_readFile(`${devPath}/${file}`, 'utf8');
+                        let contents = await fs_readFile(`${srcPath}/${file}`, 'utf8');
                         // If substitutions has been requested then carry out the sub
-                        if (flags.get(stgType) > 2) contents = constSub(contents);
-                        // Has minifing been requested?
-                        return fs_writeFile(`${dstPath}/${file}`, flags.get(stgType) % 2 === 0 ? uglify(contents, 'utf8').code : contents);
+                        if (flags.get('stgType') > 2) contents = constSub(contents);
+                        // What type of minifing has been requested?
+                        contents = flags.get('stgType') % 2 === 0 ? await minify_t(contents, miniTOpt) : minify_u(contents, miniUOpt)
+                        return fs_writeFile(`${dstPath}/${file}`, contents.code);
                     }
                 // Use html-minifier for HTML - options defined above
                 case 'html':
                 case 'htm':
                     {
-                        // Just copy file if stgType is odd
-                        if (flags.get(stgType) % 2 === 1) return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
-                        // html-minifier is async so need to handle promise
-                        const contents = await mini(await fs_readFile(`${devPath}/${file}`, 'utf8'), miniOpt);
+                        // Read file as string
+                        let contents = await fs_readFile(`${srcPath}/${file}`, 'utf8')
+                        // Remove CSS style comments (minifier only removes <!-- -->)
+                        contents = contents.replaceAll(/(\/\*[\w\s\#\.\'\"\*\:\{\}\;\-\,\(\)]*\*\/)/g, '')
+                        // Minify to remove comments at minimum
+                        contents = await minify_h(contents, miniHOpt);
+                        // Write contents to new destination file
                         return fs_writeFile(`${dstPath}/${file}`, contents);
                     }
                 // Copy all other file types
                 default:
-                    return fs_copyFile(`${devPath}/${file}`, `${dstPath}/${file}`);
+                    return fs_copyFile(`${srcPath}/${file}`, `${dstPath}/${file}`);
             }
         })
         // Return a promise that will be resolved once all files for this component have been processed
@@ -232,21 +247,31 @@ try {
     await Promise.all(waitForComps)
     console.log('finished processing')
 
-    // ### Commit changes to staging and push to GitHub
-    //   This code assumes you are working on a POSIX-compliant system with Git installed
-    console.log('Starting new push');
-    // Stage any changes in the staging repo
-    cp_spawn('sh', ['-c','git add -A'], spawnOpts)
-    // Check for any untracked files and add them to Git
 
-    // Commit and push new/updated/deleted files
-    if (cp_spawn('sh', ['-c', 'git diff --name-only --cached | wc -l'], spawnOpts).stdout > 0) {
-        console.log('commiting')
-        cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get(stgType)} ${new Date().toUTCString()}"`], spawnOpts)
-        cp_spawn('sh', ['-c', 'git push'], spawnOpts)
-    } else console.log('Nothing new to push');
+    if (flags.get('stgType') == 8) {
+        // Stop here if called by deploy.js - Calling script will clean up
+        process.exit(0)
+    } else {
+        // ### Commit changes to staging and push to GitHub
+        // ### This code assumes you are working on a POSIX-compliant system with Git installed
+        // Options when spawning external commands
+        const spawnOpts = {
+            cwd: `${workingDir}${stageRepo}`, // Ensure Git commands are made within staging tree
+            encoding: 'utf8'
+        }
+        // Stage any changes made to the staging repo
+        cp_spawn('sh', ['-c', 'git add -Av'], spawnOpts)
+
+        // Commit and push new/updated/deleted files
+        if (cp_spawn('sh', ['-c', 'git diff --name-only --cached | wc -l'], spawnOpts).stdout > 0) {
+            console.log('Starting new push');
+            console.log('commiting')
+            cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get('stgType')} ${new Date().toUTCString()}"`], spawnOpts)
+            cp_spawn('sh', ['-c', 'git push'], spawnOpts)
+        } else console.log('Nothing new to push');
+    }
 
 } catch (e) {
     console.log((e.cause && e.cause === 'custom') ? e.message : e);
+    process.exit(1);
 }
-

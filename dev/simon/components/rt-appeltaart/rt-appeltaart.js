@@ -48,11 +48,13 @@ customElements.define(
         // Catch the neworder event from <rt-orderform> and process it as required
         #dispatchOrder(e) {
             // Catch order and prevent further bubbling
-            if (e instanceof Event) e.stopPropagation();
+            if (e instanceof Event) {
+                e.stopPropagation();
+                // Reset order form
+                this.#_sR.querySelector('rt-orderform').accepted();
+            }
             // Display order details in console log
             console.log(e);
-            // Reset order form
-            this.#_sR.querySelector('rt-orderform').accepted();
             return
             // Process order
             if (e.detail) {

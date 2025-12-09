@@ -1,1 +1,1 @@
-let compUrlArray=import.meta.url.split("/"),comp=compUrlArray[compUrlArray.length-2],options={dependencies:[[comp,"dp-date"]]};try{"undefined"==typeof rtlib&&(window.rtlib=await import(compUrlArray.slice(0,-3).join("/")+"/modules/rt.mjs")),rtlib.init(import.meta.url,options)}catch(r){throw console.error(r),r}
+const t=import.meta.url.split("/"),e={dependencies:[[t[t.length-2],"dp-date"]]};try{"undefined"==typeof rtlib&&(window.rtlib=await import(`${t.slice(0,-3).join("/")}/modules/rt.mjs`)),rtlib.init(import.meta.url,e)}catch(t){throw console.error(t),t}
