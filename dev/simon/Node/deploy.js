@@ -122,5 +122,6 @@ try {
     //  Reset staging to last commit
     cp_exec('git reset --hard', execStgOpts);
     // Restore repo to previous state
-    cp_exec(`git checkout ${currentBranch}; git stash pop`, execProdOpts)
+    cp_exec(`git checkout ${currentBranch}`, execProdOpts); 
+    if (cp_exec(`git stash list | wc -l`,execProdOpts) > 0) cp_exec(`git stash pop`, execProdOpts);
 }

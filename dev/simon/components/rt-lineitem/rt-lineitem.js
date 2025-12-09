@@ -17,19 +17,24 @@ customElements.define(
             this.#_sR.append(this.$getTemplate());
 
             this.#_counter = this.#_sR.querySelector('rt-plusminus');
-            
+
             //### Event Listeners
             // Remove this item when 'delete' button pressed
-            this.#_sR.querySelector('#delete').addEventListener('click', this.#deleteMe);
+            const delFunc = {
+                handleEvent: this.#deleteMe,
+                lineNode: this
+
+            };
+            this.#_sR.querySelector('#delete').addEventListener('click', delFunc);
             // Respond to +/- button press
             this.addEventListener('updatecount', this.#update);
         }
-        
+
         //--- connectedCallback
         connectedCallback() {
             // Look for and pull in external style definition
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
-            
+
             // Initialise count from #_cartContents and render
             setTimeout(() => {
                 this.count = this.parentNode.cartContents.get(this.$attr('prodid'));
@@ -42,8 +47,8 @@ customElements.define(
         // Respond to click on delete icon
         // Set count to zero & signal that value has changed
         #deleteMe() {
-            this.count = 0;
-            this.#update();
+            this.lineNode.count = 0;
+            this.lineNode.#update();
         }
 
         //--- #render
@@ -61,8 +66,6 @@ customElements.define(
         #update(e) {
             // When called from an event then stop bubbling
             if (e instanceof Event) e.stopImmediatePropagation();
-            // Recalculate line values
-            this.#render();
             // Dispatch event to update #_cartContents
             this.$dispatch({
                 name: 'cartmod',
@@ -71,6 +74,9 @@ customElements.define(
                     count: parseInt(this.count)
                 }
             });
+            // Recalculate line values
+            if (this.count > 0 ) this.#render();
+            else this.remove();
         }
 
         //+++ Getters/Setters
