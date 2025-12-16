@@ -33,7 +33,7 @@ import {
     writeFile as fs_writeFile
 } from 'fs/promises';
 // Allow shell commands
-import { spawnSync as cp_spawn, execSync as cp_exec } from 'child_process';
+import { execSync as cp_exec } from 'child_process';
 // Minifiers
 import { minify as minify_t } from 'terser';
 import { minify as minify_u } from 'uglify-js';
@@ -71,10 +71,9 @@ const pathList = [
     'modules',
     'static'
 ]
-//  Map to hold any process flags
-const flags = new Map();
-//  Flag names
-//      stgType - What minifying and substitution to perform 
+//  Flags
+// Default to stage type 1
+const stgType = 1;
 
 // ### Local Functions
 
@@ -141,19 +140,18 @@ try {
             paramList = pathList;
         // If first param is NaN then assume it is a component name and set stage type to 1
         case (isNaN(parseInt(paramList[0]))):
-            flags.set('stgType', 1);
             break;
         // If we get here then stage type has been provided
         default:
             // Set flag to first param
-            flags.set('stgType', parseInt(paramList[0]));
+            stgType = parseInt(paramList[0]);
             // Remove first param from array
             paramList.shift();
             // If only "stage type" value was passed then use default paths
             if (paramList.length === 0) paramList = paramList.concat(pathList)
     }
     // Set HTML minifier options based on value of 'stgType'
-    const miniHOpt = flags.get('stgType') % 2 === 0 ? miniHOpt1 : miniHOpt2;
+    const miniHOpt = stgType % 2 === 0 ? miniHOpt1 : miniHOpt2;
     //  Convert parameter list to component path list 
     const compList = paramList.map(comp => {
         // Don't alter component path if it is in default pathList
@@ -163,7 +161,7 @@ try {
 
     // ### Pre-flight checks
     // Is "staging type" value sane?
-    if (flags.get('stgType') < 1 || (flags.get('stgType') > 4 && flags.get('stgType') != 8)) throw new Error('Unrecognised value for "staging type"\nMust be in range 1...4', { cause: 'custom' })
+    if (stgType < 1 || (stgType > 4 && stgType != 8)) throw new Error('Unrecognised value for "staging type"\nMust be in range 1...4', { cause: 'custom' })
     // Do all specified modules exist? Exit on first module dir not found
     await Promise.all(compList.map(async comp => {
         return fs_stat(`${srcPath}/${comp}`).catch(() => { throw new Error(`Source directory for "${comp}" not found\nExiting...`, { cause: 'custom' }) })
@@ -217,9 +215,9 @@ try {
                         // Get original file contents <string>
                         let contents = await fs_readFile(`${srcPath}/${file}`, 'utf8');
                         // If substitutions has been requested then carry out the sub
-                        if (flags.get('stgType') > 2) contents = constSub(contents);
+                        if (stgType > 2) contents = constSub(contents);
                         // What type of minifing has been requested?
-                        contents = flags.get('stgType') % 2 === 0 ? await minify_t(contents, miniTOpt) : minify_u(contents, miniUOpt)
+                        contents = stgType % 2 === 0 ? await minify_t(contents, miniTOpt) : minify_u(contents, miniUOpt)
                         return fs_writeFile(`${dstPath}/${file}`, contents.code);
                     }
                 // Use html-minifier for HTML - options defined above
@@ -248,7 +246,7 @@ try {
     console.log('finished processing')
 
 
-    if (flags.get('stgType') == 8) {
+    if (stgType == 8) {
         // Stop here if called by deploy.js - Calling script will clean up
         process.exit(0)
     } else {
@@ -260,18 +258,21 @@ try {
             encoding: 'utf8'
         }
         // Stage any changes made to the staging repo
-        cp_spawn('sh', ['-c', 'git add -Av'], spawnOpts)
+        cp_exec('git add -Av', spawnOpts)
 
         // Commit and push new/updated/deleted files
-        if (cp_spawn('sh', ['-c', 'git diff --name-only --cached | wc -l'], spawnOpts).stdout > 0) {
+        //  Ensure there is something new to commit
+        if (cp_exec('git diff --name-only --cached | wc -l', spawnOpts) > 0) {
             console.log('Starting new push');
-            console.log('commiting')
-            cp_spawn('sh', ['-c', `git commit -m "Staging: type - ${flags.get('stgType')} ${new Date().toUTCString()}"`], spawnOpts)
-            cp_spawn('sh', ['-c', 'git push'], spawnOpts)
+            console.log('commiting');
+            const commitMsg = `Staging: type - ${stgType} ${new Date().toUTCString()}`;
+            // commit and push to repo
+            cp_exec(`git commit -m "${commitMsg}"; git push`, spawnOpts);
         } else console.log('Nothing new to push');
     }
 
 } catch (e) {
     console.log((e.cause && e.cause === 'custom') ? e.message : e);
+    // Allow a calling process to determine that script terminated abnormally
     process.exit(1);
 }

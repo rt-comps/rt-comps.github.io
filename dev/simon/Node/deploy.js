@@ -23,7 +23,7 @@ import {
     stat as fs_stat
 } from 'fs/promises';
 // Allow shell commands
-import { spawnSync as cp_spawn, execSync as cp_exec, exec } from 'child_process';
+import { spawnSync as cp_spawn, execSync as cp_exec } from 'child_process';
 
 // ### Define constants
 // Repo names
