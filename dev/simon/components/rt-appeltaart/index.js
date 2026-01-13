@@ -3,11 +3,11 @@
 // Define options
 const options = {
   // Required components this component depends on
-  dependencies: [
+  dependancies: [
     'rt-orderform',
     'rt-datepicker'
   ],
-  // Modules desired in addition to base module and base class
+  // Modules desired in addition to library module and base class definition
   additionalModules: [
     {
       label: 'rtForm',
@@ -15,6 +15,7 @@ const options = {
     }
   ]
 }
+
 // Start the initialisation
 try {
   // Load base module if not already loaded

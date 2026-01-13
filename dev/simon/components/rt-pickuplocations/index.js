@@ -3,7 +3,7 @@
 // Define options
 const options = {
   // Requires following components
-  dependencies: [
+  dependancies: [
     'rt-datepicker'
   ]
 }

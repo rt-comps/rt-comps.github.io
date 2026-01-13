@@ -60,4 +60,4 @@ All Object values are treated as **String**
 |*deps*|{Array}|-|List of components needed by this component (Default: empty array)|
 |*mods*|{Array}|-|List of additional modules needed by this component (Default: empty array)|
 
-Initialise a new component and load any dependencies (components and/or modules)
+Initialise a new component and load any dependancies (components and/or modules)

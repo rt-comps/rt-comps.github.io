@@ -1,20 +1,17 @@
 // ===== Import all required modules and components
 
-// async function initialise(comp, options = {}) {
-// }
-
-//--- MAIN
-// Determine extra URL for unique dependencies
+// Determine extra URL for unique dependancies
 const compUrlArray = import.meta.url.split('/');
 const comp = compUrlArray[compUrlArray.length - 2];
 
 // Load unique sub-components
 const options = {
-  dependencies: [
+  dependancies: [
     [comp, 'dp-date']
   ]
 }
-//initialise(compUrl, options);
+
+// Start the initialisation
 try {
   // Load base module if not already loaded
   if (typeof rtlib === 'undefined') window.rtlib = await import(`${compUrlArray.slice(0, -3).join('/')}/modules/rt.mjs`)

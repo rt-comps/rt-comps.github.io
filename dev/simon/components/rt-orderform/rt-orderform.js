@@ -596,7 +596,7 @@ customElements.define(compName,
         // Append fragment to lightDOM 
         this.appendChild(frag);
 
-        // Determine all component dependencies - including from menu data 
+        // Determine all component dependancies - including from menu data 
         // 'Set' used to remove duplicates) 
         //  Get all nodes in this components LightDOM and convert from nodeList to array
         const dependancies = [...new Set(Array.from(this.querySelectorAll('*'))
@@ -607,7 +607,7 @@ customElements.define(compName,
           })
           // remove 'undefined' elements
           .filter(el => el)
-          // Ensure these elements are included in dependencies
+          // Ensure these elements are included in dependancies
           .concat(['rt-lineitem']))];
         //  Load all modules found 
         await Promise.all(dependancies.map(async (depComp) => {

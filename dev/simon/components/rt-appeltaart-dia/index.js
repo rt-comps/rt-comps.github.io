@@ -13,7 +13,7 @@ async function initialise(comp, options = {}) {
 
 //--- MAIN
 const options = {
-  dependencies: [
+  dependancies: [
     'rt-orderform',
     'rt-datepicker'
   ],
