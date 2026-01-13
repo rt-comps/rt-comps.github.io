@@ -3,7 +3,7 @@
 //   String.raw({ raw: strings }, ...values);
 
 // ================================================================
-// Initialise a component.
+// Initialise a complex component.
 //
 // compName : URL of calling module
 // options  : Object 
@@ -23,12 +23,13 @@ async function init(compURL, options = {}) {
     }
   }
 
-  // Timer start (informational)
-  console.time(`load Modules for ${compName}`);
-  // Trigger the Loading of all dependencies
-  if (typeof options.dependencies !== 'undefined') {
-    await Promise.all(options.dependencies.map(async (depComp) => {
+  // Trigger the Loading of all dependancies
+  if (typeof options.dependancies !== 'undefined') {
+    // Timer start (informational)
+    console.time(`load Modules for ${compName}`);
+    await Promise.all(options.dependancies.map(async (depComp) => {
       try {
+        // Load component and adjust path if it is a sub-component
         await import(`${basePath}/components/${depComp.constructor === Array ? depComp.join('/') : depComp}/index.js`);
       } catch (e) {
         throw `Component "${compName}" could not load dependency "${depComp}" so stopping!!`;
@@ -61,10 +62,10 @@ async function loadComponent(url, version = false) {
   const compFile = `${compDir}${version ? '_v' + version : ''}`;
   // Build file path (excluding file extension)
   const baseFile = `${basePath}/components/${compDir}/${compDir.includes('/') ? compFile.slice(compFile.lastIndexOf('/') + 1) : compFile}`;
-  // Import the components HTML file into the document.head
-  // then load the component code
   try {
+    // Import the components HTML file into the document.head
     await loadTemplate(`${baseFile}.html`);
+    // then load the component code
     await import(`${baseFile}.js`);
   } catch (e) {
     console.log(e)
