@@ -8,6 +8,7 @@
 const compUrlArray = import.meta.url.split('/');
 const comp = compUrlArray[compUrlArray.length - 2];
 
+// Load unique sub-components
 const options = {
   dependencies: [
     [comp, 'dp-date']

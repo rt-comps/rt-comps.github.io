@@ -86,8 +86,10 @@ customElements.define(compName,
     //--- connectedCallback
     connectedCallback() {
       if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
-      // Inform containing code that 
-      this.$dispatch({ name: 'formready' });
+      // Inform containing code that form is ready to load menu
+      setTimeout(() => {
+        this.$dispatch({ name: 'formready' });
+      }, 0);
     }
 
     //+++ End of Lifecycle Events
@@ -296,7 +298,6 @@ customElements.define(compName,
       this.#detailsInitItemValues();
     }
 
-
     //--- #detailsButtonDisplay
     // Determine appearance of button for details overlay
     #detailsButtonDisplay() {
@@ -462,7 +463,7 @@ customElements.define(compName,
       const imgPath = this.querySelector("form-config span#imgpath").textContent;
       // Collect all <rt-itemdata> elements
       const nodes = [...this.querySelectorAll('rt-itemdata')];
-      // ...then create a new <rt-menuitem> element for each, assigned to 'menu-items' slot  
+      // ...then create a new <of-menuitem> element for each, assigned to 'menu-items' slot  
       this.append(...nodes.map(element => {
         let elementAttrs = {
           id: `mi-${element.id}`,
@@ -472,9 +473,9 @@ customElements.define(compName,
         let imgNode = element.querySelector('img')
         // Add bgimg attribute if img element found
         if (imgNode) elementAttrs.bgimg = `${imgPath}/${imgNode.getAttribute('file')}`
-        // Append the new <rt-menuitem> element to the div
+        // Append the new <of-menuitem> element to the div
         return this.$createElement({
-          tag: 'rt-menuitem',
+          tag: 'of-menuitem',
           innerHTML: `${element.querySelector('item-title').innerHTML}`,
           attrs: elementAttrs
         })
@@ -594,6 +595,29 @@ customElements.define(compName,
         const frag = document.createRange().createContextualFragment(htmlText);
         // Append fragment to lightDOM 
         this.appendChild(frag);
+
+        // Determine all component dependencies - including from menu data 
+        // 'Set' used to remove duplicates) 
+        //  Get all nodes in this components LightDOM and convert from nodeList to array
+        const dependancies = [...new Set(Array.from(this.querySelectorAll('*'))
+          //   Convert nodes to tagNames and set non-components to 'undefined'
+          .map(el => {
+            const tagName = el.tagName.toLowerCase()
+            if (tagName.indexOf('rt-') === 0) return tagName
+          })
+          // remove 'undefined' elements
+          .filter(el => el)
+          // Ensure these elements are included in dependencies
+          .concat(['rt-lineitem']))];
+        //  Load all modules found 
+        await Promise.all(dependancies.map(async (depComp) => {
+          try {
+            await import(`${basePath}/components/${depComp}/index.js`);
+          } catch (e) {
+            throw `Component "${compName}" could not load dependency "${depComp}" so stopping!!`;
+          }
+        }));
+
         // Build order form from data in lightDOM and in local storage
         this.#orderInitialise();
       } catch (e) {
@@ -606,10 +630,13 @@ customElements.define(compName,
           case 'invalid':
             output = '<h1 style="color: red;">Datafile URL is not valid</h1>';
             break;
+          default:
+            output = '';
         }
         const frag = document.createRange().createContextualFragment(output);
         this.#_sR.querySelector('#menu-items-container').appendChild(frag);
       }
+
       // Unhide the menu
       this.style.display = 'inline-block';
     }

@@ -1,13 +1,14 @@
 // ===== Import all required modules and components
 
 //--- MAIN
+// Determine extra URL for unique dependencies
+const compUrlArray = import.meta.url.split('/');
+const comp = compUrlArray[compUrlArray.length - 2];
+
+// Load unique sub-components
 const options = {
   dependencies: [
-    'rt-menuitem',
-    'rt-itemdata',
-    'rt-lineitem',
-    'rt-pickuplocations',
-    'rt-form-field'
+    [comp, 'of-menuitem']
   ]
 }
 
