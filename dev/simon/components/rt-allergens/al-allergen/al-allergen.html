@@ -5,11 +5,12 @@
             object-fit: contain;
         }
 
-        img {
+        ::slotted(img) {
             width: 100%;
             height: auto;
         }
     </style>
     <div id="contents">
+        <slot></slot>
     </div>
 </template>

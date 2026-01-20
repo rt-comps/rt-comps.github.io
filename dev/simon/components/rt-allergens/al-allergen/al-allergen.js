@@ -11,49 +11,32 @@ const [compName, compPath] = rtlib.parseCompURL(import.meta.url);
 customElements.define(
     compName.slice(compName.lastIndexOf('/') + 1),
     class extends rtBC.RTBaseClass {
-        // Declare private class fields
-        #_sR;
-        #path;
-
         //+++ Lifecycle Events
-        //--- Contructor
+        //--- contructor
         constructor() {
-            // Attach contents of template previously placed in document.head
-            super()
-            this.#_sR = this.attachShadow({ mode: "open" });
-            this.#_sR.append(this.$getTemplate())
-
-            //### Listeners
+            // Attach contents of template previously placed in document.head into ShadowDOM
+            super().attachShadow({ mode: "open" }).append(this.$getTemplate());
         }
 
+        //--- connectedCallback
         connectedCallback() {
-            // Get image path from menu data file if it has been specified
-            if (rtForm) {
-                const _orderRoot = rtForm.findNode(this);
-                if (_orderRoot) {
-                    const _imgPath = _orderRoot.querySelector('form-config #allergyimgpath');
-                    if (_imgPath) this.#path = _imgPath.textContent;
-                }
-            }
-            // If path appears to be relative...
-            if (this.#path && this.#path.indexOf('/') === 0) this.#path = `${compPath}${this.#path}`;
-            // If path not defined...
-            if (!this.#path) this.#path = `${compPath}/static/allergenimg`;
-            // If the niether of the above match then assume path is absolute and leave unaltered
-
-            // Create a new image object
+        // imgpath should hold a path to where all images reside
+            const imgPath = this.getAttribute('imgpath')
+            // Create a new image node
             const _imgNode = new Image();
             // Catch when image did not load. Replace image URL with default image (must exist)
             _imgNode.onerror = () => {
+                // Default image resides with component
                 _imgNode.src = `${compPath}/components/${compName}/img/unknown.svg`
+                // Hover text identifies failed image file name
                 _imgNode.title = `Image "${this.id}.svg" not Found`
             }
-            // Attempt to load image
-            _imgNode.src = `${this.#path}/${this.id}.svg`
-            // Capitalise 1st letter for 'title' atribute
+            // Attempt to load image (expected to be SVG)
+            _imgNode.src = `${imgPath}/${this.id}.svg`
+            // Capitalise 1st letter of hover text
             _imgNode.title = this.id.replace(/^./, char => char.toUpperCase());
-            // Add image to component
-            this.#_sR.querySelector('#contents').append(_imgNode)
+            // Add image node to LightDOM
+            this.append(_imgNode)
         }
         //+++ End OF Lifecycle Events
     }
