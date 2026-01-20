@@ -52,9 +52,9 @@ customElements.define(
             // Work with CSS variables - need to wait for full document to render
             setTimeout(() => {
                 // Get value for MAX-COUNT
-                this.#_maxCount = parseInt(getComputedStyle(this.#_sR.querySelector('#container')).getPropertyValue('--MAX-COUNT'));
+                this.#_maxCount = parseInt(getComputedStyle(this.#_sR.querySelector('#container')).getPropertyValue('--PM-MAX-COUNT'));
                 // Change quantity number position if specified
-                const pos = getComputedStyle(this).getPropertyValue('--OF-PM-POS');
+                const pos = getComputedStyle(this).getPropertyValue('--PM-POS');
                 if (pos.toLowerCase() === 'left')
                     this.#_sR.querySelector('div').insertAdjacentElement('afterbegin', this.#_sR.querySelector('#count'));
                 if (pos.toLowerCase() === 'right')
