@@ -5,52 +5,15 @@
    version="1.1"
    id="svg1"
    width="142"
-   height="114.44044"
-   viewBox="0 0 142 114.44044"
-   sodipodi:docname="ei.svg"
-   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   height="142"
+   viewBox="0 0 142 142"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     showgrid="false"
-     inkscape:zoom="2.270426"
-     inkscape:cx="103.06436"
-     inkscape:cy="56.81753"
-     inkscape:window-width="1856"
-     inkscape:window-height="987"
-     inkscape:window-x="616"
-     inkscape:window-y="25"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg1" />
   <defs
-     id="defs1">
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1">
-      <rect
-         style="fill:#000000;fill-opacity:0.496377;stroke-width:1.00661"
-         id="rect2"
-         width="142.32133"
-         height="114.44044"
-         x="0"
-         y="0"
-         clip-path="none" />
-    </clipPath>
-  </defs>
+     id="defs1" />
   <g
-     id="g1"
-     clip-path="url(#clipPath1)">
+     id="g1">
     <image
        width="142"
        height="142"

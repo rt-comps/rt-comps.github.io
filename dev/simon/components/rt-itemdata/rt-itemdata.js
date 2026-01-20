@@ -5,11 +5,15 @@ const [compName] = rtlib.parseCompURL(import.meta.url);
 customElements.define(
     compName,
     class extends rtBC.RTBaseClass {
+        #_sR;
+
         //+++ Lifecycle Events
         //--- Contructor
         constructor() {
-            // Create shadowDOM
-            super().attachShadow({ mode: "open" }).append(this.$getTemplate());
+            // Attach contents of template previously placed in document.head
+            super()
+            this.#_sR = this.attachShadow({ mode: "open" });
+            this.#_sR.append(this.$getTemplate())
         }
 
         //--- connectedCallback
@@ -18,8 +22,11 @@ customElements.define(
             if (typeof rtForm !== 'undefined') rtForm.getStyle(this, rtForm.findNode(this));
             // Slot basic data
             setTimeout(() => {
-                this.querySelector('item-title').setAttribute('slot', 'title');
-                this.querySelector('item-desc').setAttribute('slot', 'desc');
+                // Slot in item data
+                const title = this.querySelector('item-title');
+                if (title) title.setAttribute('slot', 'title');
+                const desc = this.querySelector('item-desc');
+                if (desc) desc.setAttribute('slot', 'desc');
             }, 0)
         }
         //+++ End Of Lifecycle Events

@@ -4,30 +4,16 @@
 <svg
    version="1.1"
    id="svg1"
-   width="140.90559"
-   height="114.90155"
-   viewBox="0 0 140.90559 114.90155"
+   width="142"
+   height="142"
+   viewBox="0 0 142 142"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs1">
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1">
-      <rect
-         style="fill:#000000;fill-opacity:0.496377"
-         id="rect2"
-         width="140.90559"
-         height="114.90155"
-         x="0.60474503"
-         y="0.60474503" />
-    </clipPath>
-  </defs>
+     id="defs1" />
   <g
-     id="g1"
-     clip-path="url(#clipPath1)"
-     transform="translate(-0.60474503,-0.60474503)">
+     id="g1">
     <image
        width="142"
        height="142"
